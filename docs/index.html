@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Whozit — Face detect, recognize, attendance API</title>
+    <meta
+      name="description"
+      content="Whozit is an HTTP API for face count, crops, enrollment, recognition, and attendance — call it with curl or any HTTP client."
+    />
+    <meta name="theme-color" content="#f6f8fb" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#top">
+          <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16" />
+            <circle cx="12" cy="10" r="2.6" />
+            <path stroke-linecap="round" d="M7.5 17c.8-2 2.5-3 4.5-3s3.7 1 4.5 3" />
+          </svg>
+          Whozit
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#why">Why</a>
+          <a href="#features">Features</a>
+          <a href="#how">How</a>
+          <a
+            class="btn btn-primary"
+            href="https://github.com/Haroon966/Whozit"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            GitHub
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-heading">
+        <div class="hero-inner">
+          <div>
+            <p class="hero-eyebrow"><span class="pulse-dot" aria-hidden="true"></span> Open source · SCRFD + ArcFace</p>
+            <h1 id="hero-heading">
+              Who is in the photo?<br />
+              <span class="accent">Ask over HTTP.</span>
+            </h1>
+            <p class="hero-lead">
+              Whozit detects faces, counts heads, crops them, matches names, and logs
+              attendance — one API any client can call with <code>curl</code>. No heavy CV
+              stack in your app.
+            </p>
+            <div class="hero-actions">
+              <a
+                class="btn btn-primary btn-large"
+                href="https://github.com/Haroon966/Whozit"
+                rel="noopener noreferrer"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+                  <path
+                    fill-rule="evenodd"
+                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                View on GitHub
+              </a>
+              <a
+                class="btn btn-ghost btn-large"
+                href="https://github.com/Haroon966"
+                rel="noopener noreferrer"
+              >
+                Author profile
+              </a>
+            </div>
+            <ul class="hero-meta">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                FastAPI + ONNX
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                curl-friendly JSON
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                Docker ready
+              </li>
+            </ul>
+          </div>
+
+          <div class="scanner" aria-label="Animated demo: face detection result">
+            <div class="scanner-head">
+              <span>POST /v2/attendance</span>
+              <span class="status">● 200 OK</span>
+            </div>
+            <div class="scanner-stage">
+              <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" role="presentation">
+                <g class="silhouette">
+                  <circle cx="120" cy="120" r="26" />
+                  <path d="M78 210 q42 -52 84 0 v20 h-84 z" />
+                  <circle cx="250" cy="105" r="30" />
+                  <path d="M202 210 q48 -58 96 0 v20 h-96 z" />
+                  <circle cx="378" cy="128" r="24" />
+                  <path d="M340 212 q38 -48 76 0 v18 h-76 z" />
+                </g>
+                <rect class="detect-frame" x="86" y="86" width="70" height="82" rx="3" />
+                <rect class="detect-frame alt" x="212" y="66" width="78" height="92" rx="3" />
+                <rect class="detect-frame" x="346" y="96" width="66" height="76" rx="3" />
+                <text class="frame-label" x="86" y="78">ali · 0.91</text>
+                <text class="frame-label alt" x="212" y="58">sara · 0.87</text>
+                <text class="frame-label" x="346" y="88">unknown</text>
+              </svg>
+              <div class="scan-line" aria-hidden="true"></div>
+            </div>
+            <div class="scanner-output" aria-hidden="true">
+              <span id="typed"></span><span class="type-caret"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="why" aria-labelledby="why-heading">
+        <span class="section-label reveal">Why Whozit</span>
+        <h2 id="why-heading" class="reveal">Faces for your app, without the research lab</h2>
+        <p class="section-lead reveal reveal-delay-1">
+          Mobile apps, kiosks, door cameras, and scripts often need a head count or face
+          crops. Embedding SCRFD and ArcFace everywhere is heavy. Whozit wraps detection
+          and recognition in a normal HTTP API.
+        </p>
+        <div class="why-grid">
+          <div class="panel reveal reveal-delay-1">
+            <div class="panel-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+            <h3>One contract, many clients</h3>
+            <p>
+              Post an image — multipart or base64 JSON. Get structured JSON back: count,
+              boxes, crops, optional identity. Works from any language.
+            </p>
+          </div>
+          <div class="panel reveal reveal-delay-2">
+            <div class="panel-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+              </svg>
+            </div>
+            <h3>Path to attendance</h3>
+            <p>
+              Detect → crop → enroll → recognize → log presence. Same stack from a
+              head-count MVP to daily attendance scans.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features" aria-labelledby="features-heading">
+        <span class="section-label reveal">What it does</span>
+        <h2 id="features-heading" class="reveal">Detect, enroll, recognize, log</h2>
+        <p class="section-lead reveal reveal-delay-1">
+          Own SCRFD + ArcFace under <code>whozit/</code> (adapted from UniFace, MIT).
+          FastAPI server plus a simple UI for local use.
+        </p>
+        <ul class="bento">
+          <li class="panel wide reveal reveal-delay-1">
+            <span class="feature-tag">v1</span>
+            <h3>Detect faces</h3>
+            <p>
+              Face count plus base64 head crops with configurable padding, confidence
+              threshold, crop format, and landmarks. No faces still returns clean JSON.
+            </p>
+            <span class="endpoint">POST /v1/detect</span>
+          </li>
+          <li class="panel reveal reveal-delay-2">
+            <span class="feature-tag">v1 / v2</span>
+            <h3>Enroll people</h3>
+            <p>Store a name and face embedding. List or delete people anytime.</p>
+            <span class="endpoint">POST /v2/enroll</span>
+          </li>
+          <li class="panel reveal reveal-delay-1">
+            <span class="feature-tag">v2</span>
+            <h3>Recognize names</h3>
+            <p>
+              ArcFace match against enrolled faces. Matched names or
+              <code>unknown</code>, with scores.
+            </p>
+            <span class="endpoint">POST /v2/recognize</span>
+          </li>
+          <li class="panel wide reveal reveal-delay-2">
+            <span class="feature-tag">v2</span>
+            <h3>Log attendance</h3>
+            <p>
+              Recognize and append matched people to attendance events — one event per
+              person per request — then query the log with a simple GET.
+            </p>
+            <span class="endpoint">POST /v2/attendance</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="section" id="how" aria-labelledby="how-heading">
+        <span class="section-label reveal">How it works</span>
+        <h2 id="how-heading" class="reveal">Three steps to structured results</h2>
+        <p class="section-lead reveal reveal-delay-1">
+          Run locally with uvicorn or Docker. First start downloads SCRFD + ArcFace
+          weights into a cache directory.
+        </p>
+        <div class="flow">
+          <div class="flow-step reveal reveal-delay-1">
+            <h3>Upload a photo</h3>
+            <p>Multipart form or JSON base64 to detect, recognize, or attendance endpoints.</p>
+          </div>
+          <div class="flow-step reveal reveal-delay-2">
+            <h3>SCRFD + ArcFace</h3>
+            <p>In-repo engine detects faces, crops heads, and optionally matches embeddings.</p>
+          </div>
+          <div class="flow-step reveal reveal-delay-3">
+            <h3>Get JSON</h3>
+            <p>Face count, crops, names, match scores, and attendance events when you ask.</p>
+          </div>
+        </div>
+        <p class="privacy-note reveal">
+          <strong>Privacy:</strong> uploaded images are not persisted by default. Disk
+          stores face embeddings and attendance events only — not raw photos. Prefer an
+          API key on any network-exposed deploy.
+        </p>
+      </section>
+
+      <section class="cta-band" aria-labelledby="cta-heading">
+        <h2 id="cta-heading" class="reveal">Get the code</h2>
+        <p class="reveal reveal-delay-1">
+          Clone the repo, install requirements, run uvicorn on port 8088. Full setup and
+          curl examples live in the README.
+        </p>
+        <div class="reveal reveal-delay-2">
+          <code class="clone">git clone https://github.com/Haroon966/Whozit.git</code>
+        </div>
+        <div class="cta-actions reveal reveal-delay-3">
+          <a
+            class="btn btn-primary btn-large"
+            href="https://github.com/Haroon966/Whozit"
+            rel="noopener noreferrer"
+          >
+            Open repository
+          </a>
+          <a
+            class="btn btn-ghost btn-large"
+            href="https://github.com/Haroon966/Whozit#setup"
+            rel="noopener noreferrer"
+          >
+            Read setup
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div>
+          <p class="footer-credit">
+            Built by
+            <a href="https://github.com/Haroon966" rel="noopener noreferrer"
+              ><strong>Haroon966</strong></a
+            >
+            ·
+            <a href="https://github.com/Haroon966/Whozit" rel="noopener noreferrer"
+              >github.com/Haroon966/Whozit</a
+            >
+          </p>
+          <p class="footer-meta footer-meta-gap">
+            Detection / recognition adapted from
+            <a href="https://github.com/yakhyo/uniface" rel="noopener noreferrer">UniFace</a>
+            (MIT).
+          </p>
+        </div>
+        <p class="footer-meta">
+          Site for
+          <a href="https://github.com/Haroon966/Whozit" rel="noopener noreferrer">Whozit</a>
+          · open source
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* scroll reveal */
+        var nodes = document.querySelectorAll(".reveal");
+        if (reduceMotion || !("IntersectionObserver" in window)) {
+          nodes.forEach(function (el) {
+            el.classList.add("is-visible");
+          });
+        } else {
+          var io = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("is-visible");
+                  io.unobserve(entry.target);
+                }
+              });
+            },
+            { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
+          );
+          nodes.forEach(function (el) {
+            io.observe(el);
+          });
+        }
+
+        /* typed JSON output in scanner */
+        var target = document.getElementById("typed");
+        if (!target) return;
+
+        var lines = [
+          '{',
+          '  "face_count": 3,',
+          '  "faces": ["ali", "sara", "unknown"],',
+          '  "attendance": ["ali", "sara"]',
+          '}'
+        ];
+        var full = lines.join("\n");
+
+        function paint(text) {
+          target.innerHTML = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/"(\w+)":/g, '"<span class="key">$1</span>":')
+            .replace(/: (\d+)/g, ': <span class="val">$1</span>')
+            .replace(/"(ali|sara|unknown)"/g, '"<span class="val">$1</span>"');
+        }
+
+        if (reduceMotion) {
+          paint(full);
+          return;
+        }
+
+        var i = 0;
+        function tick() {
+          i += 2;
+          paint(full.slice(0, i));
+          if (i < full.length) {
+            setTimeout(tick, 24);
+          }
+        }
+        setTimeout(tick, 900);
+      })();
+    </script>
+  </body>
+</html>

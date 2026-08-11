@@ -4,6 +4,8 @@ HTTP API + simple UI: detect faces, return **head count** + **base64 crops**, **
 
 Own SCRFD + ArcFace under `whozit/` (adapted from [UniFace](https://github.com/yakhyo/uniface), MIT). Product requirements: [`PRD.md`](PRD.md).
 
+**Website:** [https://haroon966.github.io/Whozit/](https://haroon966.github.io/Whozit/) (GitHub Pages from `/docs`). Enable once in repo **Settings → Pages → Branch `main` → folder `/docs`**.
+
 | Version | Endpoints | Output |
 | --- | --- | --- |
 | v1 | `/v1/detect`, `/v1/enroll`, `/v1/people` | Count + crops (+ optional identify) |
