@@ -1,0 +1,12 @@
+---
+description: Pinky testing — behavior-focused checks for non-trivial logic
+alwaysApply: true
+---
+
+# Pinky testing
+
+- Non-trivial logic gets one small runnable check or test that fails if the logic breaks.
+- Test behavior and contracts, not implementation trivia.
+- Don't skip or delete failing tests without fixing the cause (or explicitly agreeing with the user).
+- Name tests clearly. Prefer the project's existing test runner and layout.
+- Trivial one-liners need no new test file.

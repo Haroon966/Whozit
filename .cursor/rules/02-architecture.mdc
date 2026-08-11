@@ -1,0 +1,12 @@
+---
+description: Pinky architecture — boundaries, reuse, extend before inventing layers
+alwaysApply: true
+---
+
+# Pinky architecture
+
+- Prefer extending existing modules over inventing parallel layers.
+- Colocate related code the way this repo already does.
+- Keep boundaries clear (UI vs API vs data). Don't leak secrets to clients.
+- Document non-obvious decisions briefly (or via `/grill-with-docs` ADRs).
+- Follow the Ponytail ladder in `ponytail.mdc` / `AGENTS.md` before adding code.

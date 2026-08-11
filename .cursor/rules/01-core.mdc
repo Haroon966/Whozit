@@ -1,0 +1,13 @@
+---
+description: Pinky core coding hygiene — small diffs, match style, secrets safety
+alwaysApply: true
+---
+
+# Pinky core
+
+- Match existing project style. Prefer the smallest diff that solves the task.
+- No drive-by refactors, unrelated cleanups, or unsolicited new abstractions.
+- Never commit secrets. Use env vars / secret managers.
+- Never add AI/agent `Co-authored-by:` or other AI attribution to commits or PRs — see `07-git-authorship.mdc`.
+- Ask when requirements are ambiguous; explore the codebase before inventing APIs.
+- Respect user scope: only change what was asked.

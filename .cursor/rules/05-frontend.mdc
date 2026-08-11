@@ -1,0 +1,11 @@
+---
+description: Pinky frontend principles — ALWAYS ON until user opts out
+alwaysApply: true
+---
+
+# Pinky frontend
+
+- Semantic HTML, keyboard access, visible focus, adequate contrast.
+- No secrets in client code. Scope UI changes to the request.
+- Prefer existing design system / components. Use `frontend-craft` and `/ui-ux-pro-max` when inventing UI.
+- Respect `prefers-reduced-motion`. Avoid emoji-as-icons.

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "whatsapp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "baileys-mcp",
+        "--auth-dir",
+        "AUTH_DIR_ABS"
+      ]
+    }
+  }
+}

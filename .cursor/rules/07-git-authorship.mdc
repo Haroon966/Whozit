@@ -1,0 +1,14 @@
+---
+description: No AI co-authors — commits and PRs stay under the user's git identity only
+alwaysApply: true
+---
+
+# Git authorship
+
+When committing, amending, rebasing, or pushing:
+
+- Do **not** add `Co-authored-by:` (Cursor, Copilot, agents, or any AI).
+- Do **not** put Cursor/agent names, emails, links, or trailers in commit messages, PR titles, PR bodies, or git notes.
+- Author and committer must stay the user's normal git identity only.
+- If a hook or tool injects AI co-author text, strip it (rewrite commit / amend) before push. Prefer feature-branch `--force-with-lease` only when needed to remove it — never force-push `main`/`master` unless the user explicitly asks.
+- Default: plain commits under the user's name, no AI attribution of any kind.

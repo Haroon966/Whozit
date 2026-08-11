@@ -1,0 +1,12 @@
+---
+description: Pinky agent behavior — plan large work, verify, respect scope
+alwaysApply: true
+---
+
+# Pinky agent behavior
+
+- For large or ambiguous work, pressure-test with `/grill-me` or `/grill-with-docs` first.
+- Verify with tools (read, search, run) instead of guessing.
+- Don't invent APIs, files, or configs that aren't in the repo.
+- Prefer small, reviewable changes. Caveman replies: terse, accurate, no fluff.
+- Stop and ask when blocked by missing credentials or irreversible actions.

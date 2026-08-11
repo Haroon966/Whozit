@@ -1,0 +1,34 @@
+---
+description: WhatsApp owner phone control via .pinky/whatsapp watch + Cursor CLI
+alwaysApply: true
+---
+
+# WhatsApp owner (ALWAYS ON when `.pinky/whatsapp/owner.json` exists)
+
+## Product path (phone without Cursor UI)
+
+User keeps this running in **their** terminal:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+bash .pinky/whatsapp/watch.sh
+```
+
+Flow: owner WhatsApp → Cursor CLI `agent` → reply on WhatsApp. PC stays on. IDE chat optional.
+
+Doctor: `bash .pinky/whatsapp/doctor.sh`
+
+## Agent hard rules
+
+- **Never** run `login.sh` / `watch.sh` / QR yourself — only give the command (QR must appear in user terminal).
+- **Never** enable Cursor MCP `whatsapp` while `watch.sh` uses the same `.pinky/whatsapp` auth (causes **440** disconnect).
+- Ask/set **owner number** in `owner.json` if missing.
+- Owner must text the **linked** (QR) WhatsApp account.
+
+## If user asks why no reply
+
+1. Is `watch.sh` running?  
+2. `doctor.sh` clean?  
+3. MCP whatsapp disabled?  
+4. Correct chat (linked account)?  
+5. Wait for `AGENT_DONE` / `AGENT_REPLIED` in watch terminal (can take ~1–2 min).

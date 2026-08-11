@@ -1,0 +1,18 @@
+---
+description: If user pastes pinky-cursor repo URL to install — temp clone, install payload only, delete clone, then ask phone channel
+alwaysApply: true
+---
+
+# Install from pinky-cursor URL
+
+If the user shares the **pinky-cursor** GitHub repo and wants Pinky in **this** project:
+
+1. Clone kit to a **temp dir only** (never into this project as `pinky-cursor/`).
+2. Run `bash <temp>/pinky-cursor/install.sh` with cwd = this project (add `--with-ui` only if they ask for UI UX Pro Max).
+3. `rm -rf` the temp clone.
+4. Keep **only** installer payload: `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `skills/`, host skill dirs, `docs/pinky-*.md`, gitignored `.pinky/` scaffold (and UI files if `--with-ui`).
+5. **Ask** phone channel: **WhatsApp** · **Slack** · **skip**. WhatsApp → ask owner number; give `doctor.sh` → `login.sh` (user terminal QR) → `watch.sh` (keep open). Never run those yourself. Never MCP whatsapp + watch together. Then reopen chat if needed.
+
+Never leave kit `README`, `assets/`, `LICENSE`, `.github/`, `install.sh`, `scripts/`, or `adapters/` sources in the project. Never submodule this repo. Never commit `.pinky/` secrets/sessions.
+
+Full steps: `docs/pinky-install-for-agents.md` (after install) or kit `INSTALL.md` (on GitHub).

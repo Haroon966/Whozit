@@ -1,0 +1,25 @@
+---
+description: Context discipline — load only files needed for the user prompt; do not dump all skills/docs
+alwaysApply: true
+---
+
+# Context discipline (ALWAYS ON)
+
+Pinky rules stay **always on** until the user opts out. Skills are **available** by default — but do **not** load everything into context.
+
+## Do
+
+- Read / open **only** files needed for **this** user prompt.
+- For skills: load **one** matching `SKILL.md` (and its companions only if that skill says so). Never bulk-read all of `skills/`.
+- Prefer search/grep over opening whole trees.
+- Keep replies Caveman-short so tokens stay low.
+
+## Don't
+
+- Don't preload every Pinky skill, format doc, or rule file "just in case".
+- Don't dump `ADR-FORMAT.md` / `CONTEXT-FORMAT.md` unless running `/grill-with-docs`.
+- Don't attach the whole kit README/INSTALL into every turn after install.
+
+## Opt out
+
+User says "stop caveman", "normal mode", "don't use pinky", "disable [skill/rule]" → stop that layer for the session (or until they re-enable).

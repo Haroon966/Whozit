@@ -1,0 +1,11 @@
+---
+description: Pinky backend principles — ALWAYS ON until user opts out
+alwaysApply: true
+---
+
+# Pinky backend
+
+- Validate untrusted input. Authorize before sensitive reads/writes.
+- Structured errors/logs; never log secrets.
+- No hardcoded credentials. Prefer idempotent mutations where retries are likely.
+- Use `backend-apis` skill for deeper API/server work. Keep changes Ponytail-minimal.

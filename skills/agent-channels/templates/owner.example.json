@@ -1,0 +1,5 @@
+{
+  "phone": "YOUR_LOCAL_OR_E164",
+  "jid": "COUNTRYCODE_DIGITS@s.whatsapp.net",
+  "note": "Owner phone that texts the LINKED WhatsApp account (the one paired via login.sh). Never commit."
+}
