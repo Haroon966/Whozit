@@ -678,6 +678,47 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
 
+    .auth-bar {
+      display: none;
+      gap: 0.65rem;
+      align-items: end;
+      flex-wrap: wrap;
+      margin: 0 0 1rem;
+      padding: 0.85rem 1rem;
+      background: #FFF7ED;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    .auth-bar.is-visible { display: flex; }
+    .auth-bar label {
+      flex: 1 1 16rem;
+      display: grid;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .auth-bar input {
+      min-height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0.45rem 0.7rem;
+      font: inherit;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      background: #fff;
+      color: var(--ink);
+    }
+    .auth-bar .hint {
+      flex: 1 1 100%;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .auth-bar .status { margin: 0; flex: 1 1 100%; font-size: 0.85rem; }
+    .auth-bar .status.ok { color: var(--ok, #15803d); }
+    .auth-bar .status.error { color: var(--danger, #b91c1c); }
+
     @media (min-width: 1024px) {
       .shell { width: min(74rem, calc(100% - 4rem)); }
       .layout.split { gap: 1.75rem; }
@@ -721,6 +762,16 @@
         </button>
       </nav>
     </header>
+
+    <div class="auth-bar" id="authBar" hidden>
+      <label for="apiKeyInput">
+        API key
+        <input id="apiKeyInput" name="api_key" type="password" autocomplete="off" spellcheck="false" placeholder="WHOZIT_API_KEY value" />
+      </label>
+      <button class="copy-btn" id="saveApiKeyBtn" type="button">Save key</button>
+      <p class="hint">Requires <code>X-API-Key</code>. Paste Coolify <code>WHOZIT_API_KEY</code> once (stored in this browser), or allow <code>/config.js</code> bootstrap.</p>
+      <div class="status" id="authStatus" role="status" aria-live="polite"></div>
+    </div>
 
     <main class="main">
       <section class="view" id="view-detect" role="tabpanel">
@@ -980,6 +1031,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     </nav>
   </div>
 
+  <script src="/config.js"></script>
   <script>
     (function hydrateCurlBase() {
       const base = location.origin;
@@ -987,6 +1039,82 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         el.textContent = el.textContent.replaceAll("__BASE__", base);
       });
     })();
+
+    const API_KEY_STORAGE = "whozit_api_key";
+    let authEnabled = false;
+
+    function getApiKey() {
+      return (localStorage.getItem(API_KEY_STORAGE) || "").trim();
+    }
+
+    function setApiKey(value) {
+      const next = (value || "").trim();
+      if (next) localStorage.setItem(API_KEY_STORAGE, next);
+      else localStorage.removeItem(API_KEY_STORAGE);
+    }
+
+    function apiErrorMessage(data, fallback) {
+      return (
+        data?.error?.message ||
+        data?.detail?.error?.message ||
+        (typeof data?.detail === "string" ? data.detail : null) ||
+        fallback ||
+        "Request failed"
+      );
+    }
+
+    async function apiFetch(url, options = {}) {
+      const headers = new Headers(options.headers || {});
+      const key = getApiKey();
+      if (key) headers.set("X-API-Key", key);
+      const res = await fetch(url, { ...options, headers });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(apiErrorMessage(data, res.statusText));
+      return data;
+    }
+
+    async function initAuth() {
+      const authBar = document.getElementById("authBar");
+      const apiKeyInput = document.getElementById("apiKeyInput");
+      const saveApiKeyBtn = document.getElementById("saveApiKeyBtn");
+      const authStatus = document.getElementById("authStatus");
+      try {
+        const health = await fetch("/health").then((r) => r.json());
+        authEnabled = !!health.auth_enabled;
+      } catch {
+        authEnabled = false;
+      }
+      if (!authEnabled) {
+        authBar.hidden = true;
+        authBar.classList.remove("is-visible");
+        return;
+      }
+      authBar.hidden = false;
+      authBar.classList.add("is-visible");
+      if (!getApiKey() && typeof window.WHOZIT_DEFAULT_API_KEY === "string" && window.WHOZIT_DEFAULT_API_KEY.trim()) {
+        setApiKey(window.WHOZIT_DEFAULT_API_KEY.trim());
+      }
+      apiKeyInput.value = getApiKey();
+      if (getApiKey()) {
+        authStatus.className = "status ok";
+        authStatus.textContent = "API key ready for this browser.";
+      } else {
+        authStatus.className = "status error";
+        authStatus.textContent = "Enter the API key to use Detect, Enroll, and People.";
+      }
+      saveApiKeyBtn.addEventListener("click", () => {
+        setApiKey(apiKeyInput.value);
+        if (getApiKey()) {
+          authStatus.className = "status ok";
+          authStatus.textContent = "API key saved in this browser.";
+          const peopleView = document.getElementById("view-people");
+          if (peopleView && !peopleView.hidden) loadPeople();
+        } else {
+          authStatus.className = "status error";
+          authStatus.textContent = "API key cleared.";
+        }
+      });
+    }
 
     document.querySelectorAll("[data-copy]").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -1226,12 +1354,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       form.append("match_thresh", "0.35");
 
       try {
-        const res = await fetch("/v1/detect", { method: "POST", body: form });
-        const data = await res.json();
-        if (!res.ok) {
-          const msg = data?.detail?.error?.message || data?.detail || res.statusText;
-          throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
-        }
+        const data = await apiFetch("/v1/detect", { method: "POST", body: form });
         if (!showProcessed(data)) return;
         const named = (data.faces || []).filter((f) => f.matched && f.name).length;
         countTitle.textContent =
@@ -1359,12 +1482,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       form.append("name", enrollName.value.trim());
       form.append("image", enrollSelected);
       try {
-        const res = await fetch("/v1/enroll", { method: "POST", body: form });
-        const data = await res.json();
-        if (!res.ok) {
-          const msg = data?.detail?.error?.message || data?.detail || res.statusText;
-          throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
-        }
+        const data = await apiFetch("/v1/enroll", { method: "POST", body: form });
         setEnrollBanner("ok", `Saved ${data.person.name}`);
       } catch (err) {
         setEnrollBanner("error", err.message || String(err));
@@ -1399,9 +1517,10 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       setPeopleState("loading");
       peopleList.innerHTML = "";
       try {
-        const res = await fetch("/v1/people");
-        const data = await res.json();
-        if (!res.ok) throw new Error(res.statusText);
+        if (authEnabled && !getApiKey()) {
+          throw new Error("Save the API key above first.");
+        }
+        const data = await apiFetch("/v1/people");
         if (!data.length) {
           setPeopleState("empty");
           return;
@@ -1431,12 +1550,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     async function deletePerson(id) {
       if (!id || !confirm("Remove this person?")) return;
       try {
-        const res = await fetch(`/v1/people/${id}`, { method: "DELETE" });
-        const data = await res.json();
-        if (!res.ok) {
-          const msg = data?.detail?.error?.message || data?.detail || res.statusText;
-          throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
-        }
+        await apiFetch(`/v1/people/${id}`, { method: "DELETE" });
         await loadPeople();
       } catch (err) {
         setPeopleState("error", err.message || String(err));
@@ -1444,6 +1558,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     }
 
     document.getElementById("refreshPeopleBtn").addEventListener("click", loadPeople);
+    initAuth();
   </script>
 </body>
 </html>

@@ -575,6 +575,23 @@ def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/config.js", include_in_schema=False)
+def config_js() -> Response:
+    """Bootstrap browser UI with API key when auth is enabled (same-origin UI only)."""
+    key = settings.api_key or ""
+    escaped = (
+        key.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\r", "")
+        .replace("\n", "")
+    )
+    return Response(
+        content=f'window.WHOZIT_DEFAULT_API_KEY = "{escaped}";\n',
+        media_type="application/javascript",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 @app.get("/favicon.svg", include_in_schema=False)
 def favicon() -> FileResponse:

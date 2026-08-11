@@ -121,6 +121,10 @@ def test_api_key_required(client, monkeypatch):
     assert ok_shape.status_code == 400
     assert ok_shape.json()["error"]["code"] == "missing_image"
 
+    cfg = client.get("/config.js")
+    assert cfg.status_code == 200
+    assert 'WHOZIT_DEFAULT_API_KEY = "secret-key"' in cfg.text
+
 
 def test_attendance_logs_matched(client, monkeypatch):
     fake_face = DetectedFace(
