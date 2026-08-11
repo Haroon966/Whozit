@@ -121,9 +121,19 @@ def test_api_key_required(client, monkeypatch):
     assert ok_shape.status_code == 400
     assert ok_shape.json()["error"]["code"] == "missing_image"
 
+    # Same-origin browser UI does not need to expose/send the API key.
+    same_origin = client.post(
+        "/v1/detect",
+        data={},
+        headers={"Sec-Fetch-Site": "same-origin"},
+    )
+    assert same_origin.status_code == 400
+    assert same_origin.json()["error"]["code"] == "missing_image"
+
     cfg = client.get("/config.js")
     assert cfg.status_code == 200
-    assert 'WHOZIT_DEFAULT_API_KEY = "secret-key"' in cfg.text
+    assert "secret-key" not in cfg.text
+    assert 'WHOZIT_DEFAULT_API_KEY = ""' in cfg.text
 
 
 def test_attendance_logs_matched(client, monkeypatch):

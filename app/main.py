@@ -151,9 +151,13 @@ async def require_api_key(
 ) -> None:
     if not settings.auth_enabled:
         return
-    if x_api_key != settings.api_key:
-        rid = _request_id_from_request(request)
-        raise _error(401, "unauthorized", "Invalid or missing X-API-Key", rid)
+    # Browser UI (same-origin fetch) must work without exposing the key in the page.
+    if request.headers.get("sec-fetch-site") == "same-origin":
+        return
+    if x_api_key == settings.api_key:
+        return
+    rid = _request_id_from_request(request)
+    raise _error(401, "unauthorized", "Invalid or missing X-API-Key", rid)
 
 
 def _run_detect(
@@ -577,16 +581,9 @@ def index() -> FileResponse:
 
 @app.get("/config.js", include_in_schema=False)
 def config_js() -> Response:
-    """Bootstrap browser UI with API key when auth is enabled (same-origin UI only)."""
-    key = settings.api_key or ""
-    escaped = (
-        key.replace("\\", "\\\\")
-        .replace('"', '\\"')
-        .replace("\r", "")
-        .replace("\n", "")
-    )
+    """UI bootstrap placeholder — never embeds the API key in browser-visible JS."""
     return Response(
-        content=f'window.WHOZIT_DEFAULT_API_KEY = "{escaped}";\n',
+        content="window.WHOZIT_DEFAULT_API_KEY = \"\";\n",
         media_type="application/javascript",
         headers={"Cache-Control": "no-store"},
     )
