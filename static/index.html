@@ -2,434 +2,393 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#FFF7ED" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Whozit</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #f4faf9;
-      --bg-2: #e7f4f2;
-      --surface: #ffffff;
-      --ink: #134e4a;
-      --ink-strong: #042f2e;
-      --muted: #3f6662;
-      --line: #cfe8e3;
-      --line-strong: #9fcfc6;
-      --soft: #eef7f5;
-      --primary: #0f766e;
-      --primary-hover: #0d9488;
-      --cta: #0369a1;
-      --cta-hover: #0284c7;
-      --cta-ink: #ffffff;
-      --ok: #15803d;
-      --danger: #b91c1c;
-      --unknown: #64748b;
-      --focus: #0f766e;
-      --radius: 12px;
-      --shadow: 0 1px 0 rgba(19, 78, 74, 0.04), 0 12px 32px rgba(15, 118, 110, 0.06);
-      --font: "Plus Jakarta Sans", system-ui, sans-serif;
-      --ease: 200ms ease;
+      --bg: #FFF7ED;
+      --bg-2: #FFEDD5;
+      --paper: #FFFFFF;
+      --ink: #1C1917;
+      --muted: #57534E;
+      --line: #FED7AA;
+      --line-strong: #FDBA74;
+      --accent: #0F766E;
+      --cta: #F97316;
+      --cta-hover: #EA580C;
+      --cta-ink: #FFFFFF;
+      --ok: #166534;
+      --danger: #B91C1C;
+      --unknown: #78716C;
+      --font: "Nunito", system-ui, sans-serif;
+      --display: "Fredoka", system-ui, sans-serif;
+      --ease: 180ms ease-out;
+      --radius: 14px;
+      --nav-h: 4.25rem;
+      --top-h: 3.5rem;
     }
 
     * { box-sizing: border-box; }
-
+    html, body { margin: 0; min-height: 100%; }
     body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
       font-family: var(--font);
-      line-height: 1.5;
+      color: var(--ink);
+      line-height: 1.45;
       background:
-        radial-gradient(1200px 500px at 10% -10%, rgba(45, 212, 191, 0.18), transparent 55%),
-        radial-gradient(900px 420px at 100% 0%, rgba(3, 105, 161, 0.12), transparent 50%),
+        radial-gradient(900px 420px at 10% -5%, rgba(249, 115, 22, 0.14), transparent 55%),
+        radial-gradient(700px 380px at 100% 0%, rgba(15, 118, 110, 0.12), transparent 50%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
       background-attachment: fixed;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .wrap {
-      width: min(980px, calc(100% - 2rem));
-      margin: 0 auto;
-      padding: 1.35rem 0 3rem;
-    }
-    @media (min-width: 768px) {
-      .wrap {
-        width: min(980px, calc(100% - 3rem));
-        padding: 2rem 0 4rem;
-      }
+    .shell {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
     }
 
-    header.top {
-      display: grid;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
-    @media (min-width: 768px) {
-      header.top {
-        grid-template-columns: 1fr auto;
-        align-items: end;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
+    /* ——— Mobile app chrome (default) ——— */
+    .topbar {
+      flex-shrink: 0;
+      height: calc(var(--top-h) + env(safe-area-inset-top, 0px));
+      padding: env(safe-area-inset-top, 0px) 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
     }
 
-    .brand-block { max-width: 36rem; }
     .brand {
       margin: 0;
       display: inline-flex;
       align-items: center;
-      gap: 0.55rem;
-      font-size: clamp(1.75rem, 4vw, 2.35rem);
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      color: var(--ink-strong);
-      line-height: 1.1;
-    }
-    .brand svg {
-      width: 1.05em;
-      height: 1.05em;
-      color: var(--primary);
-      stroke-width: 2.25;
-      flex-shrink: 0;
-    }
-    .lede {
-      margin: 0.55rem 0 0;
-      color: var(--muted);
-      font-size: 0.98rem;
-      max-width: 32rem;
-    }
-
-    .tabs {
-      display: inline-flex;
-      gap: 0.25rem;
-      padding: 0.25rem;
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      backdrop-filter: blur(8px);
-    }
-    .tab {
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      font: inherit;
+      gap: 0.4rem;
+      font-family: var(--display);
+      font-size: 1.35rem;
       font-weight: 600;
-      font-size: 0.88rem;
-      padding: 0.55rem 0.95rem;
-      border-radius: 999px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: background-color var(--ease), color var(--ease);
+      letter-spacing: -0.02em;
+      line-height: 1;
     }
-    .tab svg { width: 15px; height: 15px; stroke-width: 2.25; }
-    .tab:hover { color: var(--ink-strong); }
-    .tab[aria-selected="true"] {
-      background: var(--ink-strong);
-      color: #fff;
+    .brand-mark {
+      width: 1.7rem;
+      height: 1.7rem;
+      color: var(--accent);
     }
-    .tab:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.35);
-    }
-
-    .panel {
-      border: 1px solid var(--line);
-      border-radius: calc(var(--radius) + 2px);
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-    @media (min-width: 768px) {
-      .panel { padding: 1.35rem; }
-    }
-
-    .view[hidden] { display: none !important; }
-
-    .layout {
-      display: grid;
-      gap: 1rem;
-    }
-    @media (min-width: 860px) {
-      .layout {
-        grid-template-columns: 1.25fr 0.85fr;
-        gap: 1.35rem;
-        align-items: start;
-      }
-    }
-
-    .drop {
-      border: 1.5px dashed var(--line-strong);
-      background: var(--soft);
-      min-height: 280px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 1rem;
-      cursor: pointer;
-      border-radius: var(--radius);
-      transition: border-color var(--ease), background-color var(--ease);
-      overflow: hidden;
-      position: relative;
-    }
-    .drop.is-busy { pointer-events: none; }
-    .drop.has-result {
-      border-style: solid;
-      background: #fff;
-      cursor: default;
-    }
-    .drop:hover,
-    .drop:focus-visible,
-    .drop.dragover {
-      border-color: var(--primary);
-      background: #e6f5f2;
-      outline: none;
-    }
-    .drop:focus-visible {
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.28);
-    }
-    .drop.has-result:hover,
-    .drop.has-result:focus-visible {
-      border-color: var(--line-strong);
-      background: #fff;
-    }
-
-    .hint {
-      color: var(--muted);
-      font-size: 0.94rem;
-      display: grid;
-      gap: 0.55rem;
-      justify-items: center;
-      padding: 1rem;
-    }
-    .hint svg {
-      width: 34px;
-      height: 34px;
-      stroke-width: 1.75;
-      color: var(--primary);
-    }
-    .hint strong { color: var(--ink-strong); font-weight: 600; }
-
-    .loading-panel {
-      display: none;
-      grid-template-columns: 1fr;
-      gap: 0.55rem;
-      justify-items: center;
-      color: var(--muted);
-      font-size: 0.92rem;
-      font-weight: 600;
-      padding: 1rem;
-    }
-    .drop.is-busy .loading-panel { display: grid; }
-    .drop.is-busy .hint,
-    .drop.is-busy #annotated,
-    .drop.is-busy #enrollPreview { visibility: hidden; position: absolute; }
-    .loading-panel svg {
-      width: 28px;
-      height: 28px;
-      stroke-width: 2.25;
-      color: var(--primary);
-      animation: spin 0.8s linear infinite;
-    }
-
-    .drop img {
-      max-width: 100%;
-      max-height: 360px;
-      display: block;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .controls {
-      display: grid;
-      gap: 0.9rem;
-    }
-    .controls h2,
-    .section-label {
-      margin: 0;
-      font-size: 0.75rem;
+    .screen-label {
+      font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--muted);
     }
 
-    label.field {
+    .site-nav { display: none; }
+
+    .main {
+      flex: 1;
+      width: 100%;
+      padding: 1rem 1rem calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 1rem);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
       display: grid;
-      gap: 0.35rem;
-      font-size: 0.8rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      min-height: var(--nav-h);
+      padding: 0.3rem 0.4rem calc(0.3rem + env(safe-area-inset-bottom, 0px));
+      background: var(--paper);
+      border-top: 1px solid var(--line);
+    }
+    .bottom-nav .tab {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.68rem;
+      padding: 0.35rem 0.2rem;
+      min-height: 52px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      border-radius: 10px;
+      transition: color var(--ease), background-color var(--ease);
+    }
+    .bottom-nav .tab svg {
+      width: 1.35rem;
+      height: 1.35rem;
+      stroke-width: 2.1;
+    }
+    .bottom-nav .tab:hover { color: var(--ink); background: #FFF7ED; }
+    .bottom-nav .tab[aria-selected="true"] {
+      color: var(--accent);
+      background: #F0FDFA;
+    }
+
+    .view[hidden] { display: none !important; }
+
+    .lede {
+      margin: 0 0 0.85rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .screen-title {
+      margin: 0 0 0.3rem;
+      font-family: var(--display);
+      font-size: 1.35rem;
       font-weight: 600;
+    }
+
+    .layout { display: grid; gap: 1rem; }
+
+    .drop {
+      position: relative;
+      border: 2px dashed var(--line-strong);
+      background: linear-gradient(160deg, #FFFBEB 0%, #FFF7ED 55%, #F0FDFA 100%);
+      min-height: 14rem;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 1.15rem;
+      cursor: pointer;
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color var(--ease), transform 120ms ease-out;
+    }
+    .drop::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.08), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(15, 118, 110, 0.08), transparent 42%);
+      pointer-events: none;
+    }
+    .drop:hover,
+    .drop.dragover { border-color: var(--accent); transform: translateY(-1px); }
+    .drop:active:not(.is-busy):not(.has-result) { transform: scale(0.99); }
+    .drop.is-busy { pointer-events: none; opacity: 0.8; }
+    .drop.has-result {
+      border-style: solid;
+      border-color: var(--line);
+      background: #fff;
+      padding: 0.5rem;
+    }
+    .drop.has-result::before { display: none; }
+    .drop.has-result:hover { border-color: var(--cta); }
+
+    .hint {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 0.5rem;
+      justify-items: center;
       color: var(--muted);
     }
-    input[type="text"],
-    input[type="number"],
-    select {
-      border: 1px solid var(--line-strong);
-      background: #fff;
-      color: var(--ink-strong);
-      padding: 0.7rem 0.8rem;
-      font: inherit;
-      width: 100%;
-      border-radius: 10px;
-      transition: border-color var(--ease), box-shadow var(--ease);
-    }
-    input:focus-visible,
-    select:focus-visible,
-    button:focus-visible,
-    summary:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.28);
-    }
-    input:focus-visible,
-    select:focus-visible { border-color: var(--primary); }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7rem;
-    }
-
-    .check {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.88rem;
+    .hint-illu { width: 3.5rem; height: 3.5rem; color: var(--accent); }
+    .hint strong {
+      font-family: var(--display);
+      font-size: 1.15rem;
       font-weight: 600;
-      color: var(--ink-strong);
-      cursor: pointer;
-      user-select: none;
+      color: var(--ink);
     }
-    .check input {
-      width: 1rem;
-      height: 1rem;
-      accent-color: var(--primary);
-      cursor: pointer;
+    .hint-ways {
+      font-size: 0.82rem;
+      color: var(--muted);
     }
-
-    .actions {
+    .pick-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.45rem;
+      justify-content: center;
+      margin-top: 0.1rem;
     }
-    button {
-      border: 0;
-      font: inherit;
-      font-weight: 600;
-      padding: 0.72rem 1rem;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: background-color var(--ease), color var(--ease), border-color var(--ease), opacity var(--ease);
+    .hint .pick {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-    }
-    button:disabled { opacity: 0.45; cursor: not-allowed; }
-    button svg { width: 16px; height: 16px; stroke-width: 2.25; }
-
-    .btn-primary {
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 1.2rem;
       background: var(--cta);
       color: var(--cta-ink);
+      font-weight: 700;
+      border-radius: 999px;
+      margin-top: 0;
     }
-    .btn-primary:hover:not(:disabled) { background: var(--cta-hover); }
+    .pick-cam {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 1rem;
+      background: #FFF7ED;
+      color: var(--ink);
+      border: 1.5px solid var(--line-strong) !important;
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .pick-cam:hover { background: #FFEDD5; }
+    .drop:hover .pick { background: var(--cta-hover); }
 
-    .btn-accent {
-      background: var(--primary);
+    .busy-msg {
+      display: none;
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      font-weight: 700;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .busy-msg .spinner {
+      width: 1.15rem;
+      height: 1.15rem;
+      border: 2.5px solid var(--line);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    .drop.is-busy .busy-msg { display: inline-flex; }
+    .drop.is-busy .hint,
+    .drop.is-busy .change,
+    .drop.is-busy #annotated,
+    .drop.is-busy #enrollPreview { visibility: hidden; position: absolute; }
+
+    .drop img {
+      max-width: 100%;
+      max-height: 18rem;
+      display: block;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 10px;
+    }
+    .drop img[hidden] { display: none !important; }
+
+    .change {
+      display: none;
+      position: absolute;
+      bottom: 0.7rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ink);
       color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 2;
     }
-    .btn-accent:hover:not(:disabled) { background: var(--primary-hover); }
-
-    .btn-ghost {
-      background: #fff;
-      color: var(--ink-strong);
-      border: 1px solid var(--line-strong);
-    }
-    .btn-ghost:hover:not(:disabled) { background: var(--soft); }
-
-    .btn-danger {
-      background: #fff;
-      color: var(--danger);
-      border: 1px solid #fecaca;
-    }
-    .btn-danger:hover:not(:disabled) { background: #fef2f2; }
+    .drop.has-result .change { display: block; }
+    .drop.has-result:hover .change { background: var(--cta); }
 
     .status {
-      min-height: 1.25rem;
+      min-height: 1.2rem;
+      font-size: 0.9rem;
       color: var(--muted);
-      font-size: 0.88rem;
+      margin: 0.65rem 0 0.25rem;
     }
-    .status.error,
-    .status.loading,
-    .status.ok {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-weight: 600;
-    }
-    .status.error { color: var(--danger); }
-    .status.loading { color: var(--ink-strong); }
-    .status.ok { color: var(--ok); }
-    .status svg { width: 15px; height: 15px; stroke-width: 2.25; flex-shrink: 0; }
-    .status.loading svg { animation: spin 0.8s linear infinite; }
+    .status.ok { color: var(--ok); font-weight: 700; }
+    .status.error { color: var(--danger); font-weight: 700; }
+    .status.loading { color: var(--ink); font-weight: 700; }
 
-    .results {
-      margin-top: 1.25rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--line);
-      animation: rise-in 0.28s ease-out both;
-    }
-    .results-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      margin-bottom: 0.9rem;
-      flex-wrap: wrap;
-    }
-    .results h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--ink-strong);
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.78rem;
-      font-weight: 600;
-      padding: 0.3rem 0.65rem;
-      border-radius: 999px;
-      background: var(--soft);
-      color: var(--muted);
+    .side {
+      background: var(--paper);
       border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem;
+      min-height: 12rem;
     }
-    .pill svg { width: 13px; height: 13px; stroke-width: 2.25; }
 
+    .panel-state {
+      display: grid;
+      gap: 0.65rem;
+      min-height: 8rem;
+      align-content: center;
+    }
+    .panel-state[hidden] { display: none !important; }
+    .panel-state.is-center {
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+    }
+    .state-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .state-title {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .state-text { margin: 0; font-size: 0.9rem; color: var(--muted); }
+    .panel-state.is-error .state-title { color: var(--danger); }
+    .panel-state.is-error .state-icon { color: var(--danger); }
+    .panel-state.is-ok .state-title { color: var(--ok); }
+    .panel-state.is-ok .state-icon { color: var(--ok); }
+
+    .state-spinner {
+      width: 1.5rem;
+      height: 1.5rem;
+      border: 3px solid var(--line);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    .results h2 {
+      margin: 0 0 0.75rem;
+      font-family: var(--display);
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
     .faces {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 0.85rem;
+      grid-template-columns: repeat(auto-fill, minmax(7.25rem, 1fr));
+      gap: 0.65rem;
     }
     .face {
+      background: #FFFBEB;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 0.5rem;
-      background: #fff;
-      transition: border-color var(--ease);
-      animation: rise-in 0.3s ease-out both;
+      border-radius: 12px;
+      padding: 0.4rem;
+      animation: fade-up 0.3s ease-out both;
     }
-    .face:hover { border-color: var(--primary); }
+    .face:hover { border-color: var(--accent); }
     .face .thumb {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      overflow: hidden;
-      background: var(--soft);
+      aspect-ratio: 1;
+      background: #fff;
       border-radius: 8px;
+      overflow: hidden;
     }
     .face img {
       width: 100%;
@@ -438,104 +397,208 @@
       display: block;
     }
     .face .name {
-      margin-top: 0.45rem;
-      font-size: 0.86rem;
+      margin-top: 0.4rem;
       font-weight: 700;
-      color: var(--ink-strong);
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .face .name.is-unknown { color: var(--unknown); font-weight: 600; }
-    .face .meta {
-      margin-top: 0.2rem;
-      font-size: 0.72rem;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .face a {
-      color: var(--primary);
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.2rem;
-      cursor: pointer;
-      transition: opacity var(--ease);
-    }
-    .face a:hover { opacity: 0.7; }
-    .face a svg { width: 12px; height: 12px; stroke-width: 2.25; }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 0.15rem 0.4rem;
-      border-radius: 999px;
-      letter-spacing: 0.01em;
-    }
-    .badge.ok { background: #dcfce7; color: var(--ok); }
-    .badge.miss { background: #f1f5f9; color: var(--unknown); }
-
-    .people-list {
-      display: grid;
-      gap: 0.65rem;
-      margin-top: 0.75rem;
-    }
-    .person {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 0.75rem;
-      align-items: center;
-      padding: 0.85rem 0.95rem;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #fff;
-      transition: border-color var(--ease);
-    }
-    .person:hover { border-color: var(--primary); }
-    .person .who {
-      display: grid;
-      gap: 0.15rem;
-      min-width: 0;
-    }
-    .person .who strong {
-      color: var(--ink-strong);
-      font-size: 0.98rem;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .person .who span {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-    .empty {
-      padding: 1.25rem;
+      font-size: 0.88rem;
       text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .face .name.unknown { color: var(--unknown); font-weight: 600; }
+
+    label.field {
+      display: grid;
+      gap: 0.3rem;
+      font-size: 0.85rem;
+      font-weight: 700;
       color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+    input[type="text"] {
+      border: 1.5px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 0.7rem 0.8rem;
+      font: inherit;
+      color: var(--ink);
+      min-height: 44px;
+      width: 100%;
+      background: #FFFBEB;
+    }
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      background: #fff;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
+    }
+
+    .row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button {
+      border: 0;
+      font: inherit;
+      font-weight: 700;
+      min-height: 44px;
+      padding: 0.65rem 1.05rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color var(--ease), color var(--ease), transform 100ms ease-out;
+    }
+    button:active:not(:disabled) { transform: scale(0.98); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn {
+      background: var(--cta);
+      color: var(--cta-ink);
+      flex: 1;
+      min-width: 7rem;
+    }
+    .btn:hover:not(:disabled) { background: var(--cta-hover); }
+    .btn-text {
+      background: transparent;
+      color: var(--muted);
+      padding-inline: 0.75rem;
+    }
+    .btn-text:hover:not(:disabled) { color: var(--ink); background: #FFF7ED; }
+    .btn-danger {
+      background: #FFF1F2;
+      color: var(--danger);
+      padding: 0.4rem 0.7rem;
+      min-height: 40px;
+      border-radius: 8px;
+    }
+    .btn-danger:hover:not(:disabled) { background: #FFE4E6; }
+
+    .tab:focus-visible,
+    .drop:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .people { display: grid; }
+    .person {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 0.2rem;
+      border-bottom: 1px solid var(--line);
+      animation: fade-up 0.25s ease-out both;
+    }
+    .person:last-child { border-bottom: 0; }
+    .person strong {
+      display: block;
+      font-family: var(--display);
+      font-weight: 600;
+    }
+    .person span { font-size: 0.8rem; color: var(--muted); }
+    .empty {
+      color: var(--muted);
+      padding: 2rem 0.75rem;
+      text-align: center;
+      background: var(--paper);
       border: 1px dashed var(--line-strong);
       border-radius: var(--radius);
-      background: var(--soft);
-      font-size: 0.92rem;
     }
 
-    .enroll-form {
-      display: grid;
-      gap: 0.85rem;
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ——— Desktop website ——— */
+    @media (min-width: 768px) {
+      .shell {
+        width: min(68rem, calc(100% - 3rem));
+        margin: 0 auto;
+        padding: 1.5rem 0 2.5rem;
+        min-height: auto;
+      }
+
+      .topbar {
+        position: static;
+        height: auto;
+        padding: 0 0 1.1rem;
+        margin-bottom: 1.25rem;
+        background: transparent;
+        border-bottom: 0;
+        align-items: flex-end;
+      }
+      .brand { font-size: 2rem; }
+      .brand-mark { width: 2.1rem; height: 2.1rem; }
+      .screen-label { display: none; }
+
+      .site-nav {
+        display: flex;
+        gap: 0.25rem;
+        padding: 0.25rem;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      .site-nav .tab {
+        border: 0;
+        background: transparent;
+        font: inherit;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--muted);
+        padding: 0.55rem 1rem;
+        min-height: 44px;
+        cursor: pointer;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .site-nav .tab svg { width: 1.05rem; height: 1.05rem; }
+      .site-nav .tab:hover { color: var(--ink); }
+      .site-nav .tab[aria-selected="true"] {
+        background: #F0FDFA;
+        color: var(--accent);
+      }
+
+      .bottom-nav { display: none; }
+
+      .main {
+        padding: 0;
+        overflow: visible;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 1.5rem 1.5rem 1.75rem;
+      }
+
+      .screen-title { font-size: 1.6rem; }
+
+      .layout.split {
+        grid-template-columns: 1.25fr 0.95fr;
+        gap: 1.35rem;
+        align-items: start;
+      }
+      .layout.split:has(#detectSide[hidden]) {
+        grid-template-columns: 1fr;
+      }
+      .drop { min-height: 22rem; }
+      .drop img { max-height: 24rem; }
+      .side { min-height: 12rem; }
+    }
+
+    /* Curl: hidden on mobile app, shown on desktop website */
+    .api { display: none; }
+    @media (min-width: 768px) {
+      .api { display: block; }
+    }
     .api {
-      margin-top: 1.1rem;
+      margin-top: 1.25rem;
       border-top: 1px solid var(--line);
-      padding-top: 0.85rem;
+      padding-top: 0.75rem;
     }
     .api summary {
       cursor: pointer;
@@ -543,30 +606,81 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      min-height: 40px;
+      font-size: 0.9rem;
+      font-weight: 700;
       color: var(--muted);
-      font-size: 0.85rem;
-      font-weight: 600;
       user-select: none;
     }
     .api summary::-webkit-details-marker { display: none; }
-    .api summary svg { width: 14px; height: 14px; stroke-width: 2.25; }
-    .api summary:hover { color: var(--ink-strong); }
-    .api[open] summary { color: var(--ink-strong); margin-bottom: 0.55rem; }
-    .api code {
-      display: block;
-      padding: 0.85rem 0.95rem;
-      background: var(--ink-strong);
-      color: #ecfdf8;
+    .api summary:hover { color: var(--ink); }
+    .api summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .api[open] summary {
+      color: var(--ink);
+      margin-bottom: 0.55rem;
+    }
+    .api-note {
+      margin: 0 0 0.65rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .api-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .api-grid { grid-template-columns: 1fr; }
+    }
+    .api-block { min-width: 0; }
+    .api-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .api-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .copy-btn {
+      border: 1px solid var(--line-strong);
+      background: #FFF7ED;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 700;
+      min-height: 32px;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: #FFEDD5; }
+    .api pre {
+      margin: 0;
+      padding: 0.75rem 0.85rem;
+      background: #1C1917;
+      color: #FFEDD5;
       overflow-x: auto;
-      white-space: pre;
-      font-size: 0.76rem;
+      font-size: 0.72rem;
+      line-height: 1.45;
       border-radius: 10px;
+      white-space: pre;
+    }
+    .api code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes rise-in {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+    @media (min-width: 1024px) {
+      .shell { width: min(74rem, calc(100% - 4rem)); }
+      .layout.split { gap: 1.75rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -574,273 +688,502 @@
         animation: none !important;
         transition: none !important;
       }
+      .drop:hover,
+      .drop:active:not(.is-busy):not(.has-result),
+      button:active:not(:disabled) { transform: none; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="top">
-      <div class="brand-block">
-        <h1 class="brand"><i data-lucide="scan-face" aria-hidden="true"></i>Whozit</h1>
-        <p class="lede">Detect faces, enroll people, and see who is in the photo.</p>
-      </div>
-      <div class="tabs" role="tablist" aria-label="Main sections">
-        <button class="tab" role="tab" id="tab-detect" aria-controls="view-detect" aria-selected="true" type="button">
-          <i data-lucide="search" aria-hidden="true"></i>Detect
+  <div class="shell">
+    <header class="topbar">
+      <h1 class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16"/>
+          <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/>
+          <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 16.5c.9-1.8 2.5-2.7 4-2.7s3.1.9 4 2.7"/>
+        </svg>
+        Whozit
+      </h1>
+      <span class="screen-label" id="screenLabel">Detect</span>
+      <nav class="site-nav" role="tablist" aria-label="Main">
+        <button class="tab" role="tab" data-view="view-detect" aria-controls="view-detect" aria-selected="true" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3" stroke-linecap="round"/></svg>
+          Detect
         </button>
-        <button class="tab" role="tab" id="tab-enroll" aria-controls="view-enroll" aria-selected="false" type="button">
-          <i data-lucide="user-plus" aria-hidden="true"></i>Enroll
+        <button class="tab" role="tab" data-view="view-enroll" aria-controls="view-enroll" aria-selected="false" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 19c1.5-4 4.5-6 7-6s5.5 2 7 6" stroke-linecap="round"/><path d="M19 8v4M17 10h4" stroke-linecap="round"/></svg>
+          Enroll
         </button>
-        <button class="tab" role="tab" id="tab-people" aria-controls="view-people" aria-selected="false" type="button">
-          <i data-lucide="users" aria-hidden="true"></i>People
+        <button class="tab" role="tab" data-view="view-people" aria-controls="view-people" aria-selected="false" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c1.2-3.2 3.5-4.8 6-4.8S13.8 15.8 15 19M14 19c.6-1.8 1.8-2.8 3-2.8s2.4 1 3 2.8" stroke-linecap="round"/></svg>
+          People
         </button>
-      </div>
+      </nav>
     </header>
 
-    <!-- DETECT -->
-    <section class="panel view" id="view-detect" role="tabpanel" aria-labelledby="tab-detect">
-      <div class="layout">
-        <div
-          class="drop"
-          id="drop"
-          tabindex="0"
-          role="button"
-          aria-label="Choose or drop an image to detect faces"
-        >
-          <div class="hint" id="dropHint">
-            <i data-lucide="image-up" aria-hidden="true"></i>
-            Drop a photo, or <strong>browse</strong>
+    <main class="main">
+      <section class="view" id="view-detect" role="tabpanel">
+        <h2 class="screen-title">Who’s here?</h2>
+        <p class="lede">Click, drop, or paste a photo. See who’s in it.</p>
+        <div class="layout split">
+          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add a photo — click, drop, or paste">
+            <div class="hint" id="dropHint">
+              <svg class="hint-illu" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <rect x="6" y="10" width="36" height="28" rx="4" stroke="currentColor" stroke-width="2"/>
+                <circle cx="18" cy="22" r="4" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 32l10-8 8 6 8-10 10 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="38" cy="12" r="7" fill="#F97316"/>
+                <path d="M38 9v6M35 12h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <strong>Add a photo</strong>
+              <span class="hint-ways">Click · drop · paste (Ctrl+V)</span>
+              <span class="pick-row">
+                <span class="pick">Choose photo</span>
+                <button type="button" class="pick-cam" data-cam>Camera</button>
+              </span>
+            </div>
+            <div class="busy-msg"><span class="spinner" aria-hidden="true"></span> Working…</div>
+            <img id="annotated" alt="Photo with faces marked" hidden />
+            <span class="change">Change photo</span>
+            <input id="file" type="file" accept="image/*" hidden />
+            <input id="fileCam" type="file" accept="image/*" capture="environment" hidden />
           </div>
-          <div class="loading-panel" id="loadingPanel" aria-hidden="true">
-            <i data-lucide="loader-circle" aria-hidden="true"></i>
-            Matching faces…
+          <div class="side" id="detectSide" hidden>
+            <div class="panel-state is-center" id="detectLoading" hidden>
+              <span class="state-spinner" aria-hidden="true"></span>
+              <p class="state-title">Looking at faces…</p>
+              <p class="state-text">Hang on a moment.</p>
+            </div>
+            <div class="panel-state is-center is-error" id="detectError" hidden>
+              <svg class="state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 8v5M12 16h.01" stroke-linecap="round"/>
+              </svg>
+              <p class="state-title">Something went wrong</p>
+              <p class="state-text" id="detectErrorMsg">Try another photo.</p>
+            </div>
+            <div class="panel-state" id="detectSuccess" hidden>
+              <div class="status" id="status" role="status" aria-live="polite"></div>
+              <div class="results" id="results">
+                <h2 id="countTitle">0 people</h2>
+                <div class="faces" id="faces"></div>
+              </div>
+            </div>
           </div>
-          <img id="annotated" alt="Processed image with detected faces" hidden />
-          <input id="file" type="file" accept="image/*" hidden />
         </div>
 
-        <div class="controls">
-          <h2>Options</h2>
-          <div class="row">
-            <label class="field" for="conf">
-              Confidence
-              <input id="conf" name="conf" type="number" min="0" max="1" step="0.05" value="0.5" />
-            </label>
-            <label class="field" for="matchThresh">
-              Match score
-              <input id="matchThresh" name="matchThresh" type="number" min="0" max="1" step="0.05" value="0.35" />
-            </label>
-          </div>
-          <div class="row">
-            <label class="field" for="padding">
-              Padding
-              <input id="padding" name="padding" type="number" min="0" max="2" step="0.05" value="0.2" />
-            </label>
-            <label class="field" for="maxFaces">
-              Max faces
-              <input id="maxFaces" name="maxFaces" type="number" min="1" max="100" step="1" value="50" />
-            </label>
-          </div>
-          <div class="row">
-            <label class="field" for="format">
-              Format
-              <select id="format" name="format">
-                <option value="jpeg" selected>JPEG</option>
-                <option value="png">PNG</option>
-              </select>
-            </label>
-            <div></div>
-          </div>
+        <details class="api" open>
+          <summary>Integrate with cURL</summary>
+          <p class="api-note">Use these from your app. Base URL is this server. Optional: <code>X-API-Key</code> if configured.</p>
+          <div class="api-grid">
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Detect + identify</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v1/detect" \
+  -F "image=@photo.jpg" \
+  -F "identify=true" \
+  -F "square=true" | jq .</code></pre>
+            </div>
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Detect (JSON base64)</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">B64=$(base64 -w0 photo.jpg)
+curl -s -X POST "__BASE__/v1/detect" \
+  -H "Content-Type: application/json" \
+  -d "{\"image_base64\":\"$B64\",\"identify\":true}" | jq '{face_count, faces: [.faces[] | {id, name, matched}]}'</code></pre>
+            </div>
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Recognize (v2)</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v2/recognize" \
+  -F "image=@photo.jpg" | jq '{face_count, faces: [.faces[] | {id, name, matched, match_score}]}'</code></pre>
+            </div>
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Attendance (v2)</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v2/attendance" \
+  -F "image=@photo.jpg" | jq '{face_count, attendance, faces: [.faces[] | {id, name, matched}]}'
 
-          <label class="check" for="identify">
-            <input id="identify" name="identify" type="checkbox" checked />
-            Identify enrolled people
-          </label>
-          <label class="check" for="square">
-            <input id="square" name="square" type="checkbox" checked />
-            Square crops (1:1)
-          </label>
-
-          <div class="actions">
-            <button class="btn-ghost" id="clearBtn" type="button" disabled>
-              <i data-lucide="x" aria-hidden="true"></i>
-              Clear
-            </button>
+curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
+            </div>
           </div>
-          <div class="status" id="status" role="status" aria-live="polite"></div>
+        </details>
+      </section>
+
+      <section class="view" id="view-enroll" role="tabpanel" hidden>
+        <h2 class="screen-title">Add a person</h2>
+        <p class="lede">Clear face + name. Click, drop, or paste a photo.</p>
+        <div class="layout split">
+          <div class="drop" id="enrollDrop" tabindex="0" role="button" aria-label="Add a face photo — click, drop, or paste">
+            <div class="hint" id="enrollHint">
+              <svg class="hint-illu" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <circle cx="24" cy="18" r="8" stroke="currentColor" stroke-width="2"/>
+                <path d="M10 38c2.5-7 8-10 14-10s11.5 3 14 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="38" cy="12" r="7" fill="#F97316"/>
+                <path d="M38 9v6M35 12h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <strong>Add a face</strong>
+              <span class="hint-ways">Click · drop · paste (Ctrl+V)</span>
+              <span class="pick-row">
+                <span class="pick">Choose photo</span>
+                <button type="button" class="pick-cam" data-cam>Camera</button>
+              </span>
+            </div>
+            <div class="busy-msg"><span class="spinner" aria-hidden="true"></span> Saving…</div>
+            <img id="enrollPreview" alt="Enrollment photo" hidden />
+            <span class="change">Change photo</span>
+            <input id="enrollFile" type="file" accept="image/*" hidden />
+            <input id="enrollCam" type="file" accept="image/*" capture="user" hidden />
+          </div>
+          <div class="side" id="enrollSide">
+            <div class="panel-state is-center" id="enrollIdle" hidden>
+              <p class="state-title">Add a face photo first</p>
+              <p class="state-text">Then type a name and save.</p>
+            </div>
+            <form id="enrollForm">
+              <label class="field" for="enrollName">
+                Name
+                <input id="enrollName" name="name" type="text" autocomplete="name" placeholder="Ali Khan" required />
+              </label>
+              <div class="row">
+                <button class="btn" id="enrollBtn" type="submit" disabled>Save face</button>
+                <button class="btn-text" id="enrollClearBtn" type="button" disabled>Clear</button>
+              </div>
+            </form>
+            <div class="panel-state is-center" id="enrollLoading" hidden style="min-height:auto;margin-top:0.75rem;">
+              <span class="state-spinner" aria-hidden="true"></span>
+              <p class="state-title">Saving…</p>
+            </div>
+            <div class="panel-state is-center is-ok" id="enrollOk" hidden style="min-height:auto;margin-top:0.75rem;">
+              <p class="state-title" id="enrollOkMsg">Saved</p>
+            </div>
+            <div class="panel-state is-center is-error" id="enrollErr" hidden style="min-height:auto;margin-top:0.75rem;">
+              <p class="state-title">Couldn’t save</p>
+              <p class="state-text" id="enrollErrMsg"></p>
+            </div>
+            <div class="status" id="enrollStatus" role="status" aria-live="polite" hidden></div>
+          </div>
         </div>
-      </div>
 
-      <div class="results" id="results" hidden>
-        <div class="results-head">
-          <h2 id="countTitle">0 people</h2>
-          <span class="pill" id="matchedPill" hidden>
-            <i data-lucide="badge-check" aria-hidden="true"></i>
-            <span id="matchedText">0 named</span>
-          </span>
+        <details class="api" open>
+          <summary>Integrate with cURL</summary>
+          <p class="api-note">Enroll faces from your app, then match with detect or recognize.</p>
+          <div class="api-grid">
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Enroll (v1)</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v1/enroll" \
+  -F "name=Ali" \
+  -F "image=@ali_face.jpg" | jq .</code></pre>
+            </div>
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Enroll (v2)</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v2/enroll" \
+  -F "name=Ali" \
+  -F "image=@ali_face.jpg" | jq .</code></pre>
+            </div>
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">With API key</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v1/enroll" \
+  -H "X-API-Key: your-secret" \
+  -F "name=Ali" \
+  -F "image=@ali_face.jpg" | jq .</code></pre>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="view" id="view-people" role="tabpanel" hidden>
+        <div class="row" style="justify-content:space-between;margin-bottom:0.5rem;">
+          <h2 class="screen-title" style="margin:0;">People you know</h2>
+          <button class="btn-text" id="refreshPeopleBtn" type="button">Refresh</button>
         </div>
-        <div class="faces" id="faces"></div>
-      </div>
-
-      <details class="api">
-        <summary>
-          <i data-lucide="terminal" aria-hidden="true"></i>
-          cURL
-        </summary>
-        <code>curl -X POST http://localhost:8088/v1/detect -F "image=@photo.jpg" -F "identify=true"</code>
-      </details>
-    </section>
-
-    <!-- ENROLL -->
-    <section class="panel view" id="view-enroll" role="tabpanel" aria-labelledby="tab-enroll" hidden>
-      <div class="layout">
-        <div
-          class="drop"
-          id="enrollDrop"
-          tabindex="0"
-          role="button"
-          aria-label="Choose or drop an enrollment photo"
-        >
-          <div class="hint" id="enrollHint">
-            <i data-lucide="camera" aria-hidden="true"></i>
-            Clear face photo — drop or <strong>browse</strong>
+        <div class="side" style="padding-top:0.75rem;" id="peopleSide">
+          <div class="panel-state is-center" id="peopleLoading" hidden>
+            <span class="state-spinner" aria-hidden="true"></span>
+            <p class="state-title">Loading people…</p>
           </div>
-          <div class="loading-panel" id="enrollLoading" aria-hidden="true">
-            <i data-lucide="loader-circle" aria-hidden="true"></i>
-            Enrolling…
+          <div class="panel-state is-center" id="peopleEmpty" hidden>
+            <p class="state-title">Nobody yet</p>
+            <p class="state-text">Enroll a face first.</p>
           </div>
-          <img id="enrollPreview" alt="Enrollment photo preview" hidden />
-          <input id="enrollFile" type="file" accept="image/*" hidden />
+          <div class="panel-state is-center is-error" id="peopleError" hidden>
+            <p class="state-title">Couldn’t load</p>
+            <p class="state-text" id="peopleErrorMsg"></p>
+          </div>
+          <div class="people" id="peopleList"></div>
+          <div class="status" id="peopleStatus" role="status" aria-live="polite" hidden></div>
         </div>
 
-        <form class="enroll-form" id="enrollForm">
-          <h2 class="section-label">New person</h2>
-          <label class="field" for="enrollName">
-            Name
-            <input id="enrollName" name="name" type="text" autocomplete="name" placeholder="e.g. Ali Khan" required />
-          </label>
-          <p class="lede" style="margin:0;font-size:0.85rem;">
-            Same name again adds another sample — better recognition.
-          </p>
-          <div class="actions">
-            <button class="btn-accent" id="enrollBtn" type="submit" disabled>
-              <i data-lucide="user-plus" aria-hidden="true"></i>
-              Enroll face
-            </button>
-            <button class="btn-ghost" id="enrollClearBtn" type="button" disabled>
-              <i data-lucide="x" aria-hidden="true"></i>
-              Clear
-            </button>
+        <details class="api" open>
+          <summary>Integrate with cURL</summary>
+          <p class="api-note">List or remove enrolled people.</p>
+          <div class="api-grid">
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">List people</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s "__BASE__/v1/people" | jq .
+# or: curl -s "__BASE__/v2/people" | jq .</code></pre>
+            </div>
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Delete person</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s -X DELETE "__BASE__/v1/people/PERSON_ID" | jq .
+# or: curl -s -X DELETE "__BASE__/v2/people/PERSON_ID" | jq .</code></pre>
+            </div>
+            <div class="api-block">
+              <div class="api-head">
+                <span class="api-label">Health</span>
+                <button class="copy-btn" type="button" data-copy>Copy</button>
+              </div>
+              <pre><code class="curl-snip">curl -s "__BASE__/health" | jq .</code></pre>
+            </div>
           </div>
-          <div class="status" id="enrollStatus" role="status" aria-live="polite"></div>
-        </form>
-      </div>
+        </details>
+      </section>
+    </main>
 
-      <details class="api">
-        <summary>
-          <i data-lucide="terminal" aria-hidden="true"></i>
-          cURL enroll
-        </summary>
-        <code>curl -X POST http://localhost:8088/v1/enroll -F "name=Ali" -F "image=@ali.jpg"</code>
-      </details>
-    </section>
-
-    <!-- PEOPLE -->
-    <section class="panel view" id="view-people" role="tabpanel" aria-labelledby="tab-people" hidden>
-      <div class="results-head" style="margin-bottom:0.35rem;border:0;padding:0;">
-        <h2 style="margin:0;font-size:1.15rem;letter-spacing:-0.02em;color:var(--ink-strong);">Enrolled people</h2>
-        <button class="btn-ghost" id="refreshPeopleBtn" type="button">
-          <i data-lucide="refresh-cw" aria-hidden="true"></i>
-          Refresh
-        </button>
-      </div>
-      <p class="lede" style="margin:0 0 0.5rem;font-size:0.9rem;">Stored in <code>data/people.json</code> on the server.</p>
-      <div class="people-list" id="peopleList"></div>
-      <div class="status" id="peopleStatus" role="status" aria-live="polite" style="margin-top:0.75rem;"></div>
-    </section>
+    <nav class="bottom-nav" role="tablist" aria-label="App">
+      <button class="tab" role="tab" data-view="view-detect" aria-controls="view-detect" aria-selected="true" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3" stroke-linecap="round"/></svg>
+        Detect
+      </button>
+      <button class="tab" role="tab" data-view="view-enroll" aria-controls="view-enroll" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 19c1.5-4 4.5-6 7-6s5.5 2 7 6" stroke-linecap="round"/><path d="M19 8v4M17 10h4" stroke-linecap="round"/></svg>
+        Enroll
+      </button>
+      <button class="tab" role="tab" data-view="view-people" aria-controls="view-people" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c1.2-3.2 3.5-4.8 6-4.8S13.8 15.8 15 19M14 19c.6-1.8 1.8-2.8 3-2.8s2.4 1 3 2.8" stroke-linecap="round"/></svg>
+        People
+      </button>
+    </nav>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <script>
-    const tabs = [
-      { btn: "tab-detect", view: "view-detect" },
-      { btn: "tab-enroll", view: "view-enroll" },
-      { btn: "tab-people", view: "view-people" },
-    ];
+    (function hydrateCurlBase() {
+      const base = location.origin;
+      document.querySelectorAll(".curl-snip").forEach((el) => {
+        el.textContent = el.textContent.replaceAll("__BASE__", base);
+      });
+    })();
 
-    function refreshIcons() {
-      if (window.lucide && typeof window.lucide.createIcons === "function") {
-        window.lucide.createIcons();
-      }
+    document.querySelectorAll("[data-copy]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const code = btn.closest(".api-block")?.querySelector(".curl-snip");
+        if (!code) return;
+        try {
+          await navigator.clipboard.writeText(code.textContent);
+          const prev = btn.textContent;
+          btn.textContent = "Copied";
+          setTimeout(() => { btn.textContent = prev; }, 1200);
+        } catch {
+          btn.textContent = "Select & copy";
+        }
+      });
+    });
+
+    const screenLabel = document.getElementById("screenLabel");
+    const labels = {
+      "view-detect": "Detect",
+      "view-enroll": "Enroll",
+      "view-people": "People",
+    };
+
+    function switchTab(targetView) {
+      document.querySelectorAll(".view").forEach((el) => {
+        el.hidden = el.id !== targetView;
+      });
+      document.querySelectorAll('[role="tab"]').forEach((btn) => {
+        const on = btn.getAttribute("data-view") === targetView;
+        btn.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      screenLabel.textContent = labels[targetView] || "";
+      if (targetView === "view-people") loadPeople();
+      document.querySelector(".main").scrollTop = 0;
     }
+
+    document.querySelectorAll('[role="tab"]').forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.getAttribute("data-view")));
+    });
 
     function setStatusEl(el, text, kind) {
       el.className = "status" + (kind ? " " + kind : "");
-      if (!text) {
-        el.textContent = "";
-        return;
-      }
-      if (kind === "loading") {
-        el.innerHTML = `<i data-lucide="loader-circle" aria-hidden="true"></i><span>${text}</span>`;
-      } else if (kind === "ok") {
-        el.innerHTML = `<i data-lucide="check-circle-2" aria-hidden="true"></i><span>${text}</span>`;
-      } else if (kind === "error") {
-        el.innerHTML = `<i data-lucide="circle-alert" aria-hidden="true"></i><span>${text}</span>`;
-      } else {
-        el.textContent = text;
-      }
-      if (kind) refreshIcons();
+      el.textContent = text || "";
     }
 
-    function switchTab(targetView) {
-      tabs.forEach(({ btn, view }) => {
-        const selected = view === targetView;
-        document.getElementById(btn).setAttribute("aria-selected", selected ? "true" : "false");
-        document.getElementById(view).hidden = !selected;
+    function pickImageFile(dt) {
+      if (!dt) return null;
+      if (dt.files && dt.files.length) {
+        for (const f of dt.files) {
+          if (f.type.startsWith("image/")) return f;
+        }
+      }
+      if (dt.items) {
+        for (const item of dt.items) {
+          if (item.kind === "file" && item.type.startsWith("image/")) {
+            return item.getAsFile();
+          }
+        }
+      }
+      return null;
+    }
+
+    const intakeTargets = [];
+
+    function wireIntake(zone, input, onFile, camInput) {
+      const view = zone.closest(".view");
+      intakeTargets.push({ zone, onFile, viewId: view ? view.id : null });
+
+      const openPicker = () => {
+        if (!zone.classList.contains("is-busy")) input.click();
+      };
+
+      zone.addEventListener("click", (e) => {
+        const camBtn = e.target.closest("[data-cam]");
+        if (camBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!zone.classList.contains("is-busy") && camInput) camInput.click();
+          return;
+        }
+        openPicker();
       });
-      if (targetView === "view-people") loadPeople();
-      refreshIcons();
+      zone.querySelectorAll("[data-cam]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!zone.classList.contains("is-busy") && camInput) camInput.click();
+        });
+      });
+      zone.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openPicker();
+        }
+      });
+
+      const bindInput = (inp) => {
+        if (!inp) return;
+        inp.addEventListener("change", () => {
+          const file = inp.files && inp.files[0];
+          if (file) onFile(file);
+          inp.value = "";
+        });
+      };
+      bindInput(input);
+      bindInput(camInput);
+
+      zone.addEventListener("dragenter", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!zone.classList.contains("is-busy")) zone.classList.add("dragover");
+      });
+      zone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+        if (!zone.classList.contains("is-busy")) zone.classList.add("dragover");
+      });
+      zone.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        if (!zone.contains(e.relatedTarget)) zone.classList.remove("dragover");
+      });
+      zone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        zone.classList.remove("dragover");
+        if (zone.classList.contains("is-busy")) return;
+        const file = pickImageFile(e.dataTransfer);
+        if (file) onFile(file);
+      });
     }
 
-    tabs.forEach(({ btn, view }) => {
-      document.getElementById(btn).addEventListener("click", () => switchTab(view));
+    document.addEventListener("paste", (e) => {
+      const tag = (e.target && e.target.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target && e.target.isContentEditable)) return;
+      const file = pickImageFile(e.clipboardData);
+      if (!file) return;
+      const view = document.querySelector(".view:not([hidden])");
+      const target = intakeTargets.find((t) => t.viewId === view?.id);
+      if (!target || target.zone.classList.contains("is-busy")) return;
+      e.preventDefault();
+      target.onFile(file);
+      target.zone.classList.add("dragover");
+      setTimeout(() => target.zone.classList.remove("dragover"), 200);
     });
 
-    // —— Detect ——
+    ["dragenter", "dragover", "drop"].forEach((evt) => {
+      document.addEventListener(evt, (e) => {
+        if (e.dataTransfer && [...(e.dataTransfer.types || [])].includes("Files")) {
+          e.preventDefault();
+        }
+      });
+    });
+
+    document.querySelector(".main")?.addEventListener("drop", (e) => {
+      const view = e.target.closest?.(".view");
+      if (!view || view.hidden) return;
+      const target = intakeTargets.find((t) => t.viewId === view.id);
+      if (!target || target.zone.classList.contains("is-busy")) return;
+      const file = pickImageFile(e.dataTransfer);
+      if (!file) return;
+      e.preventDefault();
+      target.onFile(file);
+    });
+
     const drop = document.getElementById("drop");
     const fileInput = document.getElementById("file");
+    const fileCam = document.getElementById("fileCam");
     const annotated = document.getElementById("annotated");
     const dropHint = document.getElementById("dropHint");
-    const clearBtn = document.getElementById("clearBtn");
     const statusEl = document.getElementById("status");
-    const results = document.getElementById("results");
     const facesEl = document.getElementById("faces");
     const countTitle = document.getElementById("countTitle");
-    const matchedPill = document.getElementById("matchedPill");
-    const matchedText = document.getElementById("matchedText");
-    const squareToggle = document.getElementById("square");
-    const identifyToggle = document.getElementById("identify");
-    const optionInputs = [
-      document.getElementById("conf"),
-      document.getElementById("matchThresh"),
-      document.getElementById("padding"),
-      document.getElementById("format"),
-      document.getElementById("maxFaces"),
-      squareToggle,
-      identifyToggle,
-    ];
-
+    const detectLoading = document.getElementById("detectLoading");
+    const detectError = document.getElementById("detectError");
+    const detectErrorMsg = document.getElementById("detectErrorMsg");
+    const detectSuccess = document.getElementById("detectSuccess");
+    const detectSide = document.getElementById("detectSide");
     let selectedFile = null;
     let detecting = false;
-    let rerunTimer = null;
+
+    function setDetectState(state, msg) {
+      const active = state === "loading" || state === "error" || state === "success";
+      detectSide.hidden = !active;
+      detectLoading.hidden = state !== "loading";
+      detectError.hidden = state !== "error";
+      detectSuccess.hidden = state !== "success";
+      if (state === "error" && detectErrorMsg) {
+        detectErrorMsg.textContent = msg || "Try another photo.";
+      }
+      if (state === "success" && statusEl) setStatusEl(statusEl, "", "");
+    }
 
     function setBusy(busy) {
       detecting = busy;
       drop.classList.toggle("is-busy", busy);
       drop.setAttribute("aria-busy", busy ? "true" : "false");
-      optionInputs.forEach((el) => { el.disabled = busy; });
-      clearBtn.disabled = busy || !selectedFile;
-      if (busy) refreshIcons();
     }
 
     function resetViewer() {
@@ -853,35 +1196,34 @@
     function showProcessed(data) {
       if (!data.annotated_image_base64) {
         resetViewer();
-        setStatusEl(statusEl, "No processed image returned.", "error");
-        return;
+        setDetectState("error", "No image returned.");
+        return false;
       }
       const mime = data.annotated_mime_type || "image/jpeg";
       annotated.src = `data:${mime};base64,${data.annotated_image_base64}`;
-      annotated.alt = `${data.face_count} faces marked`;
+      annotated.alt = `${data.face_count} faces — click to change`;
       annotated.hidden = false;
       dropHint.hidden = true;
       drop.classList.add("has-result");
+      return true;
     }
 
     async function detectFaces() {
       if (!selectedFile || detecting) return;
-
       setBusy(true);
-      setStatusEl(statusEl, "Detecting…", "loading");
-      results.hidden = true;
+      setDetectState("loading");
       facesEl.innerHTML = "";
       annotated.hidden = true;
 
       const form = new FormData();
       form.append("image", selectedFile);
-      form.append("conf_thresh", document.getElementById("conf").value);
-      form.append("padding", document.getElementById("padding").value);
-      form.append("crop_format", document.getElementById("format").value);
-      form.append("max_faces", document.getElementById("maxFaces").value);
-      form.append("square", squareToggle.checked ? "true" : "false");
-      form.append("identify", identifyToggle.checked ? "true" : "false");
-      form.append("match_thresh", document.getElementById("matchThresh").value);
+      form.append("conf_thresh", "0.5");
+      form.append("padding", "0.2");
+      form.append("crop_format", "jpeg");
+      form.append("max_faces", "50");
+      form.append("square", "true");
+      form.append("identify", "true");
+      form.append("match_thresh", "0.35");
 
       try {
         const res = await fetch("/v1/detect", { method: "POST", body: form });
@@ -890,54 +1232,30 @@
           const msg = data?.detail?.error?.message || data?.detail || res.statusText;
           throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
         }
-
-        showProcessed(data);
-        countTitle.textContent = data.face_count === 1 ? "1 person" : `${data.face_count} people`;
-
+        if (!showProcessed(data)) return;
         const named = (data.faces || []).filter((f) => f.matched && f.name).length;
-        if (identifyToggle.checked) {
-          matchedPill.hidden = false;
-          matchedText.textContent = named === 1 ? "1 named" : `${named} named`;
-        } else {
-          matchedPill.hidden = true;
-        }
+        countTitle.textContent =
+          data.face_count === 1
+            ? `1 person${named ? ` · ${named} named` : ""}`
+            : `${data.face_count} people${named ? ` · ${named} named` : ""}`;
 
         (data.faces || []).forEach((face, i) => {
           const card = document.createElement("article");
           card.className = "face";
           card.style.animationDelay = `${Math.min(i, 8) * 40}ms`;
           const src = `data:${face.mime_type};base64,${face.image_base64}`;
-          const ext = face.mime_type === "image/png" ? "png" : "jpg";
-          const conf = `${(face.confidence * 100).toFixed(0)}%`;
           const label = face.matched && face.name ? face.name : "unknown";
-          const nameClass = face.matched && face.name ? "name" : "name is-unknown";
-          const score = face.match_score != null ? ` · ${(face.match_score * 100).toFixed(0)}%` : "";
-          const badge = face.matched
-            ? `<span class="badge ok">match</span>`
-            : (identifyToggle.checked ? `<span class="badge miss">unknown</span>` : "");
+          const nameClass = face.matched && face.name ? "name" : "name unknown";
           card.innerHTML = `
-            <div class="thumb">
-              <img alt="${label}" src="${src}" width="${face.width || 128}" height="${face.height || 128}" />
-            </div>
+            <div class="thumb"><img alt="${label}" src="${src}" /></div>
             <div class="${nameClass}">${label}</div>
-            <div class="meta">
-              <span>#${face.id} · ${conf}${score}</span>
-              ${badge}
-            </div>
-            <div class="meta" style="margin-top:0.35rem;">
-              <a href="${src}" download="face_${face.id}.${ext}" aria-label="Save face ${face.id}">
-                <i data-lucide="download" aria-hidden="true"></i>Save
-              </a>
-            </div>
           `;
           facesEl.appendChild(card);
         });
-        refreshIcons();
-        results.hidden = false;
-        setStatusEl(statusEl, "Done", "ok");
+        setDetectState("success");
       } catch (err) {
         resetViewer();
-        setStatusEl(statusEl, err.message || String(err), "error");
+        setDetectState("error", err.message || String(err));
       } finally {
         setBusy(false);
       }
@@ -945,79 +1263,16 @@
 
     function setFile(file) {
       if (!file || !file.type.startsWith("image/")) {
-        setStatusEl(statusEl, "Choose an image file.", "error");
+        setDetectState("error", "Pick an image file.");
         return;
       }
       selectedFile = file;
       resetViewer();
-      clearBtn.disabled = false;
       detectFaces();
     }
 
-    function scheduleRerun() {
-      if (!selectedFile || detecting) return;
-      clearTimeout(rerunTimer);
-      rerunTimer = setTimeout(() => detectFaces(), 350);
-    }
+    wireIntake(drop, fileInput, setFile, fileCam);
 
-    function wireDrop(zone, input, onFile) {
-      zone.addEventListener("click", () => {
-        if (zone.classList.contains("is-busy")) return;
-        input.click();
-      });
-      zone.addEventListener("keydown", (e) => {
-        if (zone.classList.contains("is-busy")) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          input.click();
-        }
-      });
-      input.addEventListener("change", () => {
-        if (input.files[0]) onFile(input.files[0]);
-      });
-      ["dragenter", "dragover"].forEach((evt) => {
-        zone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          if (!zone.classList.contains("is-busy")) zone.classList.add("dragover");
-        });
-      });
-      ["dragleave", "drop"].forEach((evt) => {
-        zone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          zone.classList.remove("dragover");
-        });
-      });
-      zone.addEventListener("drop", (e) => {
-        if (zone.classList.contains("is-busy")) return;
-        const file = e.dataTransfer.files[0];
-        if (file) onFile(file);
-      });
-    }
-
-    wireDrop(drop, fileInput, setFile);
-
-    optionInputs.forEach((el) => {
-      el.addEventListener("change", scheduleRerun);
-      if (el.tagName === "INPUT" && el.type === "number") {
-        el.addEventListener("input", scheduleRerun);
-      }
-    });
-
-    clearBtn.addEventListener("click", () => {
-      if (detecting) return;
-      clearTimeout(rerunTimer);
-      selectedFile = null;
-      fileInput.value = "";
-      resetViewer();
-      clearBtn.disabled = true;
-      results.hidden = true;
-      facesEl.innerHTML = "";
-      matchedPill.hidden = true;
-      setStatusEl(statusEl, "");
-      refreshIcons();
-    });
-
-    // —— Enroll ——
     const enrollDrop = document.getElementById("enrollDrop");
     const enrollFile = document.getElementById("enrollFile");
     const enrollPreview = document.getElementById("enrollPreview");
@@ -1026,18 +1281,28 @@
     const enrollName = document.getElementById("enrollName");
     const enrollBtn = document.getElementById("enrollBtn");
     const enrollClearBtn = document.getElementById("enrollClearBtn");
-    const enrollStatus = document.getElementById("enrollStatus");
+    const enrollLoading = document.getElementById("enrollLoading");
+    const enrollOk = document.getElementById("enrollOk");
+    const enrollOkMsg = document.getElementById("enrollOkMsg");
+    const enrollErr = document.getElementById("enrollErr");
+    const enrollErrMsg = document.getElementById("enrollErrMsg");
     let enrollSelected = null;
     let enrolling = false;
+
+    function setEnrollBanner(state, msg) {
+      enrollLoading.hidden = state !== "loading";
+      enrollOk.hidden = state !== "ok";
+      enrollErr.hidden = state !== "error";
+      if (state === "ok") enrollOkMsg.textContent = msg || "Saved";
+      if (state === "error") enrollErrMsg.textContent = msg || "Try again.";
+    }
 
     function setEnrollBusy(busy) {
       enrolling = busy;
       enrollDrop.classList.toggle("is-busy", busy);
-      enrollDrop.setAttribute("aria-busy", busy ? "true" : "false");
       enrollName.disabled = busy;
       enrollBtn.disabled = busy || !enrollSelected || !enrollName.value.trim();
       enrollClearBtn.disabled = busy || (!enrollSelected && !enrollName.value);
-      if (busy) refreshIcons();
     }
 
     function resetEnrollPreview() {
@@ -1049,7 +1314,7 @@
 
     function setEnrollFile(file) {
       if (!file || !file.type.startsWith("image/")) {
-        setStatusEl(enrollStatus, "Choose an image file.", "error");
+        setEnrollBanner("error", "Pick an image file.");
         return;
       }
       enrollSelected = file;
@@ -1063,10 +1328,11 @@
       reader.readAsDataURL(file);
       enrollBtn.disabled = !enrollName.value.trim();
       enrollClearBtn.disabled = false;
-      setStatusEl(enrollStatus, "");
+      setEnrollBanner("", "");
     }
 
-    wireDrop(enrollDrop, enrollFile, setEnrollFile);
+    const enrollCam = document.getElementById("enrollCam");
+    wireIntake(enrollDrop, enrollFile, setEnrollFile, enrollCam);
 
     enrollName.addEventListener("input", () => {
       enrollBtn.disabled = enrolling || !enrollSelected || !enrollName.value.trim();
@@ -1081,20 +1347,17 @@
       resetEnrollPreview();
       enrollBtn.disabled = true;
       enrollClearBtn.disabled = true;
-      setStatusEl(enrollStatus, "");
+      setEnrollBanner("", "");
     });
 
     enrollForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!enrollSelected || !enrollName.value.trim() || enrolling) return;
-
       setEnrollBusy(true);
-      setStatusEl(enrollStatus, "Enrolling…", "loading");
-
+      setEnrollBanner("loading");
       const form = new FormData();
       form.append("name", enrollName.value.trim());
       form.append("image", enrollSelected);
-
       try {
         const res = await fetch("/v1/enroll", { method: "POST", body: form });
         const data = await res.json();
@@ -1102,56 +1365,66 @@
           const msg = data?.detail?.error?.message || data?.detail || res.statusText;
           throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
         }
-        const p = data.person;
-        setStatusEl(
-          enrollStatus,
-          `Enrolled ${p.name} · ${p.sample_count} sample${p.sample_count === 1 ? "" : "s"}`,
-          "ok"
-        );
+        setEnrollBanner("ok", `Saved ${data.person.name}`);
       } catch (err) {
-        setStatusEl(enrollStatus, err.message || String(err), "error");
+        setEnrollBanner("error", err.message || String(err));
       } finally {
         setEnrollBusy(false);
       }
     });
 
-    // —— People ——
     const peopleList = document.getElementById("peopleList");
-    const peopleStatus = document.getElementById("peopleStatus");
+    const peopleLoading = document.getElementById("peopleLoading");
+    const peopleEmpty = document.getElementById("peopleEmpty");
+    const peopleError = document.getElementById("peopleError");
+    const peopleErrorMsg = document.getElementById("peopleErrorMsg");
+
+    function setPeopleState(state, msg) {
+      peopleLoading.hidden = state !== "loading";
+      peopleEmpty.hidden = state !== "empty";
+      peopleError.hidden = state !== "error";
+      peopleList.hidden = state !== "list";
+      if (state === "error") peopleErrorMsg.textContent = msg || "Try refresh.";
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
 
     async function loadPeople() {
-      setStatusEl(peopleStatus, "Loading…", "loading");
+      setPeopleState("loading");
+      peopleList.innerHTML = "";
       try {
         const res = await fetch("/v1/people");
         const data = await res.json();
         if (!res.ok) throw new Error(res.statusText);
-        peopleList.innerHTML = "";
         if (!data.length) {
-          peopleList.innerHTML = `<div class="empty">No one enrolled yet. Use the Enroll tab to add a face.</div>`;
-        } else {
-          data.forEach((p) => {
-            const row = document.createElement("article");
-            row.className = "person";
-            row.innerHTML = `
-              <div class="who">
-                <strong>${escapeHtml(p.name)}</strong>
-                <span>${p.sample_count} sample${p.sample_count === 1 ? "" : "s"} · ${escapeHtml(p.id.slice(0, 8))}…</span>
-              </div>
-              <button class="btn-danger" type="button" data-id="${p.id}" aria-label="Remove ${escapeHtml(p.name)}">
-                <i data-lucide="trash-2" aria-hidden="true"></i>
-                Remove
-              </button>
-            `;
-            peopleList.appendChild(row);
-          });
-          peopleList.querySelectorAll("button[data-id]").forEach((btn) => {
-            btn.addEventListener("click", () => deletePerson(btn.getAttribute("data-id")));
-          });
+          setPeopleState("empty");
+          return;
         }
-        setStatusEl(peopleStatus, `${data.length} enrolled`, "ok");
-        refreshIcons();
+        data.forEach((p, i) => {
+          const row = document.createElement("article");
+          row.className = "person";
+          row.style.animationDelay = `${Math.min(i, 8) * 35}ms`;
+          row.innerHTML = `
+            <div>
+              <strong>${escapeHtml(p.name)}</strong>
+              <span>${p.sample_count} sample${p.sample_count === 1 ? "" : "s"}</span>
+            </div>
+            <button class="btn-danger" type="button" data-id="${p.id}">Remove</button>
+          `;
+          peopleList.appendChild(row);
+        });
+        peopleList.querySelectorAll("button[data-id]").forEach((btn) => {
+          btn.addEventListener("click", () => deletePerson(btn.getAttribute("data-id")));
+        });
+        setPeopleState("list");
       } catch (err) {
-        setStatusEl(peopleStatus, err.message || String(err), "error");
+        setPeopleState("error", err.message || String(err));
       }
     }
 
@@ -1166,21 +1439,11 @@
         }
         await loadPeople();
       } catch (err) {
-        setStatusEl(peopleStatus, err.message || String(err), "error");
+        setPeopleState("error", err.message || String(err));
       }
     }
 
-    function escapeHtml(s) {
-      return String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
     document.getElementById("refreshPeopleBtn").addEventListener("click", loadPeople);
-
-    refreshIcons();
   </script>
 </body>
 </html>
