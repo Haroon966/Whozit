@@ -24,6 +24,8 @@
       --cta: #F97316;
       --cta-hover: #EA580C;
       --cta-ink: #FFFFFF;
+      --upload-blue: #3B71E8;
+      --upload-blue-hover: #2F5FD0;
       --ok: #166534;
       --danger: #B91C1C;
       --unknown: #78716C;
@@ -167,8 +169,8 @@
 
     .drop {
       position: relative;
-      border: 2px dashed var(--line-strong);
-      background: linear-gradient(160deg, #FFFBEB 0%, #FFF7ED 55%, #F0FDFA 100%);
+      border: 2px dashed transparent;
+      background: #fff;
       min-height: 14rem;
       display: grid;
       place-items: center;
@@ -177,29 +179,22 @@
       cursor: pointer;
       border-radius: var(--radius);
       overflow: hidden;
-      transition: border-color var(--ease), transform 120ms ease-out;
+      transition: border-color var(--ease), background-color var(--ease), transform 120ms ease-out;
     }
-    .drop::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.08), transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(15, 118, 110, 0.08), transparent 42%);
-      pointer-events: none;
+    .drop.dragover {
+      border-color: var(--upload-blue);
+      background: #F5F8FF;
     }
-    .drop:hover,
-    .drop.dragover { border-color: var(--accent); transform: translateY(-1px); }
-    .drop:active:not(.is-busy):not(.has-result) { transform: scale(0.99); }
+    .drop:active:not(.is-busy):not(.has-result) { transform: scale(0.995); }
     .drop.is-busy { pointer-events: none; opacity: 0.8; }
     .drop.has-result {
       border-style: solid;
       border-color: var(--line);
       background: #fff;
       padding: 0.5rem;
+      cursor: pointer;
     }
-    .drop.has-result::before { display: none; }
-    .drop.has-result:hover { border-color: var(--cta); }
+    .drop.has-result:hover { border-color: var(--upload-blue); }
 
     .hint {
       position: relative;
@@ -208,6 +203,9 @@
       gap: 0.5rem;
       justify-items: center;
       color: var(--muted);
+      width: 100%;
+      max-width: 36rem;
+      padding: 1rem 0.5rem 0.5rem;
     }
     .hint-illu { width: 3.5rem; height: 3.5rem; color: var(--accent); }
     .hint strong {
@@ -231,14 +229,18 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 44px;
-      padding: 0 1.2rem;
-      background: var(--cta);
-      color: var(--cta-ink);
+      min-height: 52px;
+      padding: 0 2rem;
+      background: var(--upload-blue);
+      color: #fff;
       font-weight: 700;
+      font-size: 1.05rem;
       border-radius: 999px;
-      margin-top: 0;
+      margin-top: 0.35rem;
+      box-shadow: 0 2px 0 rgba(37, 87, 194, 0.35);
+      transition: background-color var(--ease), transform 100ms ease-out;
     }
+    .drop:hover .pick { background: var(--upload-blue-hover); }
     .pick-cam {
       display: inline-flex;
       align-items: center;
@@ -254,7 +256,154 @@
       cursor: pointer;
     }
     .pick-cam:hover { background: #FFEDD5; }
-    .drop:hover .pick { background: var(--cta-hover); }
+
+    /* remove.bg-style detect upload */
+    .upload-title {
+      position: relative;
+      margin: 0 0 0.85rem;
+      font-family: var(--display);
+      font-size: clamp(1.45rem, 4.2vw, 1.85rem);
+      font-weight: 600;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: #2d3436;
+      max-width: 18ch;
+    }
+    .upload-title .sparkle {
+      position: absolute;
+      width: 1.1rem;
+      height: 1.1rem;
+      top: -0.15rem;
+      right: -0.35rem;
+      color: #F5C518;
+    }
+    .or-drop {
+      margin: 0.85rem 0 0;
+      font-size: 1rem;
+      color: #2d3436;
+      font-weight: 600;
+    }
+    .paste-hint {
+      margin: 0.15rem 0 0;
+      font-size: 0.9rem;
+      color: #636e72;
+    }
+    .paste-hint .linkish {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      background: none;
+      border: 0;
+      font: inherit;
+      padding: 0;
+      min-height: 0;
+      font-weight: 600;
+    }
+    .paste-hint .linkish:hover { color: var(--upload-blue); }
+
+    .try-samples {
+      margin-top: 1.5rem;
+      width: 100%;
+      display: grid;
+      gap: 0.75rem;
+      justify-items: center;
+      text-align: center;
+    }
+    .try-samples[hidden] { display: none !important; }
+    .try-samples > p {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #2d3436;
+    }
+    .sample-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      justify-content: center;
+      max-width: 100%;
+    }
+    .sample {
+      width: 4.5rem;
+      height: 4.5rem;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #f1f3f5;
+      min-height: 0;
+      flex-shrink: 0;
+      transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+    }
+    .sample:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(59, 113, 232, 0.25);
+    }
+    .sample:focus-visible {
+      outline: 2px solid var(--upload-blue);
+      outline-offset: 2px;
+    }
+    .sample img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+    .upload-legal {
+      margin: 1.5rem 0 0;
+      max-width: 28rem;
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: #95a5a6;
+    }
+    .upload-legal a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .upload-legal a:hover { color: #636e72; }
+
+    .detect-intake {
+      display: grid;
+      gap: 0;
+      align-content: start;
+    }
+
+    #view-detect .screen-title,
+    #view-detect .lede { display: none; }
+
+    /* Enroll keeps dashed warm drop zone */
+    #enrollDrop {
+      border: 2px dashed var(--line-strong);
+      background: linear-gradient(160deg, #FFFBEB 0%, #FFF7ED 55%, #F0FDFA 100%);
+    }
+    #enrollDrop::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.08), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(15, 118, 110, 0.08), transparent 42%);
+      pointer-events: none;
+    }
+    #enrollDrop:hover,
+    #enrollDrop.dragover { border-color: var(--accent); transform: translateY(-1px); }
+    #enrollDrop.has-result::before { display: none; }
+    #enrollDrop.has-result:hover { border-color: var(--cta); }
+    #enrollDrop .pick {
+      background: var(--cta);
+      min-height: 44px;
+      padding: 0 1.2rem;
+      font-size: 1rem;
+      margin-top: 0;
+      box-shadow: none;
+    }
+    #enrollDrop:hover .pick { background: var(--cta-hover); }
+    #enrollDrop .hint { max-width: none; padding: 0; }
 
     .busy-msg {
       display: none;
@@ -585,9 +734,15 @@
       .layout.split:has(#detectSide[hidden]) {
         grid-template-columns: 1fr;
       }
+      #drop:not(.has-result) {
+        min-height: 28rem;
+        padding: 2rem 1.5rem 1.5rem;
+      }
       .drop { min-height: 22rem; }
       .drop img { max-height: 24rem; }
       .side { min-height: 12rem; }
+      .sample { width: 5.25rem; height: 5.25rem; border-radius: 12px; }
+      .upload-title { max-width: 20ch; }
     }
 
     /* Curl: hidden on mobile app, shown on desktop website */
@@ -690,6 +845,7 @@
       }
       .drop:hover,
       .drop:active:not(.is-busy):not(.has-result),
+      .sample:hover,
       button:active:not(:disabled) { transform: none; }
     }
   </style>
@@ -727,27 +883,64 @@
         <h2 class="screen-title">Who’s here?</h2>
         <p class="lede">Click, drop, or paste a photo. See who’s in it.</p>
         <div class="layout split">
-          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add a photo — click, drop, or paste">
-            <div class="hint" id="dropHint">
-              <svg class="hint-illu" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-                <rect x="6" y="10" width="36" height="28" rx="4" stroke="currentColor" stroke-width="2"/>
-                <circle cx="18" cy="22" r="4" stroke="currentColor" stroke-width="2"/>
-                <path d="M6 32l10-8 8 6 8-10 10 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="38" cy="12" r="7" fill="#F97316"/>
-                <path d="M38 9v6M35 12h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              <strong>Add a photo</strong>
-              <span class="hint-ways">Click · drop · paste (Ctrl+V)</span>
-              <span class="pick-row">
-                <span class="pick">Choose photo</span>
-                <button type="button" class="pick-cam" data-cam>Camera</button>
-              </span>
+          <div class="detect-intake">
+            <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add a photo — click, drop, or paste">
+              <div class="hint" id="dropHint">
+                <h2 class="upload-title">
+                  Upload an image to see who’s here
+                  <svg class="sparkle" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 2.5l1.6 6.1L20 10l-6.4 1.4L12 17.5l-1.6-6.1L4 10l6.4-1.4L12 2.5z"/>
+                  </svg>
+                </h2>
+                <span class="pick">Upload Image</span>
+                <p class="or-drop">or drop a file,</p>
+                <p class="paste-hint">
+                  paste image or
+                  <button type="button" class="linkish" id="pasteUrlBtn">URL</button>
+                </p>
+              </div>
+              <div class="busy-msg"><span class="spinner" aria-hidden="true"></span> Working…</div>
+              <img id="annotated" alt="Photo with faces marked" hidden />
+              <span class="change">Change photo</span>
+              <input id="file" type="file" accept="image/*" hidden />
+              <input id="fileCam" type="file" accept="image/*" capture="environment" hidden />
             </div>
-            <div class="busy-msg"><span class="spinner" aria-hidden="true"></span> Working…</div>
-            <img id="annotated" alt="Photo with faces marked" hidden />
-            <span class="change">Change photo</span>
-            <input id="file" type="file" accept="image/*" hidden />
-            <input id="fileCam" type="file" accept="image/*" capture="environment" hidden />
+            <div class="try-samples" id="trySamples">
+              <p>No image? Try one of these:</p>
+              <div class="sample-row" id="sampleRow" role="list">
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images1.jpg" aria-label="Try sample photo 1">
+                  <img src="/static/student-images/instant_try_images1.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images2.jpg" aria-label="Try sample photo 2">
+                  <img src="/static/student-images/instant_try_images2.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images3.jpg" aria-label="Try sample photo 3">
+                  <img src="/static/student-images/instant_try_images3.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images4.jpg" aria-label="Try sample photo 4">
+                  <img src="/static/student-images/instant_try_images4.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images5.jpg" aria-label="Try sample photo 5">
+                  <img src="/static/student-images/instant_try_images5.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images6.jpg" aria-label="Try sample photo 6">
+                  <img src="/static/student-images/instant_try_images6.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images7.jpg" aria-label="Try sample photo 7">
+                  <img src="/static/student-images/instant_try_images7.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images8.jpg" aria-label="Try sample photo 8">
+                  <img src="/static/student-images/instant_try_images8.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images9.jpg" aria-label="Try sample photo 9">
+                  <img src="/static/student-images/instant_try_images9.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+              </div>
+              <p class="upload-legal">
+                By uploading an image or URL you agree photos are processed to detect faces.
+                Images are not stored by default — see the project README for privacy notes.
+              </p>
+            </div>
           </div>
           <div class="side" id="detectSide" hidden>
             <div class="panel-state is-center" id="detectLoading" hidden>
@@ -1084,6 +1277,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
           if (!zone.classList.contains("is-busy") && camInput) camInput.click();
           return;
         }
+        if (e.target.closest(".linkish")) return;
         openPicker();
       });
       zone.querySelectorAll("[data-cam]").forEach((btn) => {
@@ -1182,6 +1376,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     const detectErrorMsg = document.getElementById("detectErrorMsg");
     const detectSuccess = document.getElementById("detectSuccess");
     const detectSide = document.getElementById("detectSide");
+    const trySamples = document.getElementById("trySamples");
     let selectedFile = null;
     let detecting = false;
 
@@ -1191,6 +1386,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       detectLoading.hidden = state !== "loading";
       detectError.hidden = state !== "error";
       detectSuccess.hidden = state !== "success";
+      if (trySamples) trySamples.hidden = state === "loading" || state === "success";
       if (state === "error" && detectErrorMsg) {
         detectErrorMsg.textContent = msg || "Try another photo.";
       }
@@ -1208,6 +1404,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       annotated.removeAttribute("src");
       dropHint.hidden = false;
       drop.classList.remove("has-result");
+      if (trySamples) trySamples.hidden = false;
     }
 
     function showProcessed(data) {
@@ -1284,6 +1481,41 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     }
 
     wireIntake(drop, fileInput, setFile, fileCam);
+
+    async function trySample(url) {
+      if (!url || detecting) return;
+      setDetectState("loading");
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Could not load sample image.");
+        const blob = await res.blob();
+        const name = url.split("/").pop() || "sample.jpg";
+        setFile(new File([blob], name, { type: blob.type || "image/jpeg" }));
+      } catch (err) {
+        setDetectState("error", err.message || String(err));
+      }
+    }
+
+    document.getElementById("sampleRow")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-sample]");
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      trySample(btn.getAttribute("data-sample"));
+    });
+
+    document.getElementById("pasteUrlBtn")?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (detecting) return;
+      const url = window.prompt("Paste an image URL");
+      if (!url || !url.trim()) return;
+      try {
+        await trySample(url.trim());
+      } catch (err) {
+        setDetectState("error", err.message || "Could not load that URL.");
+      }
+    });
 
     const enrollDrop = document.getElementById("enrollDrop");
     const enrollFile = document.getElementById("enrollFile");
