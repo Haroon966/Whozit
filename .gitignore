@@ -27,9 +27,8 @@ Thumbs.db
 .idea/
 *.code-workspace
 
-# Runtime data (embeddings, attendance — may contain PII)
-data/*
-!data/.gitkeep
+# Runtime data tracked for shared demo seed (embeddings, attendance, sqlite)
+# Keep .env / secrets out; do not commit private enroll dumps elsewhere.
 
 # Local enroll / import dumps (faces, emails, Slack IDs)
 slack_export/

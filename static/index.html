@@ -3,36 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#FFF7ED" />
+  <meta name="theme-color" content="#F0FDFA" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Whozit</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #FFF7ED;
-      --bg-2: #FFEDD5;
+      --bg: #F0FDFA;
+      --bg-2: #CCFBF1;
       --paper: #FFFFFF;
-      --ink: #1C1917;
-      --muted: #57534E;
-      --line: #FED7AA;
-      --line-strong: #FDBA74;
-      --accent: #0F766E;
+      --ink: #134E4A;
+      --muted: #3F6863;
+      --line: #99F6E4;
+      --line-strong: #5EEAD4;
+      --accent: #0D9488;
       --cta: #F97316;
       --cta-hover: #EA580C;
       --cta-ink: #FFFFFF;
-      --upload-blue: #3B71E8;
-      --upload-blue-hover: #2F5FD0;
-      --ok: #166534;
+      --upload-blue: #0D9488;
+      --upload-blue-hover: #0F766E;
+      --ok: #047857;
       --danger: #B91C1C;
-      --unknown: #78716C;
-      --font: "Nunito", system-ui, sans-serif;
-      --display: "Fredoka", system-ui, sans-serif;
+      --unknown: #64748B;
+      --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      --display: "Plus Jakarta Sans", system-ui, sans-serif;
       --ease: 180ms ease-out;
-      --radius: 14px;
+      --radius: 12px;
       --nav-h: 4.25rem;
       --top-h: 3.5rem;
     }
@@ -42,12 +42,8 @@
     body {
       font-family: var(--font);
       color: var(--ink);
-      line-height: 1.45;
-      background:
-        radial-gradient(900px 420px at 10% -5%, rgba(249, 115, 22, 0.14), transparent 55%),
-        radial-gradient(700px 380px at 100% 0%, rgba(15, 118, 110, 0.12), transparent 50%),
-        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
-      background-attachment: fixed;
+      line-height: 1.5;
+      background: var(--bg);
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
@@ -145,7 +141,7 @@
       height: 1.35rem;
       stroke-width: 2.1;
     }
-    .bottom-nav .tab:hover { color: var(--ink); background: #FFF7ED; }
+    .bottom-nav .tab:hover { color: var(--ink); background: #F0FDFA; }
     .bottom-nav .tab[aria-selected="true"] {
       color: var(--accent);
       background: #F0FDFA;
@@ -231,23 +227,76 @@
       justify-content: center;
       min-height: 52px;
       padding: 0 2rem;
+      border: 0;
       background: var(--upload-blue);
       color: #fff;
+      font: inherit;
       font-weight: 700;
       font-size: 1.05rem;
       border-radius: 999px;
       margin-top: 0.35rem;
-      box-shadow: 0 2px 0 rgba(37, 87, 194, 0.35);
+      cursor: pointer;
+      box-shadow: none;
       transition: background-color var(--ease), transform 100ms ease-out;
     }
     .drop:hover .pick { background: var(--upload-blue-hover); }
+    .mode-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: center;
+      margin: 0 0 1rem;
+    }
+    .mode {
+      border: 1.5px solid var(--line-strong);
+      background: #fff;
+      color: var(--muted);
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      min-height: 40px;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .mode:hover { color: var(--ink); background: #F0FDFA; }
+    .mode[aria-checked="true"] {
+      color: #fff;
+      background: var(--upload-blue);
+      border-color: var(--upload-blue);
+    }
+    .mode:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .attendance-log {
+      margin-top: 0.75rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+    .attendance-log h3 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .att-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .att-row:last-child { border-bottom: 0; }
+    .att-row span { color: var(--muted); font-size: 0.75rem; }
     .pick-cam {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 44px;
       padding: 0 1rem;
-      background: #FFF7ED;
+      background: #F0FDFA;
       color: var(--ink);
       border: 1.5px solid var(--line-strong) !important;
       font: inherit;
@@ -255,7 +304,7 @@
       border-radius: 999px;
       cursor: pointer;
     }
-    .pick-cam:hover { background: #FFEDD5; }
+    .pick-cam:hover { background: #CCFBF1; }
     .pick-cam:focus-visible {
       outline: 2px solid var(--upload-blue);
       outline-offset: 2px;
@@ -296,17 +345,17 @@
       padding: max(0.85rem, env(safe-area-inset-top)) 1rem 0.85rem;
       background: linear-gradient(to bottom, rgba(12, 10, 9, 0.72), transparent);
       border: 0;
-      color: #FFF7ED;
+      color: #F0FDFA;
     }
     .cam-head strong {
       font-family: var(--display);
       font-size: 1.1rem;
-      color: #FFF7ED;
+      color: #F0FDFA;
     }
     .cam-close {
       border: 0;
       background: rgba(255, 247, 237, 0.12);
-      color: #FFF7ED;
+      color: #F0FDFA;
       font: inherit;
       font-weight: 700;
       cursor: pointer;
@@ -315,7 +364,7 @@
     }
     .cam-close:hover { background: rgba(255, 247, 237, 0.22); }
     .cam-close:focus-visible {
-      outline: 2px solid #FDBA74;
+      outline: 2px solid #5EEAD4;
       outline-offset: 2px;
     }
     .cam-stage {
@@ -342,12 +391,12 @@
       justify-content: center;
       padding: 1.5rem;
       text-align: center;
-      color: #FFEDD5;
+      color: #CCFBF1;
       font-size: 1rem;
       line-height: 1.5;
       background: #0C0A09;
     }
-    .cam-err a { color: #FDBA74; font-weight: 700; }
+    .cam-err a { color: #5EEAD4; font-weight: 700; }
     .cam-err[hidden] { display: none !important; }
     .cam-actions {
       position: absolute;
@@ -369,11 +418,11 @@
       padding: 0 1.6rem;
       font-size: 1.05rem;
       border-radius: 999px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      box-shadow: none;
     }
     .cam-actions .btn-text {
       min-height: 44px;
-      color: #FFEDD5;
+      color: #CCFBF1;
     }
     .cam-actions .btn-text:hover { color: #fff; }
 
@@ -456,11 +505,11 @@
       min-height: 0;
       flex-shrink: 0;
       transition: transform 140ms ease-out, box-shadow 140ms ease-out;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+      box-shadow: none;
     }
     .sample:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(59, 113, 232, 0.25);
+      box-shadow: none;
     }
     .sample:focus-visible {
       outline: 2px solid var(--upload-blue);
@@ -478,7 +527,7 @@
       max-width: 28rem;
       font-size: 0.72rem;
       line-height: 1.45;
-      color: #95a5a6;
+      color: #6B7280;
     }
     .upload-legal a {
       color: inherit;
@@ -499,19 +548,13 @@
     /* Enroll keeps dashed warm drop zone */
     #enrollDrop {
       border: 2px dashed var(--line-strong);
-      background: linear-gradient(160deg, #FFFBEB 0%, #FFF7ED 55%, #F0FDFA 100%);
+      background: #F0FDFA;
     }
     #enrollDrop::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.08), transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(15, 118, 110, 0.08), transparent 42%);
-      pointer-events: none;
+      content: none;
     }
     #enrollDrop:hover,
-    #enrollDrop.dragover { border-color: var(--accent); transform: translateY(-1px); }
+    #enrollDrop.dragover { border-color: var(--accent); }
     #enrollDrop.has-result::before { display: none; }
     #enrollDrop.has-result:hover { border-color: var(--cta); }
     #enrollDrop .pick {
@@ -698,7 +741,7 @@
       border-color: var(--accent);
       background: #fff;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.25);
     }
 
     .row {
@@ -731,12 +774,12 @@
       color: var(--muted);
       padding-inline: 0.75rem;
     }
-    .btn-text:hover:not(:disabled) { color: var(--ink); background: #FFF7ED; }
+    .btn-text:hover:not(:disabled) { color: var(--ink); background: #F0FDFA; }
     .btn-danger {
       background: #FFF1F2;
       color: var(--danger);
       padding: 0.4rem 0.7rem;
-      min-height: 40px;
+      min-height: 44px;
       border-radius: 8px;
     }
     .btn-danger:hover:not(:disabled) { background: #FFE4E6; }
@@ -927,7 +970,7 @@
     }
     .copy-btn {
       border: 1px solid var(--line-strong);
-      background: #FFF7ED;
+      background: #F0FDFA;
       color: var(--ink);
       font: inherit;
       font-size: 0.75rem;
@@ -937,12 +980,12 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    .copy-btn:hover { background: #FFEDD5; }
+    .copy-btn:hover { background: #CCFBF1; }
     .api pre {
       margin: 0;
       padding: 0.75rem 0.85rem;
-      background: #1C1917;
-      color: #FFEDD5;
+      background: #134E4A;
+      color: #CCFBF1;
       overflow-x: auto;
       font-size: 0.72rem;
       line-height: 1.45;
@@ -981,6 +1024,10 @@
         </svg>
         Whozit
       </h1>
+      <nav class="app-nav-links" aria-label="Apps" style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-left:auto;margin-right:0.5rem">
+        <a href="/teacher" style="font-weight:600;font-size:0.85rem;color:#0D9488;text-decoration:none;padding:0.4rem 0.65rem;border-radius:8px;border:2px solid #5EEAD4;background:#CCFBF1">Teacher</a>
+        <a href="/dashboard" style="font-weight:600;font-size:0.85rem;color:#3F6863;text-decoration:none;padding:0.4rem 0.65rem;border-radius:8px;border:2px solid transparent">Dashboard</a>
+      </nav>
       <span class="screen-label" id="screenLabel">Detect</span>
       <nav class="site-nav" role="tablist" aria-label="Main">
         <button class="tab" role="tab" data-view="view-detect" aria-controls="view-detect" aria-selected="true" type="button">
@@ -1002,9 +1049,14 @@
       <section class="view" id="view-detect" role="tabpanel">
         <h2 class="screen-title">Who’s here?</h2>
         <p class="lede">Click, drop, or paste a photo. See who’s in it.</p>
+        <div class="mode-row" role="radiogroup" aria-label="Photo mode">
+          <button type="button" class="mode" data-mode="detect" aria-checked="true">Detect</button>
+          <button type="button" class="mode" data-mode="recognize" aria-checked="false">Recognize</button>
+          <button type="button" class="mode" data-mode="attendance" aria-checked="false">Attendance</button>
+        </div>
         <div class="layout split">
           <div class="detect-intake">
-            <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add a photo — click, drop, or paste">
+            <div class="drop" id="drop" aria-label="Photo drop zone — drop or paste an image">
               <div class="hint" id="dropHint">
                 <h2 class="upload-title">
                   Upload an image to see who’s here
@@ -1013,7 +1065,7 @@
                   </svg>
                 </h2>
                 <span class="pick-row">
-                  <span class="pick">Upload Image</span>
+                  <button type="button" class="pick" id="uploadBtn">Upload Image</button>
                   <button type="button" class="pick-cam" data-cam data-facing="environment">Camera</button>
                 </span>
                 <p class="or-drop">or drop a file,</p>
@@ -1032,34 +1084,34 @@
               <p>No image? Try one of these:</p>
               <div class="sample-row" id="sampleRow" role="list">
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images1.jpg" aria-label="Try sample photo 1">
-                  <img src="/static/student-images/instant_try_images1.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images1.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images2.jpg" aria-label="Try sample photo 2">
-                  <img src="/static/student-images/instant_try_images2.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images2.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images3.jpg" aria-label="Try sample photo 3">
-                  <img src="/static/student-images/instant_try_images3.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images3.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images4.jpg" aria-label="Try sample photo 4">
-                  <img src="/static/student-images/instant_try_images4.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images4.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images5.jpg" aria-label="Try sample photo 5">
-                  <img src="/static/student-images/instant_try_images5.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images5.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images6.jpg" aria-label="Try sample photo 6">
-                  <img src="/static/student-images/instant_try_images6.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images6.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images7.jpg" aria-label="Try sample photo 7">
-                  <img src="/static/student-images/instant_try_images7.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images7.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images8.jpg" aria-label="Try sample photo 8">
-                  <img src="/static/student-images/instant_try_images8.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images8.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images9.jpg" aria-label="Try sample photo 9">
-                  <img src="/static/student-images/instant_try_images9.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images9.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images10.jpg" aria-label="Try sample photo 10">
-                  <img src="/static/student-images/instant_try_images10.jpg" alt="" loading="lazy" width="84" height="84" />
+                  <img src="/static/student-images/thumbs/instant_try_images10.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
               </div>
               <p class="upload-legal">
@@ -1087,6 +1139,12 @@
               <div class="results" id="results">
                 <h2 id="countTitle">0 people</h2>
                 <div class="faces" id="faces"></div>
+                <div class="attendance-log" id="attendanceLog" hidden>
+                  <h3>Marked present</h3>
+                  <div id="attendanceMarked"></div>
+                  <h3 style="margin-top:0.75rem;">Recent events</h3>
+                  <div id="attendanceRecent"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -1142,7 +1200,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         <h2 class="screen-title">Add a person</h2>
         <p class="lede">Clear face + name. Click, drop, or paste a photo.</p>
         <div class="layout split">
-          <div class="drop" id="enrollDrop" tabindex="0" role="button" aria-label="Add a face photo — click, drop, or paste">
+          <div class="drop" id="enrollDrop" aria-label="Face photo drop zone — drop or paste an image">
             <div class="hint" id="enrollHint">
               <svg class="hint-illu" viewBox="0 0 48 48" fill="none" aria-hidden="true">
                 <circle cx="24" cy="18" r="8" stroke="currentColor" stroke-width="2"/>
@@ -1153,7 +1211,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
               <strong>Add a face</strong>
               <span class="hint-ways">Click · drop · paste (Ctrl+V)</span>
               <span class="pick-row">
-                <span class="pick">Choose photo</span>
+                <button type="button" class="pick" id="enrollUploadBtn">Choose photo</button>
                 <button type="button" class="pick-cam" data-cam data-facing="user">Camera</button>
               </span>
             </div>
@@ -1164,10 +1222,6 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
             <input id="enrollCam" type="file" accept="image/*" capture="user" hidden />
           </div>
           <div class="side" id="enrollSide">
-            <div class="panel-state is-center" id="enrollIdle" hidden>
-              <p class="state-title">Add a face photo first</p>
-              <p class="state-text">Then type a name and save.</p>
-            </div>
             <form id="enrollForm">
               <label class="field" for="enrollName">
                 Name
@@ -1184,12 +1238,12 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
             </div>
             <div class="panel-state is-center is-ok" id="enrollOk" hidden style="min-height:auto;margin-top:0.75rem;">
               <p class="state-title" id="enrollOkMsg">Saved</p>
+              <button class="btn-text" id="enrollViewPeopleBtn" type="button">View in People</button>
             </div>
             <div class="panel-state is-center is-error" id="enrollErr" hidden style="min-height:auto;margin-top:0.75rem;">
               <p class="state-title">Couldn’t save</p>
               <p class="state-text" id="enrollErrMsg"></p>
             </div>
-            <div class="status" id="enrollStatus" role="status" aria-live="polite" hidden></div>
           </div>
         </div>
 
@@ -1248,7 +1302,6 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
             <p class="state-text" id="peopleErrorMsg"></p>
           </div>
           <div class="people" id="peopleList"></div>
-          <div class="status" id="peopleStatus" role="status" aria-live="polite" hidden></div>
         </div>
 
         <details class="api" open>
@@ -1306,7 +1359,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         <button type="button" class="cam-close" id="camCloseBtn" aria-label="Close camera">Close</button>
       </div>
       <div class="cam-stage" id="camStage">
-        <video id="camVideo" playsinline autoplay muted></video>
+        <video id="camVideo" playsinline autoplay muted aria-label="Camera preview"></video>
         <p class="cam-err" id="camErr" hidden></p>
       </div>
       <div class="cam-actions">
@@ -1421,6 +1474,15 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     let camStream = null;
     let camOnFile = null;
     let camFallbackInput = null;
+    let camReturnFocus = null;
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
 
     function stopCamera() {
       if (camStream) {
@@ -1441,6 +1503,11 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       camErr.textContent = "";
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
+      }
+      const back = camReturnFocus;
+      camReturnFocus = null;
+      if (back && typeof back.focus === "function") {
+        try { back.focus(); } catch (_) {}
       }
     }
 
@@ -1508,6 +1575,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     }
 
     function openCameraCapture(onFile, camInput, facingMode) {
+      camReturnFocus = document.activeElement;
       camOnFile = onFile;
       camFallbackInput = camInput || null;
       camModal.hidden = false;
@@ -1547,6 +1615,12 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       );
     }
 
+    function camFocusables() {
+      return [...camModal.querySelectorAll("button:not([disabled])")].filter(
+        (el) => el.offsetParent !== null || el === camSnapBtn
+      );
+    }
+
     camCloseBtn.addEventListener("click", closeCameraModal);
     camModal.addEventListener("click", (e) => {
       if (e.target === camModal) closeCameraModal();
@@ -1558,9 +1632,23 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       if (input) input.click();
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !camModal.hidden) {
+      if (camModal.hidden) return;
+      if (e.key === "Escape") {
         e.preventDefault();
         closeCameraModal();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const nodes = camFocusables();
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     });
 
@@ -1578,16 +1666,12 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         openCameraCapture(onFile, camInput, facing);
       };
 
-      zone.addEventListener("click", (e) => {
-        const camBtn = e.target.closest("[data-cam]");
-        if (camBtn) {
+      zone.querySelectorAll(".pick").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
-          openCam(camBtn);
-          return;
-        }
-        if (e.target.closest(".linkish")) return;
-        openPicker();
+          openPicker();
+        });
       });
       zone.querySelectorAll("[data-cam]").forEach((btn) => {
         btn.addEventListener("click", (e) => {
@@ -1596,11 +1680,9 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
           openCam(btn);
         });
       });
-      zone.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          openPicker();
-        }
+      zone.addEventListener("click", (e) => {
+        if (e.target.closest("button") || e.target.closest("a") || e.target.closest("input")) return;
+        if (zone.classList.contains("has-result")) openPicker();
       });
 
       const bindInput = (inp) => {
@@ -1686,8 +1768,43 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     const detectSuccess = document.getElementById("detectSuccess");
     const detectSide = document.getElementById("detectSide");
     const trySamples = document.getElementById("trySamples");
+    const attendanceLog = document.getElementById("attendanceLog");
+    const attendanceMarked = document.getElementById("attendanceMarked");
+    const attendanceRecent = document.getElementById("attendanceRecent");
+    const uploadTitle = document.querySelector("#dropHint .upload-title");
     let selectedFile = null;
     let detecting = false;
+    let detectMode = "detect";
+    const modeEndpoints = {
+      detect: "/v1/detect",
+      recognize: "/v2/recognize",
+      attendance: "/v2/attendance",
+    };
+    const modeTitles = {
+      detect: "Upload an image to see who’s here",
+      recognize: "Upload an image to match names",
+      attendance: "Upload an image to mark attendance",
+    };
+
+    function setDetectMode(mode) {
+      detectMode = modeEndpoints[mode] ? mode : "detect";
+      document.querySelectorAll(".mode-row .mode").forEach((btn) => {
+        btn.setAttribute("aria-checked", btn.getAttribute("data-mode") === detectMode ? "true" : "false");
+      });
+      if (uploadTitle) {
+        const sparkle = uploadTitle.querySelector(".sparkle");
+        uploadTitle.replaceChildren(
+          document.createTextNode(modeTitles[detectMode] + " "),
+          ...(sparkle ? [sparkle] : [])
+        );
+      }
+      if (attendanceLog) attendanceLog.hidden = detectMode !== "attendance";
+      if (detectMode === "attendance") loadAttendanceRecent();
+    }
+
+    document.querySelectorAll(".mode-row .mode").forEach((btn) => {
+      btn.addEventListener("click", () => setDetectMode(btn.getAttribute("data-mode")));
+    });
 
     function setDetectState(state, msg) {
       const active = state === "loading" || state === "error" || state === "success";
@@ -1731,6 +1848,50 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       return true;
     }
 
+    function renderAttendance(data) {
+      if (!attendanceLog) return;
+      const show = detectMode === "attendance";
+      attendanceLog.hidden = !show;
+      if (!show) return;
+      const marked = data.attendance || [];
+      if (attendanceMarked) {
+        if (!marked.length) {
+          attendanceMarked.innerHTML = `<p class="state-text">No enrolled matches to mark.</p>`;
+        } else {
+          attendanceMarked.innerHTML = marked
+            .map(
+              (e) =>
+                `<div class="att-row"><strong>${escapeHtml(e.name || "unknown")}</strong><span>${escapeHtml(
+                  e.match_score != null ? String(e.match_score) : ""
+                )}</span></div>`
+            )
+            .join("");
+        }
+      }
+      loadAttendanceRecent();
+    }
+
+    async function loadAttendanceRecent() {
+      if (!attendanceRecent) return;
+      try {
+        const events = await apiFetch("/v2/attendance?limit=10");
+        if (!events.length) {
+          attendanceRecent.innerHTML = `<p class="state-text">No events yet.</p>`;
+          return;
+        }
+        attendanceRecent.innerHTML = events
+          .map((e) => {
+            const when = (e.timestamp || "").replace("T", " ").slice(0, 19);
+            return `<div class="att-row"><strong>${escapeHtml(e.name || "unknown")}</strong><span>${escapeHtml(
+              when
+            )}</span></div>`;
+          })
+          .join("");
+      } catch (err) {
+        attendanceRecent.innerHTML = `<p class="state-text">${escapeHtml(err.message || "Could not load events.")}</p>`;
+      }
+    }
+
     async function detectFaces() {
       if (!selectedFile || detecting) return;
       setBusy(true);
@@ -1745,17 +1906,24 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       form.append("crop_format", "jpeg");
       form.append("max_faces", "50");
       form.append("square", "true");
-      form.append("identify", "true");
-      form.append("match_thresh", "0.35");
+      if (detectMode === "detect") {
+        form.append("identify", "true");
+        form.append("match_thresh", "0.35");
+      }
 
       try {
-        const data = await apiFetch("/v1/detect", { method: "POST", body: form });
+        const data = await apiFetch(modeEndpoints[detectMode], { method: "POST", body: form });
         if (!showProcessed(data)) return;
         const named = (data.faces || []).filter((f) => f.matched && f.name).length;
-        countTitle.textContent =
+        const markedN = (data.attendance || []).length;
+        let title =
           data.face_count === 1
             ? `1 person${named ? ` · ${named} named` : ""}`
             : `${data.face_count} people${named ? ` · ${named} named` : ""}`;
+        if (detectMode === "attendance") {
+          title += markedN ? ` · ${markedN} marked` : " · none marked";
+        }
+        countTitle.textContent = title;
 
         (data.faces || []).forEach((face, i) => {
           const card = document.createElement("article");
@@ -1764,12 +1932,14 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
           const src = `data:${face.mime_type};base64,${face.image_base64}`;
           const label = face.matched && face.name ? face.name : "unknown";
           const nameClass = face.matched && face.name ? "name" : "name unknown";
+          const safe = escapeHtml(label);
           card.innerHTML = `
-            <div class="thumb"><img alt="${label}" src="${src}" /></div>
-            <div class="${nameClass}">${label}</div>
+            <div class="thumb"><img alt="${safe}" src="${src}" /></div>
+            <div class="${nameClass}">${safe}</div>
           `;
           facesEl.appendChild(card);
         });
+        renderAttendance(data);
         setDetectState("success");
       } catch (err) {
         resetViewer();
@@ -1791,7 +1961,8 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
 
     wireIntake(drop, fileInput, setFile, fileCam);
 
-    async function trySample(url) {
+    async function trySample(url, opts) {
+      const fromUrl = !!(opts && opts.fromUrl);
       if (!url || detecting) return;
       setDetectState("loading");
       try {
@@ -1801,7 +1972,10 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         const name = url.split("/").pop() || "sample.jpg";
         setFile(new File([blob], name, { type: blob.type || "image/jpeg" }));
       } catch (err) {
-        setDetectState("error", err.message || String(err));
+        const msg = fromUrl
+          ? "Could not fetch that URL (browser CORS often blocks it). Upload or paste an image instead."
+          : err.message || String(err);
+        setDetectState("error", msg);
       }
     }
 
@@ -1819,11 +1993,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       if (detecting) return;
       const url = window.prompt("Paste an image URL");
       if (!url || !url.trim()) return;
-      try {
-        await trySample(url.trim());
-      } catch (err) {
-        setDetectState("error", err.message || "Could not load that URL.");
-      }
+      await trySample(url.trim(), { fromUrl: true });
     });
 
     const enrollDrop = document.getElementById("enrollDrop");
@@ -1914,11 +2084,21 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       try {
         const data = await apiFetch("/v1/enroll", { method: "POST", body: form });
         setEnrollBanner("ok", `Saved ${data.person.name}`);
+        enrollSelected = null;
+        enrollFile.value = "";
+        enrollName.value = "";
+        resetEnrollPreview();
+        enrollBtn.disabled = true;
+        enrollClearBtn.disabled = true;
       } catch (err) {
         setEnrollBanner("error", err.message || String(err));
       } finally {
         setEnrollBusy(false);
       }
+    });
+
+    document.getElementById("enrollViewPeopleBtn")?.addEventListener("click", () => {
+      switchTab("view-people");
     });
 
     const peopleList = document.getElementById("peopleList");
@@ -1933,14 +2113,6 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       peopleError.hidden = state !== "error";
       peopleList.hidden = state !== "list";
       if (state === "error") peopleErrorMsg.textContent = msg || "Try refresh.";
-    }
-
-    function escapeHtml(s) {
-      return String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
     }
 
     async function loadPeople() {

@@ -6,6 +6,7 @@ import logging
 import threading
 import time
 import uuid
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Literal
 
@@ -21,6 +22,7 @@ from starlette.responses import Response
 from app.attendance_store import attendance_store
 from app.config import settings
 from app.detector import detector_service
+from app import db as db_mod
 from app.image_utils import (
     crop_face,
     decode_image_base64,
@@ -30,6 +32,11 @@ from app.image_utils import (
 )
 from app.people_store import people_store
 from app.recognizer import DEFAULT_MATCH_THRESHOLD, recognizer_service
+from app.scoped_store import (
+    normalize_class_slug,
+    scoped_store,
+    validate_attendance_date,
+)
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
@@ -38,10 +45,20 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 _inflight = threading.Semaphore(settings.max_inflight)
 
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    db_mod.init_db()
+    detector_service.warmup()
+    recognizer_service.warmup()
+    yield
+
+
 app = FastAPI(
     title="Whozit",
     description="Detect faces, enroll people, recognize, and log attendance.",
-    version="2.0.0",
+    version="3.0.0",
+    lifespan=lifespan,
 )
 
 
@@ -117,6 +134,72 @@ class EnrollResponse(BaseModel):
     person: PersonOut
     face_confidence: float
     message: str
+
+
+class ScopedPersonOut(BaseModel):
+    id: str
+    name: str
+    class_slug: str
+    student_id: str | None = None
+    sample_count: int
+    created_at: str
+    updated_at: str
+
+
+class ScopedEnrollResponse(BaseModel):
+    request_id: str
+    person: ScopedPersonOut
+    face_confidence: float
+    message: str
+
+
+class ScopedAttendanceEventOut(BaseModel):
+    id: str
+    timestamp: str
+    class_slug: str
+    person_id: str
+    name: str
+    match_score: float
+    source_request_id: str
+    face_id: int | None = None
+
+
+class ScopedRecognizeResponse(DetectResponse):
+    class_slug: str
+    unknown_count: int
+    attendance: list[ScopedAttendanceEventOut]
+
+
+class DailyRollRequest(BaseModel):
+    class_slug: str
+    date: str = Field(..., description="YYYY-MM-DD (client timezone)")
+    present_student_ids: list[str] = Field(default_factory=list)
+
+
+class DailyPresentOut(BaseModel):
+    student_id: str
+    name: str
+
+
+class DailyRollOut(BaseModel):
+    id: str
+    class_slug: str
+    date: str
+    present: list[DailyPresentOut]
+    created_at: str
+    updated_at: str
+
+
+class DayStatusOut(BaseModel):
+    class_slug: str
+    date: str
+    has_roll: bool
+    present: list[DailyPresentOut]
+    absent: list[DailyPresentOut]
+    present_count: int
+    absent_count: int
+    roster_count: int
+    attendance_pct: float | None = None
 
 
 class ErrorBody(BaseModel):
@@ -320,6 +403,7 @@ async def _enroll_from_image(
     try:
         emb = recognizer_service.embed(image_bgr, np.asarray(face.landmarks, dtype=np.float32))
         person = people_store.enroll(name=name, embedding=emb, person_id=person_id or None)
+        recognizer_service.invalidate_gallery()
     except KeyError as exc:
         raise _error(404, "person_not_found", str(exc), request_id) from exc
     except Exception as exc:  # noqa: BLE001
@@ -355,6 +439,7 @@ def _list_people() -> list[PersonOut]:
 def _delete_person(person_id: str, request_id: str) -> dict[str, Any]:
     if not people_store.delete(person_id):
         raise _error(404, "person_not_found", f"No person with id {person_id}", request_id)
+    recognizer_service.invalidate_gallery()
     return {"request_id": request_id, "deleted": True, "person_id": person_id}
 
 
@@ -489,7 +574,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
         # Inflight concurrency guard (skip cheap static/health probes)
         path = request.url.path
-        gated = path.startswith("/v1/") or path.startswith("/v2/")
+        gated = path.startswith("/v1/") or path.startswith("/v2/") or path.startswith("/v3/")
         acquired = False
         if gated:
             acquired = _inflight.acquire(blocking=False)
@@ -551,14 +636,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 # ---------------------------------------------------------------------------
-# Startup / health / UI
+# Health / UI
 # ---------------------------------------------------------------------------
-
-
-@app.on_event("startup")
-def _startup() -> None:
-    detector_service.warmup()
-    recognizer_service.warmup()
 
 
 @app.get("/health")
@@ -569,6 +648,7 @@ def health() -> dict[str, Any]:
         "recognizer_loaded": recognizer_service.ready(),
         "people_count": len(people_store.list_people()),
         "attendance_count": attendance_store.count(),
+        "scoped_students_count": scoped_store.count_students(),
         "auth_enabled": settings.auth_enabled,
         "engine": "whozit/SCRFD+ArcFace",
     }
@@ -750,6 +830,464 @@ def list_attendance(limit: int = 100) -> list[AttendanceEventOut]:
         )
         for e in events
     ]
+
+
+# ---------------------------------------------------------------------------
+# v3 — class_slug scoped (SQLite)
+# ---------------------------------------------------------------------------
+
+
+def _parse_class_slug(raw: str | None, request_id: str) -> str:
+    if raw is None or not str(raw).strip():
+        raise _error(400, "validation_error", "class_slug is required", request_id)
+    try:
+        return normalize_class_slug(str(raw))
+    except ValueError as exc:
+        raise _error(422, "validation_error", str(exc), request_id) from exc
+
+
+def _run_detect_scoped(
+    image_bgr: Any,
+    *,
+    class_slug: str,
+    conf_thresh: float,
+    padding: float,
+    crop_format: Literal["jpeg", "png"],
+    jpeg_quality: int,
+    max_faces: int,
+    include_landmarks: bool,
+    square: bool,
+    match_thresh: float,
+    request_id: str,
+) -> DetectResponse:
+    height, width = image_bgr.shape[:2]
+    need_landmarks = True
+    detected = detector_service.detect(
+        image_bgr,
+        confidence_threshold=conf_thresh,
+        max_faces=max_faces,
+        include_landmarks=need_landmarks,
+    )
+
+    faces_out: list[FaceOut] = []
+    labels: list[str] = []
+    for idx, face in enumerate(detected):
+        try:
+            crop = crop_face(image_bgr, face.bbox, padding=padding, square=square)
+            b64, mime = encode_image_base64(crop, crop_format=crop_format, jpeg_quality=jpeg_quality)
+        except Exception as exc:  # noqa: BLE001
+            raise _error(500, "processing_error", f"Failed to crop face {idx}: {exc}", request_id) from exc
+
+        person_id = None
+        name = None
+        match_score = None
+        matched = False
+        if face.landmarks is not None:
+            try:
+                emb = recognizer_service.embed(image_bgr, np.asarray(face.landmarks, dtype=np.float32))
+                match = recognizer_service.match_in_slug(emb, class_slug, threshold=match_thresh)
+                person_id = match.person_id
+                name = match.name
+                match_score = match.score
+                matched = match.matched
+            except Exception as exc:  # noqa: BLE001
+                raise _error(500, "recognition_error", f"Failed to identify face {idx}: {exc}", request_id) from exc
+
+        labels.append(name if matched and name else "unknown")
+
+        ch, cw = crop.shape[:2]
+        faces_out.append(
+            FaceOut(
+                id=idx,
+                bbox=[round(v, 2) for v in face.bbox],
+                confidence=round(face.confidence, 4),
+                mime_type=mime,
+                image_base64=b64,
+                width=cw,
+                height=ch,
+                square=bool(square and cw == ch),
+                landmarks=face.landmarks if include_landmarks else None,
+                person_id=person_id,
+                name=name,
+                match_score=match_score,
+                matched=matched,
+            )
+        )
+
+    try:
+        boxed = draw_face_boxes(image_bgr, [f.bbox for f in faces_out], labels=labels)
+        annotated_b64, annotated_mime = encode_image_base64(
+            boxed, crop_format=crop_format, jpeg_quality=jpeg_quality
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise _error(500, "processing_error", f"Failed to annotate image: {exc}", request_id) from exc
+
+    return DetectResponse(
+        request_id=request_id,
+        face_count=len(faces_out),
+        image_width=width,
+        image_height=height,
+        annotated_image_base64=annotated_b64,
+        annotated_mime_type=annotated_mime,
+        faces=faces_out,
+    )
+
+
+async def _enroll_scoped(
+    *,
+    name: str,
+    class_slug: str,
+    raw: bytes,
+    person_id: str | None,
+    student_id: str | None,
+    conf_thresh: float,
+    request_id: str,
+) -> ScopedEnrollResponse:
+    if not name.strip():
+        raise _error(400, "validation_error", "name is required", request_id)
+    slug = _parse_class_slug(class_slug, request_id)
+
+    image_bgr = _decode_upload(raw, request_id)
+    faces = detector_service.detect(
+        image_bgr,
+        confidence_threshold=conf_thresh,
+        max_faces=5,
+        include_landmarks=True,
+    )
+    if not faces:
+        raise _error(400, "no_face", "No face found in enrollment image", request_id)
+    face = faces[0]
+    if face.landmarks is None:
+        raise _error(400, "no_landmarks", "Face landmarks missing; cannot enroll", request_id)
+
+    try:
+        emb = recognizer_service.embed(image_bgr, np.asarray(face.landmarks, dtype=np.float32))
+        person = scoped_store.enroll(
+            name=name,
+            class_slug=slug,
+            embedding=emb,
+            person_id=person_id or None,
+            student_id=student_id,
+        )
+        recognizer_service.invalidate_slug(slug)
+    except KeyError as exc:
+        raise _error(404, "person_not_found", str(exc), request_id) from exc
+    except ValueError as exc:
+        raise _error(422, "validation_error", str(exc), request_id) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise _error(500, "enroll_error", f"Failed to enroll: {exc}", request_id) from exc
+
+    return ScopedEnrollResponse(
+        request_id=request_id,
+        person=ScopedPersonOut(
+            id=person.id,
+            name=person.name,
+            class_slug=person.class_slug,
+            student_id=person.student_id,
+            sample_count=len(person.embeddings),
+            created_at=person.created_at,
+            updated_at=person.updated_at,
+        ),
+        face_confidence=round(face.confidence, 4),
+        message=f"Enrolled '{person.name}' in {person.class_slug} ({person.id})",
+    )
+
+
+@app.post(
+    "/v3/enroll",
+    response_model=ScopedEnrollResponse,
+    responses={400: {"model": ErrorResponse}, 413: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
+    dependencies=[Depends(require_api_key)],
+)
+async def enroll_person_v3(
+    request: Request,
+    name: str = Form(..., description="Display name"),
+    class_slug: str = Form(..., description="e.g. pk/lahore-east/school-abc/class-5a"),
+    image: UploadFile = File(..., description="Clear face photo (or crop of unknown)"),
+    person_id: str | None = Form(None, description="Optional existing id to add another sample"),
+    student_id: str | None = Form(None, description="Optional external roll / school id"),
+    conf_thresh: float = Form(0.5),
+) -> ScopedEnrollResponse:
+    request_id = _request_id_from_request(request)
+    raw = await image.read()
+    return await _enroll_scoped(
+        name=name,
+        class_slug=class_slug,
+        raw=raw,
+        person_id=person_id,
+        student_id=student_id,
+        conf_thresh=conf_thresh,
+        request_id=request_id,
+    )
+
+
+@app.get("/v3/people", response_model=list[ScopedPersonOut], dependencies=[Depends(require_api_key)])
+def list_people_v3(request: Request, class_slug: str) -> list[ScopedPersonOut]:
+    request_id = _request_id_from_request(request)
+    slug = _parse_class_slug(class_slug, request_id)
+    return [
+        ScopedPersonOut(
+            id=p.id,
+            name=p.name,
+            class_slug=p.class_slug,
+            student_id=p.student_id,
+            sample_count=len(p.embeddings),
+            created_at=p.created_at,
+            updated_at=p.updated_at,
+        )
+        for p in scoped_store.list_people(slug)
+    ]
+
+
+@app.delete("/v3/people/{person_id}", dependencies=[Depends(require_api_key)])
+def delete_person_v3(person_id: str, request: Request) -> dict[str, Any]:
+    request_id = _request_id_from_request(request)
+    person = scoped_store.get(person_id)
+    if person is None or not scoped_store.delete(person_id):
+        raise _error(404, "person_not_found", f"No person with id {person_id}", request_id)
+    recognizer_service.invalidate_slug(person.class_slug)
+    return {"request_id": request_id, "deleted": True, "person_id": person_id}
+
+
+@app.post(
+    "/v3/recognize",
+    response_model=ScopedRecognizeResponse,
+    responses={400: {"model": ErrorResponse}, 413: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
+    dependencies=[Depends(require_api_key)],
+)
+async def recognize_v3(request: Request) -> ScopedRecognizeResponse:
+    """Detect + match within class_slug; log face attendance events for matched."""
+    request_id = _request_id_from_request(request)
+    content_type = (request.headers.get("content-type") or "").lower()
+
+    if "application/json" in content_type:
+        body = await request.json()
+        slug = _parse_class_slug(body.get("class_slug"), request_id)
+        conf_thresh = float(body.get("conf_thresh", 0.5))
+        padding = float(body.get("padding", 0.2))
+        crop_format_raw = str(body.get("crop_format") or "jpeg").lower()
+        if crop_format_raw not in {"jpeg", "png"}:
+            raise _error(422, "validation_error", "crop_format must be jpeg or png", request_id)
+        crop_format: Literal["jpeg", "png"] = crop_format_raw  # type: ignore[assignment]
+        jpeg_quality = int(body.get("jpeg_quality", 90))
+        max_faces = int(body.get("max_faces", 100))
+        include_landmarks = bool(body.get("include_landmarks", False))
+        square = bool(body.get("square", True))
+        match_thresh = float(body.get("match_thresh", DEFAULT_MATCH_THRESHOLD))
+        _validate_detect_params(conf_thresh, padding, max_faces, match_thresh, request_id)
+        image_bgr = _decode_b64(str(body.get("image_base64") or ""), request_id)
+        detect = _run_detect_scoped(
+            image_bgr,
+            class_slug=slug,
+            conf_thresh=conf_thresh,
+            padding=padding,
+            crop_format=crop_format,
+            jpeg_quality=jpeg_quality,
+            max_faces=max_faces,
+            include_landmarks=include_landmarks,
+            square=square,
+            match_thresh=match_thresh,
+            request_id=request_id,
+        )
+    else:
+        form = await request.form()
+        slug = _parse_class_slug(form.get("class_slug"), request_id)  # type: ignore[arg-type]
+        upload = form.get("image")
+        if upload is None or not hasattr(upload, "read"):
+            raise _error(400, "missing_image", "No file / no image_base64", request_id)
+        conf_thresh = _form_float(form.get("conf_thresh"), 0.5)  # type: ignore[arg-type]
+        padding = _form_float(form.get("padding"), 0.2)  # type: ignore[arg-type]
+        crop_format_raw = str(form.get("crop_format") or "jpeg").lower()
+        if crop_format_raw not in {"jpeg", "png"}:
+            raise _error(422, "validation_error", "crop_format must be jpeg or png", request_id)
+        crop_format = crop_format_raw  # type: ignore[assignment]
+        jpeg_quality = _form_int(form.get("jpeg_quality"), 90)  # type: ignore[arg-type]
+        max_faces = _form_int(form.get("max_faces"), 100)  # type: ignore[arg-type]
+        include_landmarks = _form_bool(form.get("include_landmarks"), False)  # type: ignore[arg-type]
+        square = _form_bool(form.get("square"), True)  # type: ignore[arg-type]
+        match_thresh = _form_float(form.get("match_thresh"), DEFAULT_MATCH_THRESHOLD)  # type: ignore[arg-type]
+        _validate_detect_params(conf_thresh, padding, max_faces, match_thresh, request_id)
+        raw = await upload.read()  # type: ignore[union-attr]
+        image_bgr = _decode_upload(raw, request_id)
+        detect = _run_detect_scoped(
+            image_bgr,
+            class_slug=slug,
+            conf_thresh=conf_thresh,
+            padding=padding,
+            crop_format=crop_format,
+            jpeg_quality=jpeg_quality,
+            max_faces=max_faces,
+            include_landmarks=include_landmarks,
+            square=square,
+            match_thresh=match_thresh,
+            request_id=request_id,
+        )
+
+    face_payloads = [
+        {
+            "matched": f.matched,
+            "person_id": f.person_id,
+            "name": f.name,
+            "match_score": f.match_score,
+            "face_id": f.id,
+        }
+        for f in detect.faces
+    ]
+    events = scoped_store.record_face_events(
+        class_slug=slug, source_request_id=detect.request_id, faces=face_payloads
+    )
+    unknown_count = sum(1 for f in detect.faces if not f.matched)
+    return ScopedRecognizeResponse(
+        request_id=detect.request_id,
+        face_count=detect.face_count,
+        image_width=detect.image_width,
+        image_height=detect.image_height,
+        annotated_image_base64=detect.annotated_image_base64,
+        annotated_mime_type=detect.annotated_mime_type,
+        faces=detect.faces,
+        class_slug=slug,
+        unknown_count=unknown_count,
+        attendance=[
+            ScopedAttendanceEventOut(
+                id=e.id,
+                timestamp=e.timestamp,
+                class_slug=e.class_slug,
+                person_id=e.student_id,
+                name=e.name,
+                match_score=e.match_score,
+                source_request_id=e.source_request_id,
+                face_id=e.face_id,
+            )
+            for e in events
+        ],
+    )
+
+
+@app.get(
+    "/v3/classes",
+    response_model=list[str],
+    dependencies=[Depends(require_api_key)],
+)
+def list_classes_v3() -> list[str]:
+    return scoped_store.list_class_slugs()
+
+
+@app.get(
+    "/v3/attendance",
+    response_model=list[ScopedAttendanceEventOut],
+    dependencies=[Depends(require_api_key)],
+)
+def list_attendance_v3(request: Request, class_slug: str, limit: int = 100) -> list[ScopedAttendanceEventOut]:
+    request_id = _request_id_from_request(request)
+    slug = _parse_class_slug(class_slug, request_id)
+    return [
+        ScopedAttendanceEventOut(
+            id=e.id,
+            timestamp=e.timestamp,
+            class_slug=e.class_slug,
+            person_id=e.student_id,
+            name=e.name,
+            match_score=e.match_score,
+            source_request_id=e.source_request_id,
+            face_id=e.face_id,
+        )
+        for e in scoped_store.list_face_events(slug, limit=limit)
+    ]
+
+
+@app.post(
+    "/v3/attendance/day",
+    response_model=DailyRollOut,
+    responses={400: {"model": ErrorResponse}, 422: {"model": ErrorResponse}},
+    dependencies=[Depends(require_api_key)],
+)
+def set_daily_attendance(request: Request, body: DailyRollRequest) -> DailyRollOut:
+    request_id = _request_id_from_request(request)
+    slug = _parse_class_slug(body.class_slug, request_id)
+    try:
+        validate_attendance_date(body.date)
+        roll = scoped_store.set_daily_roll(
+            class_slug=slug,
+            attendance_date=body.date,
+            present_student_ids=body.present_student_ids,
+        )
+    except KeyError as exc:
+        raise _error(422, "validation_error", str(exc), request_id) from exc
+    except ValueError as exc:
+        raise _error(422, "validation_error", str(exc), request_id) from exc
+    return DailyRollOut(
+        id=roll.id,
+        class_slug=roll.class_slug,
+        date=roll.attendance_date,
+        present=[DailyPresentOut(student_id=p.student_id, name=p.name) for p in roll.present],
+        created_at=roll.created_at,
+        updated_at=roll.updated_at,
+    )
+
+
+@app.get(
+    "/v3/attendance/day/status",
+    response_model=DayStatusOut,
+    dependencies=[Depends(require_api_key)],
+)
+def get_day_status(request: Request, class_slug: str, date: str) -> DayStatusOut:
+    request_id = _request_id_from_request(request)
+    slug = _parse_class_slug(class_slug, request_id)
+    try:
+        status = scoped_store.day_status(slug, date)
+    except ValueError as exc:
+        raise _error(422, "validation_error", str(exc), request_id) from exc
+    present_n = len(status.present)
+    absent_n = len(status.absent)
+    roster_n = present_n + absent_n
+    pct = round(100.0 * present_n / roster_n, 1) if roster_n and status.has_roll else None
+    return DayStatusOut(
+        class_slug=status.class_slug,
+        date=status.attendance_date,
+        has_roll=status.has_roll,
+        present=[DailyPresentOut(student_id=p.student_id, name=p.name) for p in status.present],
+        absent=[DailyPresentOut(student_id=p.student_id, name=p.name) for p in status.absent],
+        present_count=present_n,
+        absent_count=absent_n,
+        roster_count=roster_n,
+        attendance_pct=pct,
+    )
+
+
+@app.get(
+    "/v3/attendance/day",
+    response_model=DailyRollOut,
+    responses={404: {"model": ErrorResponse}},
+    dependencies=[Depends(require_api_key)],
+)
+def get_daily_attendance(request: Request, class_slug: str, date: str) -> DailyRollOut:
+    request_id = _request_id_from_request(request)
+    slug = _parse_class_slug(class_slug, request_id)
+    try:
+        validate_attendance_date(date)
+    except ValueError as exc:
+        raise _error(422, "validation_error", str(exc), request_id) from exc
+    roll = scoped_store.get_daily_roll(slug, date)
+    if roll is None:
+        raise _error(404, "not_found", f"No daily roll for {slug} on {date}", request_id)
+    return DailyRollOut(
+        id=roll.id,
+        class_slug=roll.class_slug,
+        date=roll.attendance_date,
+        present=[DailyPresentOut(student_id=p.student_id, name=p.name) for p in roll.present],
+        created_at=roll.created_at,
+        updated_at=roll.updated_at,
+    )
+
+
+@app.get("/teacher")
+def teacher_ui() -> FileResponse:
+    return FileResponse(STATIC_DIR / "teacher.html")
+
+
+@app.get("/dashboard")
+def dashboard_ui() -> FileResponse:
+    return FileResponse(STATIC_DIR / "dashboard.html")
 
 
 if STATIC_DIR.is_dir():

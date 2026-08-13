@@ -16,6 +16,7 @@ COPY static/ static/
 ENV WHOZIT_CACHE_DIR=/models
 ENV WHOZIT_PEOPLE_PATH=/data/people.json
 ENV WHOZIT_ATTENDANCE_PATH=/data/attendance.json
+ENV WHOZIT_SQLITE_PATH=/data/whozit_v3.db
 ENV PYTHONUNBUFFERED=1
 
 RUN mkdir -p /data /models

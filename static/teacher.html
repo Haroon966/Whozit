@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F0FDFA" />
+  <title>Whozit — Teacher</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/whozit-shell.css" />
+  <style>
+    .steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+    .steps button {
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 0.5rem 0.8rem;
+      border-radius: 10px;
+      border: 2px solid var(--line);
+      background: var(--paper);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background var(--ease), color var(--ease), border-color var(--ease);
+    }
+    .steps button:hover:not(:disabled) {
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .steps button:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .steps button[aria-current="step"] {
+      background: #CCFBF1;
+      color: var(--primary);
+      border-color: var(--line-strong);
+    }
+    .steps button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .panel[hidden] { display: none !important; }
+    .panel h2 {
+      font-family: var(--display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.65rem;
+    }
+    .roster-list, .check-list, .unknown-list { list-style: none; margin: 0; padding: 0; }
+    .roster-list li, .check-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.7rem 0;
+      border-bottom: 2px solid var(--line);
+    }
+    .check-list label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 600;
+      flex: 1;
+      cursor: pointer;
+    }
+    .unknown-card {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.85rem 0;
+      border-bottom: 2px solid var(--line);
+    }
+    .unknown-card img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid var(--line);
+    }
+    .preview {
+      max-width: 100%;
+      border-radius: var(--radius);
+      border: 2px solid var(--line);
+      margin-top: 0.75rem;
+    }
+    .drop {
+      border: 2px dashed var(--line-strong);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+      background: var(--bg);
+      cursor: pointer;
+      transition: background var(--ease), border-color var(--ease);
+    }
+    .drop:hover, .drop:focus-within, .drop.drag {
+      border-color: var(--primary);
+      background: #CCFBF1;
+    }
+    .cam-wrap {
+      position: relative;
+      background: #0F172A;
+      border-radius: var(--radius);
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      max-height: 320px;
+      border: 2px solid var(--ink);
+      margin-top: 0.75rem;
+    }
+    .cam-wrap video { width: 100%; height: 100%; object-fit: cover; }
+    .recent { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+    .recent button {
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.7rem;
+      border-radius: 8px;
+      border: 2px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      transition: background var(--ease);
+    }
+    .recent button:hover { background: var(--bg); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16"/>
+          <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/>
+          <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 16.5c.9-1.8 2.5-2.7 4-2.7s3.1.9 4 2.7"/>
+        </svg>
+        Whozit
+      </a>
+      <nav class="app-nav" aria-label="App">
+        <a href="/">Home</a>
+        <a href="/teacher" aria-current="page">Teacher</a>
+        <a href="/dashboard">Dashboard</a>
+      </nav>
+    </header>
+
+    <main class="main">
+      <h1 class="screen-title">Teacher attendance</h1>
+      <p class="lede">Pick a class, enroll faces, scan the room, resolve unknowns, then save today’s present list.</p>
+
+      <div class="steps" role="tablist" aria-label="Steps">
+        <button type="button" data-step="1" aria-current="step">1 Class</button>
+        <button type="button" data-step="2">2 Roster</button>
+        <button type="button" data-step="3">3 Scan</button>
+        <button type="button" data-step="4">4 Unknowns</button>
+        <button type="button" data-step="5">5 Save day</button>
+      </div>
+
+      <div id="globalMsg" hidden class="msg" role="status"></div>
+
+      <!-- Step 1 -->
+      <section class="panel card" id="step-1" data-panel="1">
+        <h2>Class slug</h2>
+        <p class="lede" style="margin-bottom:0.75rem">Example: <code>pk/lahore-east/school-abc/class-5a</code></p>
+        <label class="field">Class slug
+          <input type="text" id="classSlug" autocomplete="off" placeholder="pk/sector/school/class" />
+        </label>
+        <div class="recent" id="recentSlugs" aria-label="Recent classes"></div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="btnSaveSlug">Continue</button>
+        </div>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="panel card" id="step-2" data-panel="2" hidden>
+        <h2>Roster &amp; enroll</h2>
+        <p id="slugBadge" class="chip" style="margin-bottom:0.75rem"></p>
+        <ul class="roster-list" id="rosterList"></ul>
+        <p id="rosterEmpty" class="msg msg-muted" hidden>No students yet. Enroll below.</p>
+
+        <h3 style="font-family:var(--display);margin:1rem 0 0.5rem">Add student</h3>
+        <label class="field">Name
+          <input type="text" id="enrollName" placeholder="Haroon" />
+        </label>
+        <label class="field">External student ID (optional)
+          <input type="text" id="enrollStudentId" placeholder="roll-12" />
+        </label>
+        <div class="drop" id="enrollDrop" tabindex="0" role="button" aria-label="Upload enroll photo">
+          <p><strong>Drop / click</strong> face photo</p>
+          <input type="file" id="enrollFile" accept="image/*" class="sr-only" />
+        </div>
+        <img id="enrollPreview" class="preview" alt="" hidden />
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary" id="btnEnrollCam">Camera</button>
+          <button type="button" class="btn btn-accent" id="btnEnroll" disabled>Enroll</button>
+          <button type="button" class="btn btn-primary" id="btnToScan">Next: Scan</button>
+        </div>
+        <div class="cam-wrap" id="enrollCamWrap" hidden>
+          <video id="enrollVideo" autoplay playsinline muted></video>
+        </div>
+        <div class="btn-row" id="enrollCamBtns" hidden>
+          <button type="button" class="btn btn-primary" id="btnEnrollSnap">Capture</button>
+          <button type="button" class="btn btn-secondary" id="btnEnrollCamStop">Stop camera</button>
+        </div>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="panel card" id="step-3" data-panel="3" hidden>
+        <h2>Scan classroom</h2>
+        <div class="drop" id="scanDrop" tabindex="0" role="button" aria-label="Upload classroom photo">
+          <p><strong>Drop / click</strong> classroom photo</p>
+          <input type="file" id="scanFile" accept="image/*" class="sr-only" />
+        </div>
+        <img id="scanPreview" class="preview" alt="" hidden />
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary" id="btnScanCam">Camera</button>
+          <button type="button" class="btn btn-accent" id="btnRecognize" disabled>Recognize</button>
+        </div>
+        <div class="cam-wrap" id="scanCamWrap" hidden>
+          <video id="scanVideo" autoplay playsinline muted></video>
+        </div>
+        <div class="btn-row" id="scanCamBtns" hidden>
+          <button type="button" class="btn btn-primary" id="btnScanSnap">Capture</button>
+          <button type="button" class="btn btn-secondary" id="btnScanCamStop">Stop camera</button>
+        </div>
+        <div id="scanResult" hidden style="margin-top:1rem">
+          <p><span class="chip chip-ok" id="matchedChip"></span>
+             <span class="chip chip-bad" id="unknownChip"></span></p>
+          <img id="annotatedPreview" class="preview" alt="Annotated scan" hidden />
+        </div>
+      </section>
+
+      <!-- Step 4 -->
+      <section class="panel card" id="step-4" data-panel="4" hidden>
+        <h2>Unknown faces</h2>
+        <p class="lede">Name + enroll, or discard. Then continue.</p>
+        <div id="unknownList" class="unknown-list"></div>
+        <p id="unknownEmpty" class="msg msg-ok" hidden>No unknowns — all faces matched.</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="btnToConfirm">Next: Confirm present</button>
+        </div>
+      </section>
+
+      <!-- Step 5 -->
+      <section class="panel card" id="step-5" data-panel="5" hidden>
+        <h2>Confirm present</h2>
+        <label class="field">Date
+          <input type="date" id="attendDate" />
+        </label>
+        <ul class="check-list" id="presentList"></ul>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary" id="btnSelectMatched">Select matched only</button>
+          <button type="button" class="btn btn-secondary" id="btnSelectAll">Select all</button>
+          <button type="button" class="btn btn-primary" id="btnSaveDay">Save daily roll</button>
+        </div>
+        <p id="saveMsg" class="msg" hidden></p>
+        <p style="margin-top:1rem"><a href="/dashboard">Open dashboard →</a></p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const SLUG_KEY = "whozit_class_slug";
+    const RECENT_KEY = "whozit_recent_slugs";
+
+    const state = {
+      step: 1,
+      slug: localStorage.getItem(SLUG_KEY) || "",
+      enrollBlob: null,
+      scanBlob: null,
+      roster: [],
+      matchedIds: new Set(),
+      unknowns: [],
+      streams: { enroll: null, scan: null },
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function showMsg(text, kind = "muted") {
+      const el = $("globalMsg");
+      el.hidden = !text;
+      el.className = "msg msg-" + kind;
+      el.textContent = text || "";
+    }
+
+    function todayISO() {
+      const d = new Date();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${d.getFullYear()}-${m}-${day}`;
+    }
+
+    function rememberSlug(slug) {
+      localStorage.setItem(SLUG_KEY, slug);
+      let recent = [];
+      try { recent = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch (_) {}
+      recent = [slug, ...recent.filter((s) => s !== slug)].slice(0, 6);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+      renderRecent();
+    }
+
+    function renderRecent() {
+      const box = $("recentSlugs");
+      let recent = [];
+      try { recent = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch (_) {}
+      box.innerHTML = recent.map((s) =>
+        `<button type="button" data-slug="${s.replace(/"/g, "&quot;")}">${s}</button>`
+      ).join("");
+      box.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          $("classSlug").value = btn.getAttribute("data-slug");
+        });
+      });
+    }
+
+    function setStep(n) {
+      state.step = n;
+      document.querySelectorAll(".panel").forEach((p) => {
+        p.hidden = Number(p.getAttribute("data-panel")) !== n;
+      });
+      document.querySelectorAll(".steps button").forEach((btn) => {
+        const s = Number(btn.getAttribute("data-step"));
+        btn.setAttribute("aria-current", s === n ? "step" : "false");
+        btn.disabled = s > 1 && !state.slug;
+      });
+      if (n === 2) loadRoster();
+      if (n === 5) buildPresentList();
+      showMsg("");
+    }
+
+    async function api(path, opts = {}) {
+      const res = await fetch(path, opts);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = data?.error?.message || res.statusText || "Request failed";
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    async function loadRoster() {
+      if (!state.slug) return;
+      $("slugBadge").textContent = state.slug;
+      try {
+        state.roster = await api(`/v3/people?class_slug=${encodeURIComponent(state.slug)}`);
+      } catch (e) {
+        showMsg(e.message, "error");
+        return;
+      }
+      const list = $("rosterList");
+      $("rosterEmpty").hidden = state.roster.length > 0;
+      list.innerHTML = state.roster.map((p) => `
+        <li>
+          <span><strong>${escapeHtml(p.name)}</strong>
+            ${p.student_id ? `<span class="chip">${escapeHtml(p.student_id)}</span>` : ""}
+            <span class="chip">${p.sample_count} sample${p.sample_count === 1 ? "" : "s"}</span>
+          </span>
+          <button type="button" class="btn btn-danger" data-del="${p.id}">Delete</button>
+        </li>`).join("");
+      list.querySelectorAll("[data-del]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("Delete this student?")) return;
+          try {
+            await api(`/v3/people/${btn.getAttribute("data-del")}`, { method: "DELETE" });
+            await loadRoster();
+            showMsg("Deleted", "ok");
+          } catch (e) {
+            showMsg(e.message, "error");
+          }
+        });
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[c]);
+    }
+
+    function wireDrop(dropId, fileId, onFile) {
+      const drop = $(dropId);
+      const file = $(fileId);
+      drop.addEventListener("click", () => file.click());
+      drop.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); }
+      });
+      drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
+      drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+      drop.addEventListener("drop", (e) => {
+        e.preventDefault();
+        drop.classList.remove("drag");
+        const f = e.dataTransfer.files?.[0];
+        if (f) onFile(f);
+      });
+      file.addEventListener("change", () => {
+        const f = file.files?.[0];
+        if (f) onFile(f);
+      });
+    }
+
+    function setPreview(imgId, blob) {
+      const img = $(imgId);
+      if (img._url) URL.revokeObjectURL(img._url);
+      img._url = URL.createObjectURL(blob);
+      img.src = img._url;
+      img.hidden = false;
+    }
+
+    async function startCam(kind) {
+      stopCam(kind);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+      state.streams[kind] = stream;
+      const video = $(kind === "enroll" ? "enrollVideo" : "scanVideo");
+      video.srcObject = stream;
+      $(kind === "enroll" ? "enrollCamWrap" : "scanCamWrap").hidden = false;
+      $(kind === "enroll" ? "enrollCamBtns" : "scanCamBtns").hidden = false;
+    }
+
+    function stopCam(kind) {
+      const s = state.streams[kind];
+      if (s) s.getTracks().forEach((t) => t.stop());
+      state.streams[kind] = null;
+      const video = $(kind === "enroll" ? "enrollVideo" : "scanVideo");
+      video.srcObject = null;
+      $(kind === "enroll" ? "enrollCamWrap" : "scanCamWrap").hidden = true;
+      $(kind === "enroll" ? "enrollCamBtns" : "scanCamBtns").hidden = true;
+    }
+
+    function snap(kind) {
+      const video = $(kind === "enroll" ? "enrollVideo" : "scanVideo");
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        if (kind === "enroll") {
+          state.enrollBlob = blob;
+          setPreview("enrollPreview", blob);
+          $("btnEnroll").disabled = !$("enrollName").value.trim();
+        } else {
+          state.scanBlob = blob;
+          setPreview("scanPreview", blob);
+          $("btnRecognize").disabled = false;
+        }
+        stopCam(kind);
+      }, "image/jpeg", 0.92);
+    }
+
+    async function doEnroll(blob, name, studentId) {
+      const fd = new FormData();
+      fd.append("name", name);
+      fd.append("class_slug", state.slug);
+      fd.append("image", blob, "face.jpg");
+      if (studentId) fd.append("student_id", studentId);
+      return api("/v3/enroll", { method: "POST", body: fd });
+    }
+
+    function renderUnknowns() {
+      const box = $("unknownList");
+      $("unknownEmpty").hidden = state.unknowns.length > 0;
+      box.innerHTML = state.unknowns.map((u, i) => `
+        <div class="unknown-card" data-idx="${i}">
+          <img src="data:${u.mime_type};base64,${u.image_base64}" alt="Unknown face ${i + 1}" />
+          <div>
+            <label class="field">Name
+              <input type="text" class="unk-name" data-idx="${i}" placeholder="Student name" />
+            </label>
+            <div class="btn-row">
+              <button type="button" class="btn btn-accent unk-enroll" data-idx="${i}">Enroll</button>
+              <button type="button" class="btn btn-secondary unk-discard" data-idx="${i}">Discard</button>
+            </div>
+          </div>
+        </div>`).join("");
+
+      box.querySelectorAll(".unk-discard").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const i = Number(btn.getAttribute("data-idx"));
+          state.unknowns.splice(i, 1);
+          renderUnknowns();
+        });
+      });
+      box.querySelectorAll(".unk-enroll").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const i = Number(btn.getAttribute("data-idx"));
+          const name = box.querySelector(`.unk-name[data-idx="${i}"]`)?.value?.trim();
+          if (!name) { showMsg("Name required", "error"); return; }
+          const u = state.unknowns[i];
+          try {
+            const bin = atob(u.image_base64);
+            const arr = new Uint8Array(bin.length);
+            for (let j = 0; j < bin.length; j++) arr[j] = bin.charCodeAt(j);
+            const blob = new Blob([arr], { type: u.mime_type || "image/jpeg" });
+            const res = await doEnroll(blob, name, null);
+            state.matchedIds.add(res.person.id);
+            state.unknowns.splice(i, 1);
+            await loadRoster();
+            renderUnknowns();
+            showMsg(`Enrolled ${name}`, "ok");
+          } catch (e) {
+            showMsg(e.message, "error");
+          }
+        });
+      });
+    }
+
+    function buildPresentList() {
+      $("attendDate").value = $("attendDate").value || todayISO();
+      const list = $("presentList");
+      list.innerHTML = state.roster.map((p) => {
+        const checked = state.matchedIds.has(p.id) ? "checked" : "";
+        return `<li><label>
+          <input type="checkbox" value="${p.id}" ${checked} />
+          ${escapeHtml(p.name)}
+        </label></li>`;
+      }).join("");
+      if (!state.roster.length) {
+        list.innerHTML = "<li class='msg msg-muted'>Roster empty — enroll students first.</li>";
+      }
+    }
+
+    // Wire UI
+    document.querySelectorAll(".steps button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const s = Number(btn.getAttribute("data-step"));
+        if (s > 1 && !state.slug) return;
+        setStep(s);
+      });
+    });
+
+    $("btnSaveSlug").addEventListener("click", () => {
+      const slug = $("classSlug").value.trim().toLowerCase();
+      if (!slug) { showMsg("class_slug required", "error"); return; }
+      state.slug = slug;
+      rememberSlug(slug);
+      setStep(2);
+    });
+
+    $("enrollName").addEventListener("input", () => {
+      $("btnEnroll").disabled = !state.enrollBlob || !$("enrollName").value.trim();
+    });
+
+    wireDrop("enrollDrop", "enrollFile", (f) => {
+      state.enrollBlob = f;
+      setPreview("enrollPreview", f);
+      $("btnEnroll").disabled = !$("enrollName").value.trim();
+    });
+    wireDrop("scanDrop", "scanFile", (f) => {
+      state.scanBlob = f;
+      setPreview("scanPreview", f);
+      $("btnRecognize").disabled = false;
+    });
+
+    $("btnEnrollCam").addEventListener("click", () => startCam("enroll").catch((e) => showMsg(e.message, "error")));
+    $("btnEnrollCamStop").addEventListener("click", () => stopCam("enroll"));
+    $("btnEnrollSnap").addEventListener("click", () => snap("enroll"));
+    $("btnScanCam").addEventListener("click", () => startCam("scan").catch((e) => showMsg(e.message, "error")));
+    $("btnScanCamStop").addEventListener("click", () => stopCam("scan"));
+    $("btnScanSnap").addEventListener("click", () => snap("scan"));
+
+    $("btnEnroll").addEventListener("click", async () => {
+      try {
+        await doEnroll(state.enrollBlob, $("enrollName").value.trim(), $("enrollStudentId").value.trim() || null);
+        $("enrollName").value = "";
+        $("enrollStudentId").value = "";
+        state.enrollBlob = null;
+        $("enrollPreview").hidden = true;
+        $("btnEnroll").disabled = true;
+        await loadRoster();
+        showMsg("Enrolled", "ok");
+      } catch (e) {
+        showMsg(e.message, "error");
+      }
+    });
+
+    $("btnToScan").addEventListener("click", () => setStep(3));
+
+    $("btnRecognize").addEventListener("click", async () => {
+      if (!state.scanBlob || !state.slug) return;
+      const fd = new FormData();
+      fd.append("class_slug", state.slug);
+      fd.append("image", state.scanBlob, "class.jpg");
+      try {
+        showMsg("Recognizing…", "muted");
+        const res = await api("/v3/recognize", { method: "POST", body: fd });
+        state.matchedIds = new Set(
+          (res.faces || []).filter((f) => f.matched && f.person_id).map((f) => f.person_id)
+        );
+        state.unknowns = (res.faces || []).filter((f) => !f.matched);
+        $("matchedChip").textContent = `${state.matchedIds.size} matched`;
+        $("unknownChip").textContent = `${res.unknown_count || state.unknowns.length} unknown`;
+        $("scanResult").hidden = false;
+        if (res.annotated_image_base64) {
+          const img = $("annotatedPreview");
+          img.src = `data:${res.annotated_mime_type || "image/jpeg"};base64,${res.annotated_image_base64}`;
+          img.hidden = false;
+        }
+        await loadRoster();
+        renderUnknowns();
+        showMsg("Scan done", "ok");
+        setStep(4);
+      } catch (e) {
+        showMsg(e.message, "error");
+      }
+    });
+
+    $("btnToConfirm").addEventListener("click", () => setStep(5));
+
+    $("btnSelectMatched").addEventListener("click", () => {
+      $("presentList").querySelectorAll("input[type=checkbox]").forEach((cb) => {
+        cb.checked = state.matchedIds.has(cb.value);
+      });
+    });
+    $("btnSelectAll").addEventListener("click", () => {
+      $("presentList").querySelectorAll("input[type=checkbox]").forEach((cb) => { cb.checked = true; });
+    });
+
+    $("btnSaveDay").addEventListener("click", async () => {
+      const ids = [...$("presentList").querySelectorAll("input[type=checkbox]:checked")].map((cb) => cb.value);
+      const date = $("attendDate").value || todayISO();
+      try {
+        await api("/v3/attendance/day", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            class_slug: state.slug,
+            date,
+            present_student_ids: ids,
+          }),
+        });
+        const el = $("saveMsg");
+        el.hidden = false;
+        el.className = "msg msg-ok";
+        el.textContent = `Saved ${ids.length} present for ${date}`;
+        showMsg("Daily roll saved", "ok");
+      } catch (e) {
+        const el = $("saveMsg");
+        el.hidden = false;
+        el.className = "msg msg-error";
+        el.textContent = e.message;
+        showMsg(e.message, "error");
+      }
+    });
+
+    // init
+    renderRecent();
+    if (state.slug) {
+      $("classSlug").value = state.slug;
+      setStep(2);
+    } else {
+      setStep(1);
+    }
+  </script>
+</body>
+</html>

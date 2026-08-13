@@ -26,6 +26,7 @@ def _jpeg_bytes(size: int = 64) -> bytes:
 def client(tmp_path, monkeypatch):
     people = tmp_path / "people.json"
     attendance = tmp_path / "attendance.json"
+    sqlite = tmp_path / "v3.db"
     people.write_text('{"people": []}', encoding="utf-8")
     attendance.write_text('{"events": []}', encoding="utf-8")
 
@@ -36,18 +37,25 @@ def client(tmp_path, monkeypatch):
         match_thresh=0.35,
         people_path=people,
         attendance_path=attendance,
+        sqlite_path=sqlite,
     )
     monkeypatch.setattr("app.main.settings", test_settings)
+    monkeypatch.setattr("app.config.settings", test_settings)
 
     people_store = PeopleStore(path=people)
     attendance_store = AttendanceStore(path=attendance)
+    from app.scoped_store import ScopedStore
+
+    scoped = ScopedStore(path=sqlite)
     monkeypatch.setattr("app.main.people_store", people_store)
     monkeypatch.setattr("app.main.attendance_store", attendance_store)
+    monkeypatch.setattr("app.main.scoped_store", scoped)
 
     monkeypatch.setattr("app.main.detector_service.warmup", lambda: None)
     monkeypatch.setattr("app.main.recognizer_service.warmup", lambda: None)
     monkeypatch.setattr("app.main.detector_service.ready", lambda: True)
     monkeypatch.setattr("app.main.recognizer_service.ready", lambda: True)
+    monkeypatch.setattr("app.main.db_mod.init_db", lambda path=None: sqlite)
 
     from app.main import app
 
@@ -106,6 +114,7 @@ def test_api_key_required(client, monkeypatch):
             match_thresh=0.35,
             people_path=Path("/tmp/people.json"),
             attendance_path=Path("/tmp/attendance.json"),
+            sqlite_path=Path("/tmp/whozit_v3.db"),
         ),
     )
 
