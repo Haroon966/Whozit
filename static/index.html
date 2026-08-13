@@ -256,6 +256,126 @@
       cursor: pointer;
     }
     .pick-cam:hover { background: #FFEDD5; }
+    .pick-cam:focus-visible {
+      outline: 2px solid var(--upload-blue);
+      outline-offset: 2px;
+    }
+
+    .cam-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      background: #0C0A09;
+      padding: 0;
+    }
+    .cam-modal[hidden] { display: none !important; }
+    .cam-sheet {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      background: #0C0A09;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: hidden;
+    }
+    .cam-head {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: max(0.85rem, env(safe-area-inset-top)) 1rem 0.85rem;
+      background: linear-gradient(to bottom, rgba(12, 10, 9, 0.72), transparent);
+      border: 0;
+      color: #FFF7ED;
+    }
+    .cam-head strong {
+      font-family: var(--display);
+      font-size: 1.1rem;
+      color: #FFF7ED;
+    }
+    .cam-close {
+      border: 0;
+      background: rgba(255, 247, 237, 0.12);
+      color: #FFF7ED;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+    }
+    .cam-close:hover { background: rgba(255, 247, 237, 0.22); }
+    .cam-close:focus-visible {
+      outline: 2px solid #FDBA74;
+      outline-offset: 2px;
+    }
+    .cam-stage {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #0C0A09;
+      aspect-ratio: auto;
+      max-height: none;
+    }
+    .cam-stage video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+    .cam-stage.is-rear video { transform: none; }
+    .cam-err {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      text-align: center;
+      color: #FFEDD5;
+      font-size: 1rem;
+      line-height: 1.5;
+      background: #0C0A09;
+    }
+    .cam-err a { color: #FDBA74; font-weight: 700; }
+    .cam-err[hidden] { display: none !important; }
+    .cam-actions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1rem max(1.25rem, env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(12, 10, 9, 0.78), transparent);
+    }
+    .cam-actions .btn {
+      min-height: 56px;
+      min-width: 10rem;
+      padding: 0 1.6rem;
+      font-size: 1.05rem;
+      border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .cam-actions .btn-text {
+      min-height: 44px;
+      color: #FFEDD5;
+    }
+    .cam-actions .btn-text:hover { color: #fff; }
 
     /* remove.bg-style detect upload */
     .upload-title {
@@ -892,7 +1012,10 @@
                     <path d="M12 2.5l1.6 6.1L20 10l-6.4 1.4L12 17.5l-1.6-6.1L4 10l6.4-1.4L12 2.5z"/>
                   </svg>
                 </h2>
-                <span class="pick">Upload Image</span>
+                <span class="pick-row">
+                  <span class="pick">Upload Image</span>
+                  <button type="button" class="pick-cam" data-cam data-facing="environment">Camera</button>
+                </span>
                 <p class="or-drop">or drop a file,</p>
                 <p class="paste-hint">
                   paste image or
@@ -934,6 +1057,9 @@
                 </button>
                 <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images9.jpg" aria-label="Try sample photo 9">
                   <img src="/static/student-images/instant_try_images9.jpg" alt="" loading="lazy" width="84" height="84" />
+                </button>
+                <button type="button" class="sample" role="listitem" data-sample="/static/student-images/instant_try_images10.jpg" aria-label="Try sample photo 10">
+                  <img src="/static/student-images/instant_try_images10.jpg" alt="" loading="lazy" width="84" height="84" />
                 </button>
               </div>
               <p class="upload-legal">
@@ -1028,7 +1154,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
               <span class="hint-ways">Click · drop · paste (Ctrl+V)</span>
               <span class="pick-row">
                 <span class="pick">Choose photo</span>
-                <button type="button" class="pick-cam" data-cam>Camera</button>
+                <button type="button" class="pick-cam" data-cam data-facing="user">Camera</button>
               </span>
             </div>
             <div class="busy-msg"><span class="spinner" aria-hidden="true"></span> Saving…</div>
@@ -1173,7 +1299,32 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     </nav>
   </div>
 
+  <div class="cam-modal" id="camModal" hidden role="dialog" aria-modal="true" aria-labelledby="camTitle">
+    <div class="cam-sheet">
+      <div class="cam-head">
+        <strong id="camTitle">Take a photo</strong>
+        <button type="button" class="cam-close" id="camCloseBtn" aria-label="Close camera">Close</button>
+      </div>
+      <div class="cam-stage" id="camStage">
+        <video id="camVideo" playsinline autoplay muted></video>
+        <p class="cam-err" id="camErr" hidden></p>
+      </div>
+      <div class="cam-actions">
+        <button type="button" class="btn" id="camSnapBtn" disabled>Take photo</button>
+        <button type="button" class="btn-text" id="camFallbackBtn">Use device camera</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Chrome treats 0.0.0.0 as insecure; localhost is a secure context over http.
+    (function redirectLoopbackHost() {
+      const h = location.hostname;
+      if (h !== "0.0.0.0" && h !== "[::]" && h !== "::") return;
+      const port = location.port ? `:${location.port}` : "";
+      location.replace(`http://localhost${port}${location.pathname}${location.search}${location.hash}`);
+    })();
+
     (function hydrateCurlBase() {
       const base = location.origin;
       document.querySelectorAll(".curl-snip").forEach((el) => {
@@ -1260,6 +1411,158 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     }
 
     const intakeTargets = [];
+    const camModal = document.getElementById("camModal");
+    const camStage = document.getElementById("camStage");
+    const camVideo = document.getElementById("camVideo");
+    const camErr = document.getElementById("camErr");
+    const camSnapBtn = document.getElementById("camSnapBtn");
+    const camCloseBtn = document.getElementById("camCloseBtn");
+    const camFallbackBtn = document.getElementById("camFallbackBtn");
+    let camStream = null;
+    let camOnFile = null;
+    let camFallbackInput = null;
+
+    function stopCamera() {
+      if (camStream) {
+        camStream.getTracks().forEach((t) => t.stop());
+        camStream = null;
+      }
+      if (camVideo) camVideo.srcObject = null;
+      camSnapBtn.disabled = true;
+    }
+
+    function closeCameraModal() {
+      stopCamera();
+      camModal.hidden = true;
+      document.body.style.overflow = "";
+      camOnFile = null;
+      camFallbackInput = null;
+      camErr.hidden = true;
+      camErr.textContent = "";
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function showCamError(msg, html) {
+      if (html) {
+        camErr.innerHTML = html;
+      } else {
+        camErr.textContent = msg || "";
+      }
+      camErr.hidden = false;
+      camSnapBtn.disabled = true;
+    }
+
+    function localhostCamUrl() {
+      const port = location.port || "80";
+      return `http://localhost:${port}${location.pathname}${location.search}${location.hash}`;
+    }
+
+    async function startCamera(facingMode) {
+      stopCamera();
+      camErr.hidden = true;
+      camErr.textContent = "";
+      camStage.classList.toggle("is-rear", facingMode === "environment");
+      camSnapBtn.disabled = true;
+
+      if (!window.isSecureContext) {
+        const url = localhostCamUrl();
+        const host = location.hostname;
+        showCamError(
+          null,
+          `Camera blocked on <code>${host}</code> over http.<br>` +
+            `Open <a href="${url}">${url}</a> instead, then try Camera again.`
+        );
+        return;
+      }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        showCamError("This browser cannot open the live camera. Use “Use device camera” below.");
+        return;
+      }
+
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            facingMode: { ideal: facingMode || "user" },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        });
+        camVideo.srcObject = camStream;
+        await camVideo.play().catch(() => {});
+        camSnapBtn.disabled = false;
+      } catch (err) {
+        const name = err && err.name;
+        if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+          showCamError("Camera permission blocked. Allow camera for this site, then try again.");
+        } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+          showCamError("No camera found on this device.");
+        } else if (name === "NotReadableError" || name === "TrackStartError") {
+          showCamError("Camera busy in another app. Close it and try again.");
+        } else {
+          showCamError(err.message || "Could not open camera.");
+        }
+      }
+    }
+
+    function openCameraCapture(onFile, camInput, facingMode) {
+      camOnFile = onFile;
+      camFallbackInput = camInput || null;
+      camModal.hidden = false;
+      document.body.style.overflow = "hidden";
+      if (camModal.requestFullscreen) {
+        camModal.requestFullscreen().catch(() => {});
+      }
+      camSnapBtn.focus();
+      startCamera(facingMode || "user");
+    }
+
+    function snapCameraPhoto() {
+      if (!camStream || !camOnFile || camVideo.readyState < 2) return;
+      const w = camVideo.videoWidth || 0;
+      const h = camVideo.videoHeight || 0;
+      if (!w || !h) return;
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      // Mirror selfie preview for front camera so the saved photo matches what user saw.
+      if (!camStage.classList.contains("is-rear")) {
+        ctx.translate(w, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(camVideo, 0, 0, w, h);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob || !camOnFile) return;
+          const file = new File([blob], `camera-${Date.now()}.jpg`, { type: "image/jpeg" });
+          const deliver = camOnFile;
+          closeCameraModal();
+          deliver(file);
+        },
+        "image/jpeg",
+        0.92
+      );
+    }
+
+    camCloseBtn.addEventListener("click", closeCameraModal);
+    camModal.addEventListener("click", (e) => {
+      if (e.target === camModal) closeCameraModal();
+    });
+    camSnapBtn.addEventListener("click", snapCameraPhoto);
+    camFallbackBtn.addEventListener("click", () => {
+      const input = camFallbackInput;
+      closeCameraModal();
+      if (input) input.click();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !camModal.hidden) {
+        e.preventDefault();
+        closeCameraModal();
+      }
+    });
 
     function wireIntake(zone, input, onFile, camInput) {
       const view = zone.closest(".view");
@@ -1269,12 +1572,18 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         if (!zone.classList.contains("is-busy")) input.click();
       };
 
+      const openCam = (btn) => {
+        if (zone.classList.contains("is-busy")) return;
+        const facing = (btn && btn.getAttribute("data-facing")) || "user";
+        openCameraCapture(onFile, camInput, facing);
+      };
+
       zone.addEventListener("click", (e) => {
         const camBtn = e.target.closest("[data-cam]");
         if (camBtn) {
           e.preventDefault();
           e.stopPropagation();
-          if (!zone.classList.contains("is-busy") && camInput) camInput.click();
+          openCam(camBtn);
           return;
         }
         if (e.target.closest(".linkish")) return;
@@ -1284,7 +1593,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         btn.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (!zone.classList.contains("is-busy") && camInput) camInput.click();
+          openCam(btn);
         });
       });
       zone.addEventListener("keydown", (e) => {
