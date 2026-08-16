@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F8F9FF" />
+  <title>Whozit — Select Class</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #002045;
+      --primary-container: #1a365d;
+      --secondary: #13696a;
+      --secondary-container: #a2eded;
+      --surface: #f8f9ff;
+      --surface-low: #eff4ff;
+      --surface-high: #dce9ff;
+      --paper: #ffffff;
+      --ink: #0b1c30;
+      --muted: #43474e;
+      --outline: #c4c6cf;
+      --danger: #ba1a1a;
+      --font: "Inter", system-ui, sans-serif;
+      --display: "Hanken Grotesk", system-ui, sans-serif;
+      --mono: "JetBrains Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      padding-top: calc(4rem + env(safe-area-inset-top, 0px));
+      color: var(--ink);
+      background: var(--surface);
+      font-family: var(--font);
+      line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input { font: inherit; }
+    .topbar {
+      position: fixed;
+      z-index: 20;
+      inset: 0 0 auto;
+      height: calc(4rem + env(safe-area-inset-top, 0px));
+      padding: env(safe-area-inset-top, 0px) 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      box-shadow: 0 1px 8px rgba(26,54,93,.08);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: var(--primary);
+      text-decoration: none;
+      font: 700 1.45rem/1 var(--display);
+    }
+    .brand svg { width: 1.8rem; height: 1.8rem; color: var(--secondary); }
+    .icon-link {
+      width: 2.75rem;
+      height: 2.75rem;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .icon-link:hover { color: var(--primary); background: var(--surface-low); }
+    .icon-link svg { width: 1.4rem; height: 1.4rem; }
+    .main {
+      width: min(1280px, 100%);
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-height: 2.75rem;
+      margin-bottom: 1rem;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+    .back:hover { color: var(--primary); }
+    .back svg { width: 1.2rem; height: 1.2rem; }
+    .page-head {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      margin: 0;
+      color: var(--primary);
+      font: 600 clamp(1.75rem, 5vw, 2rem)/1.25 var(--display);
+      letter-spacing: -0.01em;
+    }
+    .subtitle { margin: 0.25rem 0 0; color: var(--muted); }
+    .search-wrap { position: relative; width: 100%; }
+    .search-wrap svg {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      transform: translateY(-50%);
+      color: #74777f;
+      pointer-events: none;
+    }
+    #classSearch {
+      width: 100%;
+      min-height: 3.25rem;
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      color: var(--ink);
+      background: var(--surface-low);
+      box-shadow: 0 2px 8px rgba(26,54,93,.05);
+      outline: none;
+    }
+    #classSearch:focus {
+      border-color: rgba(0,32,69,.3);
+      background: var(--paper);
+      box-shadow: 0 0 0 4px rgba(69,95,136,.1);
+    }
+    .group { margin-bottom: 2rem; }
+    .group-title {
+      margin: 0 0 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(196,198,207,.6);
+      font: 600 1.25rem/1.4 var(--display);
+    }
+    .class-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .class-card {
+      position: relative;
+      width: 100%;
+      min-height: 9.5rem;
+      overflow: hidden;
+      padding: 1.25rem;
+      border: 1px solid rgba(196,198,207,.55);
+      border-radius: 16px;
+      background: var(--paper);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(26,54,93,.04);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .class-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0.35rem;
+      background: var(--secondary);
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+    .class-card:hover {
+      transform: translateY(-2px);
+      border-color: #adc7f7;
+      box-shadow: 0 6px 18px rgba(26,54,93,.09);
+    }
+    .class-card:hover::before { opacity: 1; }
+    .class-card:active { transform: scale(.98); }
+    .class-top { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+    .class-name {
+      margin: 0;
+      color: var(--primary);
+      font: 600 1.45rem/1.3 var(--display);
+    }
+    .class-card:hover .class-name { color: var(--secondary); }
+    .class-code {
+      max-width: 45%;
+      overflow: hidden;
+      padding: 0.3rem 0.5rem;
+      border-radius: 5px;
+      background: #e5eeff;
+      color: var(--muted);
+      font: 500 0.62rem/1 var(--mono);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .class-meta {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .meta-row { display: inline-flex; align-items: center; gap: 0.5rem; }
+    .meta-row svg { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+    .meta-row.ready { color: var(--secondary); font-weight: 500; }
+    .state {
+      padding: 2rem;
+      border: 1px solid rgba(196,198,207,.55);
+      border-radius: 16px;
+      background: var(--paper);
+      color: var(--muted);
+      text-align: center;
+    }
+    .state[hidden] { display: none; }
+    .state.error { color: var(--danger); }
+    .state a { color: var(--secondary); font-weight: 600; }
+    .spinner {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin: 0 auto 0.75rem;
+      border: 3px solid var(--surface-high);
+      border-top-color: var(--secondary);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    :focus-visible { outline: 2px solid var(--secondary); outline-offset: 3px; }
+    @media (min-width: 640px) {
+      .class-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 768px) {
+      .topbar { padding-inline: 2.5rem; }
+      .main { padding: 2rem 2.5rem 4rem; }
+      .page-head { flex-direction: row; align-items: end; justify-content: space-between; }
+      .search-wrap { width: 24rem; }
+    }
+    @media (min-width: 1024px) {
+      .class-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before { transition-duration: .01ms !important; }
+      .spinner { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/dashboard" aria-label="Whozit dashboard">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/>
+        <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/>
+        <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 16.5c.9-1.8 2.5-2.7 4-2.7s3.1.9 4 2.7"/>
+      </svg>
+      Whozit
+    </a>
+    <a class="icon-link" href="/teacher" aria-label="Open class settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+    </a>
+  </header>
+
+  <main class="main">
+    <button class="back" type="button" id="backButton">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Back
+    </button>
+
+    <div class="page-head">
+      <div>
+        <h1>Select class</h1>
+        <p class="subtitle">Choose the class taking attendance now.</p>
+      </div>
+      <label class="search-wrap">
+        <span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Search classes</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m20 20-4-4"/></svg>
+        <input id="classSearch" type="search" placeholder="Search by class name…" autocomplete="off" />
+      </label>
+    </div>
+
+    <div class="state" id="loadingState"><div class="spinner" aria-hidden="true"></div>Loading classes…</div>
+    <div class="state error" id="errorState" hidden></div>
+    <div class="state" id="emptyState" hidden>
+      No classes yet. <a href="/teacher">Create a class and enroll students</a>.
+    </div>
+    <div id="classGroups"></div>
+  </main>
+
+  <script>
+    const SLUG_KEY = "whozit_class_slug";
+    const RECENT_KEY = "whozit_recent_slugs";
+    let classes = [];
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[char]);
+    }
+
+    function titleCase(value) {
+      return value.replace(/[-_]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+    }
+
+    function className(slug) {
+      return titleCase(slug.split("/").filter(Boolean).at(-1) || slug);
+    }
+
+    function groupName(slug) {
+      const parts = slug.split("/").filter(Boolean);
+      const likelyGrade = parts.find((part) => /^(grade|class)[-_ ]?\w+$/i.test(part));
+      return likelyGrade ? titleCase(likelyGrade) : "Classes";
+    }
+
+    function rememberClass(slug) {
+      localStorage.setItem(SLUG_KEY, slug);
+      let recent = [];
+      try { recent = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch (_) {}
+      recent = [slug, ...recent.filter((item) => item !== slug)].slice(0, 6);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+      window.location.assign("/teacher?attendance=1");
+    }
+
+    function render(query = "") {
+      const match = query.trim().toLowerCase();
+      const visible = classes.filter((item) =>
+        item.slug.toLowerCase().includes(match) || className(item.slug).toLowerCase().includes(match)
+      );
+      const groups = visible.reduce((result, item) => {
+        const group = groupName(item.slug);
+        result.set(group, [...(result.get(group) || []), item]);
+        return result;
+      }, new Map());
+      document.getElementById("emptyState").hidden = visible.length > 0;
+      document.getElementById("classGroups").innerHTML = [...groups].map(([group, items]) => `
+        <section class="group">
+          <h2 class="group-title">${escapeHtml(group)}</h2>
+          <div class="class-grid">
+            ${items.map((item) => `
+              <button type="button" class="class-card" data-slug="${escapeHtml(item.slug)}">
+                <span class="class-top">
+                  <span class="class-name">${escapeHtml(className(item.slug))}</span>
+                  <span class="class-code">${escapeHtml(item.slug)}</span>
+                </span>
+                <span class="class-meta">
+                  <span class="meta-row">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path stroke-linecap="round" d="M3 19c1.2-3.2 3.5-4.8 6-4.8s4.8 1.6 6 4.8M14 19c.6-1.8 1.8-2.8 3-2.8s2.4 1 3 2.8"/></svg>
+                    ${item.count} enrolled
+                  </span>
+                  <span class="meta-row ready">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path stroke-linecap="round" d="M12 8v4l3 2"/></svg>
+                    Ready for today's attendance
+                  </span>
+                </span>
+              </button>`).join("")}
+          </div>
+        </section>`).join("");
+      document.querySelectorAll(".class-card").forEach((button) => {
+        button.addEventListener("click", () => rememberClass(button.dataset.slug));
+      });
+    }
+
+    async function loadClasses() {
+      try {
+        const response = await fetch("/v3/classes");
+        if (!response.ok) throw new Error("Could not load classes.");
+        const slugs = await response.json();
+        // Sequential on purpose: server max_inflight is 4; parallel roster loads return 503.
+        classes = [];
+        for (const slug of slugs) {
+          try {
+            const roster = await fetch(`/v3/people?class_slug=${encodeURIComponent(slug)}`);
+            classes.push({ slug, count: roster.ok ? (await roster.json()).length : 0 });
+          } catch (_) {
+            classes.push({ slug, count: 0 });
+          }
+        }
+        document.getElementById("loadingState").hidden = true;
+        render();
+      } catch (error) {
+        document.getElementById("loadingState").hidden = true;
+        const state = document.getElementById("errorState");
+        state.hidden = false;
+        state.textContent = error.message || "Could not load classes.";
+      }
+    }
+
+    document.getElementById("classSearch").addEventListener("input", (event) => render(event.target.value));
+    document.getElementById("backButton").addEventListener("click", () => {
+      if (history.length > 1) history.back();
+      else window.location.assign("/dashboard");
+    });
+    loadClasses();
+  </script>
+</body>
+</html>

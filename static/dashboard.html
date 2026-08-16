@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#F0FDFA" />
+  <meta name="theme-color" content="#F8F9FF" />
   <title>Whozit — Dashboard</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/whozit-shell.css" />
   <style>
     .controls {
@@ -85,12 +85,305 @@
       margin-top: 0.2rem;
     }
     .banner { margin-bottom: 1rem; }
+
+    :root {
+      --primary: #002045;
+      --primary-hover: #1a365d;
+      --secondary: #13696a;
+      --bg: #f8f9ff;
+      --bg-2: #eff4ff;
+      --paper: #ffffff;
+      --ink: #0b1c30;
+      --muted: #43474e;
+      --line: #d3e4fe;
+      --line-strong: #adc7f7;
+      --font: "Inter", system-ui, sans-serif;
+      --display: "Hanken Grotesk", system-ui, sans-serif;
+      --radius: 16px;
+      --shadow: 0 4px 16px rgba(26, 54, 93, 0.05);
+    }
+    body { padding-bottom: 6rem; }
+    .shell { display: block; }
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      height: calc(4rem + env(safe-area-inset-top, 0px));
+      padding: env(safe-area-inset-top, 0px) 1rem 0;
+      border: 0;
+      box-shadow: 0 1px 8px rgba(26, 54, 93, 0.08);
+    }
+    .brand { color: var(--primary); font-size: 1.45rem; }
+    .brand-mark { width: 1.65rem; height: 1.65rem; color: var(--secondary); }
+    .app-nav { display: none; }
+    .settings-link {
+      display: grid;
+      width: 2.75rem;
+      height: 2.75rem;
+      place-items: center;
+      border-radius: 999px;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .settings-link:hover { background: var(--bg-2); }
+    .settings-link:focus-visible, .period-button:focus-visible,
+    .bottom-nav a:focus-visible, .fab:focus-visible {
+      outline: 2px solid var(--secondary);
+      outline-offset: 3px;
+    }
+    .settings-link svg { width: 1.4rem; height: 1.4rem; }
+    .main {
+      width: min(1280px, 100%);
+      padding: 6.75rem 1rem 3rem;
+    }
+    .dashboard-head {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .dashboard-head .screen-title { font-size: 2rem; margin-bottom: 0.25rem; }
+    .dashboard-head .lede { margin: 0; }
+    .periods {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 0.25rem;
+      border: 1px solid rgba(116, 119, 127, 0.25);
+      border-radius: 10px;
+      background: var(--bg-2);
+    }
+    .period-button {
+      min-height: 2.5rem;
+      padding: 0 1.1rem;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font: 500 0.72rem/1 "JetBrains Mono", monospace;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+    .period-button[aria-pressed="true"] {
+      color: var(--primary);
+      background: var(--paper);
+      box-shadow: 0 2px 6px rgba(26, 54, 93, 0.08);
+    }
+    .controls {
+      grid-template-columns: 1fr;
+      padding: 1rem;
+      border: 1px solid rgba(116, 119, 127, 0.18);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+    .manual-field { grid-column: 1 / -1; margin: 0 !important; }
+    .bento {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .hero-card, .trend-card {
+      position: relative;
+      min-height: 280px;
+      overflow: hidden;
+      border: 1px solid rgba(116, 119, 127, 0.15);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+    .hero-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(239,244,255,.75));
+    }
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      top: -7rem;
+      right: -5rem;
+      width: 20rem;
+      height: 20rem;
+      border-radius: 50%;
+      background: rgba(19, 105, 106, 0.1);
+      filter: blur(40px);
+    }
+    .hero-card > * { position: relative; z-index: 1; }
+    .class-label, .trend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      color: var(--muted);
+      font: 500 0.72rem/1.2 "JetBrains Mono", monospace;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .class-label svg {
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0.5rem;
+      border-radius: 9px;
+      color: var(--secondary);
+      background: rgba(19, 105, 106, 0.1);
+    }
+    .hero-number {
+      display: block;
+      margin: 1rem 0 0.25rem;
+      font: 700 clamp(3.5rem, 9vw, 5rem)/1 var(--display);
+      letter-spacing: -0.04em;
+      color: var(--primary);
+    }
+    .hero-caption { margin: 0; color: var(--muted); font-size: 1.1rem; font-weight: 500; }
+    .hero-foot {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .mini-stats { display: flex; gap: 0.5rem; }
+    .mini-stat {
+      min-width: 4.5rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 10px;
+      background: rgba(214, 227, 255, 0.7);
+      color: var(--primary);
+      text-align: center;
+    }
+    .mini-stat strong { display: block; font-size: 1.1rem; }
+    .mini-stat span { font-size: 0.7rem; color: var(--muted); }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 0.85rem;
+      border: 1px solid #b3ccc7;
+      border-radius: 999px;
+      background: rgba(207, 232, 227, 0.55);
+      color: #354b48;
+      font: 500 0.72rem/1 "JetBrains Mono", monospace;
+    }
+    .trend-card { border-left: 4px solid var(--secondary); display: flex; flex-direction: column; }
+    .trend-head { display: flex; justify-content: space-between; gap: 0.75rem; align-items: center; }
+    .panel-title { font-size: 1.5rem; }
+    .trend-badge {
+      padding: 0.4rem 0.65rem;
+      border: 1px solid rgba(19,105,106,.2);
+      border-radius: 999px;
+      color: var(--secondary);
+      background: rgba(19,105,106,.05);
+      font-size: 0.62rem;
+    }
+    .chart {
+      flex: 1;
+      min-height: 180px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 1.5rem 0.25rem 0;
+    }
+    .chart-col { height: 100%; flex: 1; display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 0.65rem; }
+    .chart-bar {
+      width: 100%;
+      min-height: 4px;
+      border-radius: 5px 5px 0 0;
+      background: #dce9ff;
+      transition: height 250ms ease;
+    }
+    .chart-col:last-child .chart-bar {
+      background: linear-gradient(to top, var(--secondary), #89d3d4);
+      box-shadow: 0 4px 12px rgba(19,105,106,.2);
+    }
+    .chart-label { color: var(--muted); font: 500 0.68rem/1 "JetBrains Mono", monospace; }
+    .chart-col:last-child .chart-label { color: var(--primary); font-weight: 700; }
+    .details-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .details-grid .card { border: 1px solid rgba(116,119,127,.15); box-shadow: var(--shadow); }
+    .person-list li, .log-list li { border-bottom: 1px solid var(--line); }
+    .log-card { grid-column: 1 / -1; }
+    .bottom-nav {
+      position: fixed;
+      z-index: 30;
+      inset: auto 0 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 0.55rem 0.5rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid rgba(116,119,127,.12);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(12px);
+    }
+    .bottom-nav a {
+      min-width: 4.5rem;
+      padding: 0.45rem 0.65rem;
+      display: grid;
+      justify-items: center;
+      gap: 0.2rem;
+      border-radius: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+    .bottom-nav a[aria-current="page"] { color: #1a6d6e; background: #a2eded; }
+    .bottom-nav svg { width: 1.4rem; height: 1.4rem; }
+    .fab {
+      position: fixed;
+      z-index: 25;
+      right: 1rem;
+      bottom: 6.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-height: 3.5rem;
+      padding: 0 1.35rem;
+      border-radius: 999px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-family: var(--display);
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,32,69,.25);
+    }
+    .fab:hover { background: var(--primary-hover); }
+    .fab svg { width: 1.35rem; height: 1.35rem; }
+    @media (min-width: 640px) {
+      .controls { grid-template-columns: minmax(0,1fr) 180px auto; }
+      .dashboard-head { flex-direction: row; justify-content: space-between; align-items: end; }
+      .periods { align-self: auto; }
+      .details-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 768px) {
+      body { padding-bottom: 0; }
+      .main { padding-inline: 2.5rem; }
+      .topbar { padding-inline: 2.5rem; }
+      .app-nav {
+        display: flex;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.3rem;
+        border: 1px solid rgba(116,119,127,.2);
+        border-radius: 999px;
+        background: rgba(255,255,255,.9);
+      }
+      .app-nav a { border: 0; border-radius: 999px; }
+      .app-nav a[aria-current="page"] { background: rgba(162,237,237,.55); }
+      .bento { grid-template-columns: 2fr 1fr; }
+      .bottom-nav { display: none; }
+      .fab { right: 2.5rem; bottom: 2.5rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <header class="topbar">
-      <a class="brand" href="/">
+      <a class="brand" href="/" aria-label="Whozit home">
         <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16"/>
           <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/>
@@ -103,13 +396,25 @@
         <a href="/teacher">Teacher</a>
         <a href="/dashboard" aria-current="page">Dashboard</a>
       </nav>
+      <a class="settings-link" href="/teacher" aria-label="Open class settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+      </a>
     </header>
 
     <main class="main">
-      <h1 class="screen-title">Class dashboard</h1>
-      <p class="lede">Present vs absent for a day, plus recognize hit logs for the class.</p>
+      <div class="dashboard-head">
+        <div>
+          <h1 class="screen-title">Overview</h1>
+          <p class="lede">Here is the latest attendance data.</p>
+        </div>
+        <div class="periods" aria-label="Dashboard period">
+          <button type="button" class="period-button" data-period="week" aria-pressed="true">Week</button>
+          <button type="button" class="period-button" data-period="month" aria-pressed="false">Month</button>
+          <button type="button" class="period-button" data-period="custom" aria-pressed="false">Custom</button>
+        </div>
+      </div>
 
-      <div class="card controls">
+      <div class="controls">
         <label class="field" style="margin:0">Class
           <select id="classSelect" aria-label="Class slug">
             <option value="">Select class…</option>
@@ -119,23 +424,44 @@
           <input type="date" id="dateInput" />
         </label>
         <button type="button" class="btn btn-primary" id="btnLoad">Load</button>
+        <label class="field manual-field">Or type class slug
+          <input type="text" id="classManual" placeholder="pk/lahore-east/school-abc/class-5a" />
+        </label>
       </div>
-
-      <label class="field">Or type class slug
-        <input type="text" id="classManual" placeholder="pk/lahore-east/school-abc/class-5a" />
-      </label>
 
       <div id="banner" class="msg banner" hidden></div>
       <div id="error" class="msg msg-error" hidden></div>
 
-      <div class="stats" id="stats" hidden>
-        <div class="stat"><span class="n" id="statPresent">0</span><span class="l">Present</span></div>
-        <div class="stat"><span class="n" id="statAbsent">0</span><span class="l">Absent</span></div>
-        <div class="stat"><span class="n" id="statPct">—</span><span class="l">Attendance</span></div>
-        <div class="stat"><span class="n" id="statRoster">0</span><span class="l">Roster</span></div>
+      <div class="bento" id="stats" hidden>
+        <section class="hero-card" aria-labelledby="attendanceTitle">
+          <div>
+            <span class="class-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m3 10 9-5 9 5-9 5-9-5Zm4 2.3V17c2.8 2 7.2 2 10 0v-4.7M21 10v6"/></svg>
+              <span id="classLabel">Selected class</span>
+            </span>
+            <strong class="hero-number" id="statPct">—</strong>
+            <p class="hero-caption" id="attendanceTitle">Average attendance</p>
+          </div>
+          <div class="hero-foot">
+            <div class="mini-stats" aria-label="Attendance totals">
+              <div class="mini-stat"><strong id="statPresent">0</strong><span>Present</span></div>
+              <div class="mini-stat"><strong id="statAbsent">0</strong><span>Absent</span></div>
+              <div class="mini-stat"><strong id="statRoster">0</strong><span>Roster</span></div>
+            </div>
+            <span class="status-pill" id="rollStatus">Awaiting roll</span>
+          </div>
+        </section>
+
+        <section class="trend-card" aria-labelledby="trendTitle">
+          <div class="trend-head">
+            <h2 class="panel-title" id="trendTitle">Recent trends</h2>
+            <span class="trend-badge">Live data</span>
+          </div>
+          <div class="chart" id="trendChart" aria-label="Attendance over the selected period"></div>
+        </section>
       </div>
 
-      <div class="cols">
+      <div class="details-grid" id="details">
         <section class="card">
           <h2 class="panel-title">Present</h2>
           <ul class="person-list" id="presentList"></ul>
@@ -146,20 +472,45 @@
           <ul class="person-list" id="absentList"></ul>
           <p id="absentEmpty" class="msg msg-muted" hidden>No absences (or empty roster).</p>
         </section>
-      </div>
 
-      <section class="card">
-        <h2 class="panel-title">Hit logs</h2>
-        <p class="lede" style="margin-bottom:0.5rem">Recognize matches for this class (newest first).</p>
-        <ul class="log-list" id="logList"></ul>
-        <p id="logEmpty" class="msg msg-muted" hidden>No face-match events yet. Run a scan in Teacher.</p>
-      </section>
+        <section class="card log-card">
+          <h2 class="panel-title">Recent history</h2>
+          <p class="lede" style="margin-bottom:0.5rem">Recognized students for this class, newest first.</p>
+          <ul class="log-list" id="logList"></ul>
+          <p id="logEmpty" class="msg msg-muted" hidden>No face-match events yet. Run a scan in Teacher.</p>
+        </section>
+      </div>
     </main>
   </div>
+
+  <a class="fab" href="/attendance/new">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    Start new attendance
+  </a>
+
+  <nav class="bottom-nav" aria-label="Primary">
+    <a href="/dashboard" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h6a1 1 0 0 1 1 1v7H3V4a1 1 0 0 1 1-1Zm9 0h7a1 1 0 0 1 1 1v4h-8V3ZM3 13h8v8H4a1 1 0 0 1-1-1v-7Zm10-3h8v10a1 1 0 0 1-1 1h-7V10Z"/></svg>
+      Dashboard
+    </a>
+    <a href="/teacher">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m3 9 9-5 9 5-9 5-9-5Zm4 3v5c2.8 2 7.2 2 10 0v-5"/></svg>
+      Classes
+    </a>
+    <a href="/dashboard#details">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" d="M5 19V9m7 10V5m7 14v-7"/></svg>
+      Reports
+    </a>
+    <a href="#logList">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" d="M12 7v5l3 2M4.9 5A9 9 0 1 1 3 12H1m0 0 3-3m-3 3 3 3"/></svg>
+      History
+    </a>
+  </nav>
 
   <script>
     const SLUG_KEY = "whozit_class_slug";
     const $ = (id) => document.getElementById(id);
+    let selectedPeriod = "week";
 
     function todayISO() {
       const d = new Date();
@@ -181,6 +532,55 @@
 
     function currentSlug() {
       return ($("classManual").value.trim() || $("classSelect").value || "").toLowerCase();
+    }
+
+    function className(slug) {
+      return slug.split("/").filter(Boolean).at(-1)?.replace(/[-_]+/g, " ") || "Selected class";
+    }
+
+    function dateOffset(isoDate, days) {
+      const date = new Date(`${isoDate}T12:00:00`);
+      date.setDate(date.getDate() + days);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function chartDates(endDate) {
+      if (selectedPeriod === "custom") return [endDate];
+      const step = selectedPeriod === "month" ? 7 : 1;
+      return [-4, -3, -2, -1, 0].map((n) => dateOffset(endDate, n * step));
+    }
+
+    function renderTrend(points) {
+      const chart = $("trendChart");
+      chart.innerHTML = points.map(({ date, attendance_pct }) => {
+        const pct = attendance_pct == null ? 0 : Math.max(0, Math.min(100, attendance_pct));
+        const label = new Intl.DateTimeFormat("en", {
+          weekday: selectedPeriod === "week" ? "short" : undefined,
+          month: selectedPeriod !== "week" ? "short" : undefined,
+          day: selectedPeriod !== "week" ? "numeric" : undefined,
+        }).format(new Date(`${date}T12:00:00`));
+        const value = attendance_pct == null ? "No roll" : `${attendance_pct}%`;
+        return `<div class="chart-col" title="${escapeHtml(`${date}: ${value}`)}">
+          <div class="chart-bar" style="height:${pct}%" aria-label="${escapeHtml(`${date}, ${value}`)}"></div>
+          <span class="chart-label">${escapeHtml(label)}</span>
+        </div>`;
+      }).join("");
+    }
+
+    // Sequential on purpose: server max_inflight is 4; parallel week loads return 503.
+    async function loadTrend(slug, endDate, knownStatus) {
+      const points = [];
+      for (const date of chartDates(endDate)) {
+        if (knownStatus && date === endDate) {
+          points.push({ date, attendance_pct: knownStatus.attendance_pct });
+          continue;
+        }
+        const status = await api(
+          `/v3/attendance/day/status?class_slug=${encodeURIComponent(slug)}&date=${encodeURIComponent(date)}`
+        );
+        points.push({ date, attendance_pct: status.attendance_pct });
+      }
+      renderTrend(points);
     }
 
     async function loadClasses() {
@@ -231,6 +631,10 @@
         $("statRoster").textContent = status.roster_count;
         $("statPct").textContent =
           status.attendance_pct == null ? "—" : `${status.attendance_pct}%`;
+        $("classLabel").textContent = className(slug);
+        $("rollStatus").textContent = status.has_roll
+          ? `${status.present_count} of ${status.roster_count} present`
+          : "Awaiting roll";
 
         if (!status.has_roll) {
           $("banner").hidden = false;
@@ -248,9 +652,7 @@
         fillPeople("presentList", "presentEmpty", status.present);
         fillPeople("absentList", "absentEmpty", status.absent);
 
-        const logs = await api(
-          `/v3/attendance?class_slug=${encodeURIComponent(slug)}&limit=50`
-        );
+        const logs = await api(`/v3/attendance?class_slug=${encodeURIComponent(slug)}&limit=50`);
         const logList = $("logList");
         $("logEmpty").hidden = logs.length > 0;
         logList.innerHTML = logs.map((e) => `
@@ -260,6 +662,7 @@
             <time datetime="${escapeHtml(e.timestamp)}">${escapeHtml(e.timestamp)}</time>
             <span class="chip">req ${escapeHtml((e.source_request_id || "").slice(0, 8))}…</span>
           </li>`).join("");
+        await loadTrend(slug, date, status);
       } catch (e) {
         $("error").hidden = false;
         $("error").textContent = e.message;
@@ -273,6 +676,15 @@
     });
     $("dateInput").addEventListener("change", () => {
       if (currentSlug()) loadDashboard();
+    });
+    document.querySelectorAll(".period-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedPeriod = button.dataset.period;
+        document.querySelectorAll(".period-button").forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+        if (currentSlug()) loadDashboard();
+      });
     });
 
     loadClasses().then(() => {

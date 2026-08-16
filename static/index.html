@@ -338,34 +338,114 @@
       left: 0;
       right: 0;
       z-index: 2;
-      display: flex;
+      display: grid;
+      grid-template-columns: 2.75rem 1fr 2.75rem;
       align-items: center;
-      justify-content: space-between;
       gap: 0.75rem;
-      padding: max(0.85rem, env(safe-area-inset-top)) 1rem 0.85rem;
-      background: linear-gradient(to bottom, rgba(12, 10, 9, 0.72), transparent);
+      padding: max(0.85rem, env(safe-area-inset-top)) 1rem 1.5rem;
+      background: linear-gradient(to bottom, rgba(12, 10, 9, 0.8), transparent);
       border: 0;
       color: #F0FDFA;
+      text-align: center;
     }
-    .cam-head strong {
+    .cam-title {
+      display: grid;
+      gap: 0.15rem;
+      justify-items: center;
+    }
+    .cam-title strong {
       font-family: var(--display);
-      font-size: 1.1rem;
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
       color: #F0FDFA;
     }
-    .cam-close {
+    .cam-hint {
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      color: #CCFBF1;
+    }
+    .cam-hint svg {
+      width: 1rem;
+      height: 1rem;
+      color: #5EEAD4;
+      flex-shrink: 0;
+    }
+    .cam-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      padding: 0;
       border: 0;
-      background: rgba(255, 247, 237, 0.12);
-      color: #F0FDFA;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 0.45rem 0.85rem;
       border-radius: 999px;
+      background: rgba(240, 253, 250, 0.14);
+      backdrop-filter: blur(6px);
+      color: #F0FDFA;
+      cursor: pointer;
     }
-    .cam-close:hover { background: rgba(255, 247, 237, 0.22); }
-    .cam-close:focus-visible {
+    .cam-icon-btn svg { width: 1.4rem; height: 1.4rem; }
+    .cam-icon-btn:hover { background: rgba(240, 253, 250, 0.28); }
+    .cam-icon-btn:focus-visible {
       outline: 2px solid #5EEAD4;
       outline-offset: 2px;
+    }
+    .cam-pill {
+      position: absolute;
+      top: max(5.5rem, calc(env(safe-area-inset-top) + 5rem));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(94, 234, 212, 0.5);
+      background: rgba(12, 10, 9, 0.42);
+      backdrop-filter: blur(6px);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #5EEAD4;
+    }
+    .cam-pill span {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: #5EEAD4;
+      animation: cam-blink 1.6s infinite ease-in-out;
+    }
+    .cam-sheet:not(.is-live) .cam-pill,
+    .cam-sheet:not(.is-live) .cam-scan { display: none; }
+    .cam-scan {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      pointer-events: none;
+      background: linear-gradient(90deg, transparent, rgba(94, 234, 212, 0.85), transparent);
+      box-shadow: 0 0 12px rgba(13, 148, 136, 0.6);
+      animation: cam-scan 3s infinite linear;
+    }
+    @keyframes cam-scan {
+      0% { top: 0; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    @keyframes cam-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cam-scan { display: none; }
+      .cam-pill span { animation: none; }
     }
     .cam-stage {
       position: relative;
@@ -404,21 +484,48 @@
       right: 0;
       bottom: 0;
       z-index: 2;
+      display: grid;
+      justify-items: center;
+      gap: 0.5rem;
+      padding: 2rem 1rem max(1.25rem, env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(12, 10, 9, 0.85), transparent);
+    }
+    .cam-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 22rem;
+    }
+    .cam-shutter {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem 1rem max(1.25rem, env(safe-area-inset-bottom));
-      background: linear-gradient(to top, rgba(12, 10, 9, 0.78), transparent);
-    }
-    .cam-actions .btn {
-      min-height: 56px;
-      min-width: 10rem;
-      padding: 0 1.6rem;
-      font-size: 1.05rem;
+      width: 5rem;
+      height: 5rem;
+      padding: 0;
+      border: 4px solid rgba(240, 253, 250, 0.55);
       border-radius: 999px;
-      box-shadow: none;
+      background: rgba(240, 253, 250, 0.18);
+      cursor: pointer;
+      transition: transform var(--ease), background var(--ease);
+    }
+    .cam-shutter::after {
+      content: "";
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 999px;
+      background: #FFFFFF;
+      transition: background var(--ease);
+    }
+    .cam-shutter:hover:not(:disabled) { background: rgba(240, 253, 250, 0.3); }
+    .cam-shutter:active:not(:disabled) { transform: scale(0.92); }
+    .cam-shutter:active:not(:disabled)::after { background: var(--line-strong); }
+    .cam-shutter:disabled { opacity: 0.45; cursor: not-allowed; }
+    .cam-shutter:focus-visible {
+      outline: 2px solid #5EEAD4;
+      outline-offset: 4px;
     }
     .cam-actions .btn-text {
       min-height: 44px;
@@ -1353,17 +1460,40 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
   </div>
 
   <div class="cam-modal" id="camModal" hidden role="dialog" aria-modal="true" aria-labelledby="camTitle">
-    <div class="cam-sheet">
+    <div class="cam-sheet" id="camSheet">
       <div class="cam-head">
-        <strong id="camTitle">Take a photo</strong>
-        <button type="button" class="cam-close" id="camCloseBtn" aria-label="Close camera">Close</button>
+        <button type="button" class="cam-icon-btn" id="camCloseBtn" aria-label="Close camera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <div class="cam-title">
+          <strong id="camTitle">Whozit</strong>
+          <p class="cam-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3"/></svg>
+            Align all students in the frame
+          </p>
+        </div>
+        <span aria-hidden="true"></span>
       </div>
+      <p class="cam-pill" id="camPill" aria-live="polite">
+        <span aria-hidden="true"></span>
+        Camera ready
+      </p>
       <div class="cam-stage" id="camStage">
         <video id="camVideo" playsinline autoplay muted aria-label="Camera preview"></video>
+        <div class="cam-scan" aria-hidden="true"></div>
         <p class="cam-err" id="camErr" hidden></p>
       </div>
       <div class="cam-actions">
-        <button type="button" class="btn" id="camSnapBtn" disabled>Take photo</button>
+        <div class="cam-row">
+          <button type="button" class="cam-icon-btn" id="camFlipBtn" aria-label="Switch camera">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V7a2 2 0 0 1 2-2h9l-2-2M20 15v2a2 2 0 0 1-2 2H9l2 2"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button type="button" class="cam-shutter" id="camSnapBtn" aria-label="Take photo" disabled></button>
+          <button type="button" class="cam-icon-btn" id="camTorchBtn" aria-label="Toggle flashlight" aria-pressed="false" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6v3l-1 3h-4L9 6zM10 9h4v5l-2 7-2-7z"/></svg>
+          </button>
+          <span class="cam-icon-btn" id="camSpacer" aria-hidden="true" style="visibility: hidden"></span>
+        </div>
         <button type="button" class="btn-text" id="camFallbackBtn">Use device camera</button>
       </div>
     </div>
@@ -1465,13 +1595,18 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
 
     const intakeTargets = [];
     const camModal = document.getElementById("camModal");
+    const camSheet = document.getElementById("camSheet");
     const camStage = document.getElementById("camStage");
+    const camFlipBtn = document.getElementById("camFlipBtn");
+    const camTorchBtn = document.getElementById("camTorchBtn");
+    const camSpacer = document.getElementById("camSpacer");
     const camVideo = document.getElementById("camVideo");
     const camErr = document.getElementById("camErr");
     const camSnapBtn = document.getElementById("camSnapBtn");
     const camCloseBtn = document.getElementById("camCloseBtn");
     const camFallbackBtn = document.getElementById("camFallbackBtn");
     let camStream = null;
+    let camFacing = "user";
     let camOnFile = null;
     let camFallbackInput = null;
     let camReturnFocus = null;
@@ -1491,6 +1626,27 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       }
       if (camVideo) camVideo.srcObject = null;
       camSnapBtn.disabled = true;
+      setCamLive(false);
+    }
+
+    function setCamLive(live) {
+      camSheet.classList.toggle("is-live", !!live);
+      const torch = live && camStream ? "torch" in (camStream.getVideoTracks()[0]?.getCapabilities?.() || {}) : false;
+      camTorchBtn.hidden = !torch;
+      camTorchBtn.setAttribute("aria-pressed", "false");
+      camSpacer.hidden = torch;
+    }
+
+    async function toggleCamTorch() {
+      const track = camStream && camStream.getVideoTracks()[0];
+      if (!track) return;
+      const on = camTorchBtn.getAttribute("aria-pressed") === "true";
+      try {
+        await track.applyConstraints({ advanced: [{ torch: !on }] });
+        camTorchBtn.setAttribute("aria-pressed", String(!on));
+      } catch (_) {
+        camTorchBtn.hidden = true;
+      }
     }
 
     function closeCameraModal() {
@@ -1519,6 +1675,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       }
       camErr.hidden = false;
       camSnapBtn.disabled = true;
+      setCamLive(false);
     }
 
     function localhostCamUrl() {
@@ -1530,7 +1687,8 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       stopCamera();
       camErr.hidden = true;
       camErr.textContent = "";
-      camStage.classList.toggle("is-rear", facingMode === "environment");
+      camFacing = facingMode === "environment" ? "environment" : "user";
+      camStage.classList.toggle("is-rear", camFacing === "environment");
       camSnapBtn.disabled = true;
 
       if (!window.isSecureContext) {
@@ -1552,7 +1710,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         camStream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: {
-            facingMode: { ideal: facingMode || "user" },
+            facingMode: { ideal: camFacing },
             width: { ideal: 1920 },
             height: { ideal: 1080 },
           },
@@ -1560,6 +1718,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         camVideo.srcObject = camStream;
         await camVideo.play().catch(() => {});
         camSnapBtn.disabled = false;
+        setCamLive(true);
       } catch (err) {
         const name = err && err.name;
         if (name === "NotAllowedError" || name === "PermissionDeniedError") {
@@ -1583,7 +1742,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       if (camModal.requestFullscreen) {
         camModal.requestFullscreen().catch(() => {});
       }
-      camSnapBtn.focus();
+      camCloseBtn.focus();
       startCamera(facingMode || "user");
     }
 
@@ -1626,6 +1785,10 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       if (e.target === camModal) closeCameraModal();
     });
     camSnapBtn.addEventListener("click", snapCameraPhoto);
+    camFlipBtn.addEventListener("click", () => {
+      startCamera(camFacing === "environment" ? "user" : "environment");
+    });
+    camTorchBtn.addEventListener("click", toggleCamTorch);
     camFallbackBtn.addEventListener("click", () => {
       const input = camFallbackInput;
       closeCameraModal();

@@ -1290,5 +1290,10 @@ def dashboard_ui() -> FileResponse:
     return FileResponse(STATIC_DIR / "dashboard.html")
 
 
+@app.get("/attendance/new")
+def select_attendance_class_ui() -> FileResponse:
+    return FileResponse(STATIC_DIR / "select-class.html")
+
+
 if STATIC_DIR.is_dir():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

@@ -39,6 +39,16 @@
       "match_score": 0.6805,
       "source_request_id": "af40c7f9-0fc7-475b-8203-d819b615749f",
       "face_id": 9
+    },
+    {
+      "id": "975c4a85-b1f1-461d-909c-b0c82f6baefc",
+      "timestamp": "2026-08-15T06:17:20.105123+00:00",
+      "person_id": "c331b920-d891-4425-b985-e15ba0715cbd",
+      "name": "Haroon Ali",
+      "matched": true,
+      "match_score": 0.4487,
+      "source_request_id": "6ebda26d-f6a9-4df5-b5ba-d9b68caf1e03",
+      "face_id": 0
     }
   ]
 }

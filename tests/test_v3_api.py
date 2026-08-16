@@ -179,8 +179,17 @@ def test_v3_classes_and_day_status(v3_client):
     assert status["attendance_pct"] == 50.0
 
 
-def test_teacher_and_dashboard_pages(v3_client):
+def test_attendance_ui_pages(v3_client):
     client, _ = v3_client
-    assert client.get("/teacher").status_code == 200
+    teacher_page = client.get("/teacher")
+    assert teacher_page.status_code == 200
+    assert "Attendance results" in teacher_page.text
+    assert 'startCam("scan")' in teacher_page.text
     assert client.get("/dashboard").status_code == 200
+    select_page = client.get("/attendance/new")
+    assert select_page.status_code == 200
+    assert "Select class" in select_page.text
+    # Dashboard must not fan out parallel day-status calls (max_inflight → 503).
+    assert "Promise.all(chartDates" not in client.get("/dashboard").text
+    assert "Promise.all(slugs.map" not in select_page.text
     assert "text/html" in client.get("/teacher").headers["content-type"]
