@@ -6,9 +6,10 @@
   <meta name="theme-color" content="#F0FDFA" />
   <title>Whozit — Teacher</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/static/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/whozit-shell.css" />
   <style>
     .steps {
@@ -135,10 +136,10 @@
     .result-head { margin-bottom: 2rem; }
     .result-head h2 {
       margin: 0 0 0.35rem;
-      color: #0b1c30;
+      color: var(--ink);
       font-size: clamp(1.6rem, 5vw, 2rem);
     }
-    .result-head p { margin: 0; color: #43474e; }
+    .result-head p { margin: 0; color: var(--muted); }
     .result-summary {
       position: relative;
       overflow: hidden;
@@ -146,9 +147,9 @@
       gap: 1.5rem;
       margin-bottom: 2rem;
       padding: 1.5rem;
-      border: 1px solid #c4c6cf;
+      border: 1px solid rgba(153,246,228,.7);
       border-radius: 16px;
-      background: #d3e4fe;
+      background: var(--bg-2);
     }
     .result-summary::after {
       content: "";
@@ -175,19 +176,19 @@
       display: grid;
       place-items: center;
       border-radius: 14px;
-      color: #1a6d6e;
-      background: #a2eded;
+      color: var(--primary);
+      background: var(--bg-2);
     }
     .result-total-icon svg { width: 2rem; height: 2rem; }
     .result-count {
       display: block;
-      color: #002045;
+      color: var(--primary);
       font: 700 3rem/1 var(--display);
       letter-spacing: -0.03em;
     }
-    .result-count small { color: #43474e; font-size: 1.5rem; }
+    .result-count small { color: var(--muted); font-size: 1.5rem; }
     .result-label {
-      color: #13696a;
+      color: var(--secondary);
       font: 700 0.7rem/1 var(--font);
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -197,7 +198,7 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 0.5rem;
-      color: #43474e;
+      color: var(--muted);
       font-size: 0.75rem;
       font-weight: 600;
     }
@@ -205,12 +206,12 @@
       height: 0.75rem;
       overflow: hidden;
       border-radius: 999px;
-      background: rgba(173,199,247,.7);
+      background: rgba(153,246,228,.35);
     }
     .result-progress-bar {
       height: 100%;
       border-radius: inherit;
-      background: #13696a;
+      background: var(--primary);
       transition: width 250ms ease;
     }
     .result-tools {
@@ -220,10 +221,10 @@
       gap: 1rem;
       margin-bottom: 1rem;
       padding-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(196,198,207,.6);
+      border-bottom: 1px solid rgba(153,246,228,.55);
     }
     .result-tools > span {
-      color: #43474e;
+      color: var(--muted);
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.08em;
@@ -232,24 +233,24 @@
     .result-filter, .result-back {
       border: 0;
       background: transparent;
-      color: #13696a;
+      color: var(--primary);
       font-weight: 600;
       cursor: pointer;
     }
-    .result-back { margin-bottom: 1rem; padding: 0; color: #43474e; }
-    .result-filter:hover, .result-back:hover { color: #002045; }
+    .result-back { margin-bottom: 1rem; padding: 0; color: var(--muted); }
+    .result-filter:hover, .result-back:hover { color: var(--primary); }
     .result-roster { display: grid; gap: 1rem; }
     .result-student {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       padding: 1rem;
-      border: 1px solid #c4c6cf;
+      border: 1px solid rgba(153,246,228,.75);
       border-radius: 14px;
       background: #fff;
       box-shadow: 0 2px 8px rgba(26,54,93,.05);
     }
-    .result-student.is-present { border-left: 4px solid #13696a; }
+    .result-student.is-present { border-left: 4px solid var(--primary); }
     .student-person { display: flex; align-items: center; gap: 1rem; min-width: 0; }
     .student-avatar {
       width: 3rem;
@@ -258,13 +259,13 @@
       display: grid;
       place-items: center;
       border-radius: 50%;
-      background: #e5eeff;
-      color: #2d476f;
+      background: #e0fdf9;
+      color: var(--ink);
       font: 700 0.9rem/1 var(--display);
     }
     .result-student:not(.is-present) .student-avatar { filter: grayscale(1); opacity: .7; }
-    .student-name { margin: 0; color: #0b1c30; font-weight: 700; }
-    .student-id { margin: 0.15rem 0 0; color: #43474e; font-size: 0.82rem; }
+    .student-name { margin: 0; color: var(--ink); font-weight: 700; }
+    .student-id { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.82rem; }
     .student-status { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
     .present-badge {
       display: inline-flex;
@@ -273,19 +274,19 @@
       padding: 0.45rem 0.75rem;
       border: 1px solid rgba(19,105,106,.2);
       border-radius: 999px;
-      background: #a2eded;
-      color: #1a6d6e;
+      background: var(--bg-2);
+      color: var(--primary);
       font-size: 0.75rem;
       font-weight: 700;
     }
-    .absent-label { color: #43474e; font-size: 0.78rem; font-weight: 600; }
+    .absent-label { color: var(--muted); font-size: 0.78rem; font-weight: 600; }
     .override-btn {
       min-height: 2.5rem;
       padding: 0 0.85rem;
-      border: 1px solid #74777f;
+      border: 1px solid rgba(153,246,228,.8);
       border-radius: 8px;
       background: #fff;
-      color: #0b1c30;
+      color: var(--ink);
       font-weight: 700;
       cursor: pointer;
     }
@@ -296,7 +297,7 @@
       inset: auto 0 0;
       padding: 1rem max(1rem, calc((100vw - 760px) / 2)) max(1rem, env(safe-area-inset-bottom));
       border-top: 1px solid rgba(196,198,207,.6);
-      background: rgba(248,249,255,.96);
+      background: rgba(240,253,250,.96);
       backdrop-filter: blur(10px);
       box-shadow: 0 -4px 10px rgba(26,54,93,.05);
     }
@@ -305,13 +306,13 @@
       min-height: 3.5rem;
       border: 0;
       border-radius: 12px;
-      background: #002045;
+      background: var(--primary);
       color: #fff;
       font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
     }
-    .result-save:hover { background: #1a365d; }
+    .result-save:hover { background: var(--primary-hover); }
     .result-save:disabled { opacity: .55; cursor: wait; }
     .result-save-message { margin: 0.75rem 0 0; text-align: center; font-size: 0.85rem; }
     @media (min-width: 560px) {
@@ -357,10 +358,23 @@
 
       <!-- Step 1 -->
       <section class="panel card" id="step-1" data-panel="1">
-        <h2>Class slug</h2>
-        <p class="lede" style="margin-bottom:0.75rem">Example: <code>pk/lahore-east/school-abc/class-5a</code></p>
-        <label class="field">Class slug
-          <input type="text" id="classSlug" autocomplete="off" placeholder="pk/sector/school/class" />
+        <h2>Class</h2>
+        <p class="lede" style="margin-bottom:0.75rem">Country, province, school EMIS, class. Student IDs stay stable when class changes.</p>
+        <label class="field">Country
+          <input type="text" id="orgCountry" autocomplete="off" placeholder="pk" />
+        </label>
+        <label class="field">Province
+          <input type="text" id="orgProvince" autocomplete="off" placeholder="isbd" />
+        </label>
+        <label class="field">School EMIS
+          <input type="text" id="orgEmis" autocomplete="off" placeholder="35123456" />
+        </label>
+        <label class="field">Class / grade
+          <input type="text" id="orgGrade" autocomplete="off" placeholder="5a" />
+        </label>
+        <p class="lede" style="margin-top:0.5rem">Or paste a saved class path:</p>
+        <label class="field">Class path (optional)
+          <input type="text" id="classSlug" autocomplete="off" placeholder="pk/isbd/35123456/5a" />
         </label>
         <div class="recent" id="recentSlugs" aria-label="Recent classes"></div>
         <div class="btn-row">
@@ -379,8 +393,8 @@
         <label class="field">Name
           <input type="text" id="enrollName" placeholder="Haroon" />
         </label>
-        <label class="field">External student ID (optional)
-          <input type="text" id="enrollStudentId" placeholder="roll-12" />
+        <label class="field">Existing student ID (optional)
+          <input type="text" id="enrollStudentId" placeholder="pk+isbd+35123456+042" />
         </label>
         <div class="drop" id="enrollDrop" tabindex="0" role="button" aria-label="Upload enroll photo">
           <p><strong>Drop / click</strong> face photo</p>
@@ -495,8 +509,9 @@
     </main>
   </div>
 
+  <script src="/static/whozit-auth.js"></script>
   <script>
-    const SLUG_KEY = "whozit_class_slug";
+    const SLUG_KEY = "whozit_scope_key";
     const RECENT_KEY = "whozit_recent_slugs";
 
     const state = {
@@ -567,20 +582,14 @@
     }
 
     async function api(path, opts = {}) {
-      const res = await fetch(path, opts);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        const msg = data?.error?.message || res.statusText || "Request failed";
-        throw new Error(msg);
-      }
-      return data;
+      return WhozitAuth.apiFetch(path, opts);
     }
 
     async function loadRoster() {
       if (!state.slug) return;
       $("slugBadge").textContent = state.slug;
       try {
-        state.roster = await api(`/v3/people?class_slug=${encodeURIComponent(state.slug)}`);
+        state.roster = await api(`/refs?scope_key=${encodeURIComponent(state.slug)}`);
       } catch (e) {
         showMsg(e.message, "error");
         return;
@@ -590,16 +599,16 @@
       list.innerHTML = state.roster.map((p) => `
         <li>
           <span><strong>${escapeHtml(p.name)}</strong>
-            ${p.student_id ? `<span class="chip">${escapeHtml(p.student_id)}</span>` : ""}
+            ${p.ref_id ? `<span class="chip" title="${escapeHtml(p.ref_id)}">${escapeHtml(p.ref_id)}</span>` : ""}
             <span class="chip">${p.sample_count} sample${p.sample_count === 1 ? "" : "s"}</span>
           </span>
-          <button type="button" class="btn btn-danger" data-del="${p.id}">Delete</button>
+          <button type="button" class="btn btn-danger" data-del="${p.ref_id}">Delete</button>
         </li>`).join("");
       list.querySelectorAll("[data-del]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           if (!confirm("Delete this student?")) return;
           try {
-            await api(`/v3/people/${btn.getAttribute("data-del")}`, { method: "DELETE" });
+            await api(`/refs/${encodeURIComponent(btn.getAttribute("data-del"))}?scope_key=${encodeURIComponent(state.slug)}`, { method: "DELETE" });
             await loadRoster();
             showMsg("Deleted", "ok");
           } catch (e) {
@@ -692,10 +701,10 @@
     async function doEnroll(blob, name, studentId) {
       const fd = new FormData();
       fd.append("name", name);
-      fd.append("class_slug", state.slug);
+      fd.append("scope_key", state.slug);
       fd.append("image", blob, "face.jpg");
-      if (studentId) fd.append("student_id", studentId);
-      return api("/v3/enroll", { method: "POST", body: fd });
+      if (studentId) fd.append("ref_id", studentId);
+      return api("/enroll", { method: "POST", body: fd });
     }
 
     function renderUnknowns() {
@@ -734,7 +743,7 @@
             for (let j = 0; j < bin.length; j++) arr[j] = bin.charCodeAt(j);
             const blob = new Blob([arr], { type: u.mime_type || "image/jpeg" });
             const res = await doEnroll(blob, name, null);
-            state.matchedIds.add(res.person.id);
+            state.matchedIds.add(res.ref.ref_id);
             state.unknowns.splice(i, 1);
             await loadRoster();
             renderUnknowns();
@@ -750,9 +759,9 @@
       $("attendDate").value = $("attendDate").value || todayISO();
       const list = $("presentList");
       list.innerHTML = state.roster.map((p) => {
-        const checked = state.matchedIds.has(p.id) ? "checked" : "";
+        const checked = state.matchedIds.has(p.ref_id) ? "checked" : "";
         return `<li><label>
-          <input type="checkbox" value="${p.id}" ${checked} />
+          <input type="checkbox" value="${p.ref_id}" ${checked} />
           ${escapeHtml(p.name)}
         </label></li>`;
       }).join("");
@@ -778,27 +787,27 @@
     function renderAttendanceResults() {
       const list = $("resultRosterList");
       const filtered = state.roster.filter((person) => {
-        if (state.resultFilter === "present") return state.matchedIds.has(person.id);
-        if (state.resultFilter === "absent") return !state.matchedIds.has(person.id);
+        if (state.resultFilter === "present") return state.matchedIds.has(person.ref_id);
+        if (state.resultFilter === "absent") return !state.matchedIds.has(person.ref_id);
         return true;
       });
       $("resultRosterEmpty").hidden = state.roster.length > 0;
       list.innerHTML = filtered.map((person) => {
-        const present = state.matchedIds.has(person.id);
-        const aiMatched = state.aiMatchedIds.has(person.id);
+        const present = state.matchedIds.has(person.ref_id);
+        const aiMatched = state.aiMatchedIds.has(person.ref_id);
         return `<article class="result-student ${present ? "is-present" : ""}" data-result-status="${present ? "present" : "absent"}">
           <div class="student-person">
             <span class="student-avatar" aria-hidden="true">${escapeHtml(studentInitials(person.name))}</span>
             <div>
               <p class="student-name">${escapeHtml(person.name)}</p>
-              <p class="student-id">${person.student_id ? `ID: ${escapeHtml(person.student_id)}` : present ? (aiMatched ? "AI matched" : "Manually marked present") : "Not detected in photo"}</p>
+              <p class="student-id">${present ? (aiMatched ? "AI matched" : "Manually marked present") : "Not detected in photo"}</p>
             </div>
           </div>
           <div class="student-status">
             ${present
               ? `<span class="present-badge">✓ Present</span>`
               : `<span class="absent-label">Absent</span>`}
-            <button type="button" class="override-btn" data-override="${escapeHtml(person.id)}">${present ? "Mark absent" : "Override"}</button>
+            <button type="button" class="override-btn" data-override="${escapeHtml(person.ref_id)}">${present ? "Mark absent" : "Override"}</button>
           </div>
         </article>`;
       }).join("");
@@ -824,14 +833,14 @@
     async function recognizeAttendance() {
       if (!state.scanBlob || !state.slug) return;
       const fd = new FormData();
-      fd.append("class_slug", state.slug);
+      fd.append("scope_key", state.slug);
       fd.append("image", state.scanBlob, "class.jpg");
       try {
         showMsg("Recognizing…", "muted");
         $("btnRecognize").disabled = true;
-        const res = await api("/v3/recognize", { method: "POST", body: fd });
+        const res = await api("/recognize", { method: "POST", body: fd });
         state.aiMatchedIds = new Set(
-          (res.faces || []).filter((face) => face.matched && face.person_id).map((face) => face.person_id)
+          (res.faces || []).filter((face) => face.matched && face.ref_id).map((face) => face.ref_id)
         );
         state.matchedIds = new Set(state.aiMatchedIds);
         state.unknowns = (res.faces || []).filter((face) => !face.matched);
@@ -862,12 +871,47 @@
       });
     });
 
-    $("btnSaveSlug").addEventListener("click", () => {
-      const slug = $("classSlug").value.trim().toLowerCase();
-      if (!slug) { showMsg("class_slug required", "error"); return; }
-      state.slug = slug;
-      rememberSlug(slug);
-      setStep(2);
+    $("btnSaveSlug").addEventListener("click", async () => {
+      const country = $("orgCountry").value.trim();
+      const province = $("orgProvince").value.trim();
+      const emis = $("orgEmis").value.trim();
+      const grade = $("orgGrade").value.trim();
+      const pasted = $("classSlug").value.trim().toLowerCase();
+      try {
+        if (country && province && emis && grade) {
+          const klass = await api("/org/classes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ country, province, emis, grade }),
+          });
+          state.slug = klass.scope_key;
+        } else if (pasted) {
+          const parts = pasted.split("/").filter(Boolean);
+          if (parts.length !== 4) {
+            showMsg("Use country, province, EMIS, class — or a 4-part path", "error");
+            return;
+          }
+          const klass = await api("/org/classes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              country: parts[0],
+              province: parts[1],
+              emis: parts[2],
+              grade: parts[3],
+            }),
+          });
+          state.slug = klass.scope_key;
+        } else {
+          showMsg("Country, province, school EMIS, and class are required", "error");
+          return;
+        }
+        $("classSlug").value = state.slug;
+        rememberSlug(state.slug);
+        setStep(2);
+      } catch (e) {
+        showMsg(e.message, "error");
+      }
     });
 
     $("enrollName").addEventListener("input", () => {
@@ -894,14 +938,14 @@
 
     $("btnEnroll").addEventListener("click", async () => {
       try {
-        await doEnroll(state.enrollBlob, $("enrollName").value.trim(), $("enrollStudentId").value.trim() || null);
+        const res = await doEnroll(state.enrollBlob, $("enrollName").value.trim(), $("enrollStudentId").value.trim() || null);
         $("enrollName").value = "";
         $("enrollStudentId").value = "";
         state.enrollBlob = null;
         $("enrollPreview").hidden = true;
         $("btnEnroll").disabled = true;
         await loadRoster();
-        showMsg("Enrolled", "ok");
+        showMsg(`Enrolled ${res.ref.ref_id}`, "ok");
       } catch (e) {
         showMsg(e.message, "error");
       }
@@ -931,13 +975,13 @@
       button.disabled = true;
       message.hidden = true;
       try {
-        await api("/v3/attendance/day", {
+        await api("/attendance/day", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            class_slug: state.slug,
+            scope_key: state.slug,
             date: todayISO(),
-            present_student_ids: [...state.matchedIds],
+            present_ref_ids: [...state.matchedIds],
           }),
         });
         message.hidden = false;
@@ -965,13 +1009,13 @@
       const ids = [...$("presentList").querySelectorAll("input[type=checkbox]:checked")].map((cb) => cb.value);
       const date = $("attendDate").value || todayISO();
       try {
-        await api("/v3/attendance/day", {
+        await api("/attendance/day", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            class_slug: state.slug,
+            scope_key: state.slug,
             date,
-            present_student_ids: ids,
+            present_ref_ids: ids,
           }),
         });
         const el = $("saveMsg");

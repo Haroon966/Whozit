@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Slug Is the Contract — Whozit</title>
+  <style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style>
+</head>
+<body>
+<title>The Slug Is the Contract</title>
+
+<style>
+  :root {
+    --ground: #EDF0EC;
+    --surface: #FFFFFF;
+    --surface-2: #F5F7F4;
+    --ink: #1A1F1C;
+    --ink-2: #565E58;
+    --ink-3: #7C857F;
+    --rule: #D2D8D1;
+    --rule-2: #E2E7E1;
+    --accent: #2F5D50;
+    --accent-soft: #E3EDE8;
+    --flag: #8A4B32;
+    --flag-soft: #F5E9E3;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141816;
+      --surface: #1B211E;
+      --surface-2: #212824;
+      --ink: #DDE3DE;
+      --ink-2: #8D9791;
+      --ink-3: #737D77;
+      --rule: #2C3531;
+      --rule-2: #242B27;
+      --accent: #74B39D;
+      --accent-soft: #16241F;
+      --flag: #D08E6E;
+      --flag-soft: #241A16;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #141816;
+    --surface: #1B211E;
+    --surface-2: #212824;
+    --ink: #DDE3DE;
+    --ink-2: #8D9791;
+    --ink-3: #737D77;
+    --rule: #2C3531;
+    --rule-2: #242B27;
+    --accent: #74B39D;
+    --accent-soft: #16241F;
+    --flag: #D08E6E;
+    --flag-soft: #241A16;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16.5px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 0 22px 110px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 52px;
+  }
+
+  .prose {
+    max-width: 68ch;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  p { margin: 0; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  /* ---------- masthead ---------- */
+
+  header {
+    padding-top: 68px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(31px, 4.6vw, 46px);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    text-wrap: balance;
+    margin: 0;
+    max-width: 26ch;
+  }
+
+  .standfirst {
+    font-family: var(--serif);
+    font-size: clamp(17px, 2vw, 19.5px);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 58ch;
+    margin: 0;
+  }
+
+  /* ---------- the opener ---------- */
+
+  .opener {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 22px 26px;
+    max-width: 72ch;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .opener .label { color: var(--accent); }
+
+  .opener p.said {
+    font-family: var(--serif);
+    font-size: 17.5px;
+    line-height: 1.55;
+  }
+
+  /* ---------- sections ---------- */
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .step {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+    flex: none;
+    padding-top: 4px;
+  }
+
+  h3 {
+    font-family: var(--sans);
+    font-size: 15.5px;
+    font-weight: 650;
+    letter-spacing: -0.005em;
+    margin: 0;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--surface-2);
+    border: 1px solid var(--rule-2);
+    border-radius: 2px;
+    padding: 0.1em 0.34em;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.1em;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 68ch;
+  }
+  li::marker { color: var(--ink-3); }
+
+  /* ---------- decision clusters ---------- */
+
+  .clusters {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .cluster {
+    background: var(--surface);
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) 1fr;
+  }
+
+  .cluster-head {
+    background: var(--surface-2);
+    border-right: 1px solid var(--rule-2);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cluster-head .name {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 600;
+  }
+  .cluster-head .ids {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  .cluster-body {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .dec {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  .dec .n {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    padding-top: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .dec .what { font-size: 15px; line-height: 1.5; }
+  .dec .what strong { font-weight: 650; }
+  .dec .why {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin-top: 3px;
+  }
+
+  @media (max-width: 640px) {
+    .cluster { grid-template-columns: 1fr; }
+    .cluster-head { border-right: none; border-bottom: 1px solid var(--rule-2); }
+  }
+
+  /* ---------- findings ---------- */
+
+  .tbl-scroll { overflow-x: auto; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 660px;
+    font-size: 14.5px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--rule-2);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    background: var(--surface-2);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td:first-child {
+    font-family: var(--mono);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  td.src {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+  .tag.sec { color: var(--flag); background: var(--flag-soft); border-color: var(--flag); }
+  .tag.cor { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .scroll { overflow-x: auto; }
+
+  figure svg {
+    display: block;
+    width: 100%;
+    min-width: 660px;
+    height: auto;
+    color: var(--ink-2);
+  }
+
+  figcaption {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    border-top: 1px solid var(--rule-2);
+    padding-top: 13px;
+    max-width: 78ch;
+  }
+
+  .b { fill: var(--surface); stroke: var(--rule); stroke-width: 1.2; }
+  .b-soft { fill: var(--surface-2); stroke: var(--rule); stroke-width: 1.2; }
+  .b-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+  .b-gone { fill: var(--flag-soft); stroke: var(--flag); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .t { fill: var(--ink); font: 600 12.5px var(--sans); }
+  .t-m { fill: var(--ink); font: 12px var(--mono); }
+  .s { fill: var(--ink-2); font: 11px var(--sans); }
+  .s-m { fill: var(--ink-2); font: 10.5px var(--mono); }
+  .s-acc { fill: var(--accent); font: 600 10.5px var(--mono); }
+  .s-flag { fill: var(--flag); font: 600 10.5px var(--mono); }
+  .cap { fill: var(--ink-3); font: 600 10px var(--mono); letter-spacing: 0.13em; }
+  .ar { stroke: var(--ink-2); stroke-width: 1.2; fill: none; }
+  .ar-acc { stroke: var(--accent); stroke-width: 1.4; fill: none; }
+  .hd { fill: var(--ink-2); }
+
+  /* ---------- contract ---------- */
+
+  .qs {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .q {
+    background: var(--surface);
+    padding: 17px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .q-ask {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .q-why { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+  .q-why strong { color: var(--flag); font-weight: 600; }
+
+  /* ---------- open items ---------- */
+
+  .ruled {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .r {
+    background: var(--surface);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .r-head {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--flag);
+  }
+  .r-body { font-size: 14px; line-height: 1.55; }
+
+  footer {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    max-width: 68ch;
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="label">Whozit · decision record · 16 August 2026</p>
+    <h1>The Slug Is the Contract</h1>
+    <p class="standfirst">The design conversation happened. Fourteen decisions came out of it, and
+    Whozit stops being an attendance product that also recognises faces.</p>
+  </header>
+
+  <div class="opener">
+    <p class="label">The whole thing in one line</p>
+    <p class="said">Whozit holds the math — face vectors keyed by an opaque scope string and an
+    opaque reference — and the consuming product holds the meaning: names, roster, register,
+    dashboards. Nothing in Whozit knows a child’s name, owns a register, or ever learns whether
+    it was right.</p>
+  </div>
+
+
+  <div class="opener" style="border-left-color: var(--flag);">
+    <p class="label" style="color: var(--flag);">Product override · 18 August 2026</p>
+    <p class="said">Whozit is also a standalone attendance app. Names live on <code>refs</code> as
+    non-unique labels. The daily register is served from this process. Identity remains
+    <code>(scope_key, ref_id)</code> — two children with the same name stay two people.</p>
+  </div>
+
+  <hr>
+
+  <section>
+    <h2><span class="step">01</span> What was decided</h2>
+    <div class="prose">
+      <p>Grouped by what each cluster protects. The numbers are referenced from the work order in
+      section 06, so they are worth keeping stable.</p>
+    </div>
+
+    <div class="clusters">
+
+      <div class="cluster">
+        <div class="cluster-head">
+          <p class="name">The boundary</p>
+          <p class="ids">D1 · D2 · D3</p>
+        </div>
+        <div class="cluster-body">
+          <div class="dec">
+            <p class="n">D1</p>
+            <div>
+              <p class="what"><strong>The register belongs to the consuming product.</strong> Whozit
+              does recognition only.</p>
+              <p class="why">Aggregation rules differ per country and would otherwise become our
+              problem. Deletes <code>daily_attendance</code> and
+              <code>daily_attendance_present</code>.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D2</p>
+            <div>
+              <p class="what"><strong>No names are stored.</strong> The caller supplies an opaque
+              <code>ref_id</code>.</p>
+              <p class="why">Fixes the merge bug at its root by making <code>ref_id</code> the only
+              identity key — and keeps identifying data away from partially-invertible
+              vectors.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D3</p>
+            <div>
+              <p class="what"><strong>The caller supplies the label; Whozit never mints an
+              identifier.</strong></p>
+              <p class="why">Minting creates a second identifier space both sides must map, and makes
+              us the roster backup we explicitly refuse to be.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cluster">
+        <div class="cluster-head">
+          <p class="name">Templates</p>
+          <p class="ids">D4 · D7 · D8</p>
+        </div>
+        <div class="cluster-body">
+          <div class="dec">
+            <p class="n">D4</p>
+            <div>
+              <p class="what"><strong>Match by max over samples, not a mean centroid.</strong>
+              Per-sample metadata; individual samples deletable; enrol returns
+              <code>sample_count</code>.</p>
+              <p class="why">Averaging across pose, lighting and a year of growth pulls the centroid
+              toward the middle of the embedding space — adding a profile shot can make frontal
+              matching worse. <code>sample_count</code> is the one moment a name-as-label mistake is
+              detectable, because caller intent and stored state are both present.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D7</p>
+            <div>
+              <p class="what"><strong>Store the aligned face crop next to each vector,
+              encrypted.</strong></p>
+              <p class="why">The only defence against a backbone upgrade. Turns it into a batch
+              re-embed instead of re-photographing a country — and removes the need to run two
+              models through a transition.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D8</p>
+            <div>
+              <p class="what"><strong>Crop retention configurable per deployment, indefinite by
+              default.</strong> Deletion atomic across vectors, crops and log rows.</p>
+              <p class="why">A crop that expires before the template it backs is not there on the day
+              it is needed. The per-deployment key makes program deletion a key destruction rather
+              than a cascade you have to get right.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cluster">
+        <div class="cluster-head">
+          <p class="name">The answer</p>
+          <p class="ids">D10 · D11</p>
+        </div>
+        <div class="cluster-body">
+          <div class="dec">
+            <p class="n">D10</p>
+            <div>
+              <p class="what"><strong>Recognise returns decision <em>and</em> evidence:</strong>
+              <code>matched</code>, <code>ref_id</code>, <code>score</code>, <code>margin</code>,
+              candidates.</p>
+              <p class="why">Ground truth never comes back, so the response is the only place
+              ambiguity can ever be caught. Simple integrators read <code>matched</code>; careful ones
+              route low-margin faces to a human.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D11</p>
+            <div>
+              <p class="what"><strong>Greedy one-to-one assignment across faces in a photo.</strong></p>
+              <p class="why">Sort every (face, ref) pair by score, assign if neither is taken. Ten
+              lines, no scipy. Hungarian differs only where scores cluster — exactly where
+              <code>margin</code> already sends the face to a human.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cluster">
+        <div class="cluster-head">
+          <p class="name">Isolation</p>
+          <p class="ids">D9 · D5 · D6</p>
+        </div>
+        <div class="cluster-body">
+          <div class="dec">
+            <p class="n">D9</p>
+            <div>
+              <p class="what"><strong>Deployment-level isolation</strong> — one container,
+              volume and key per program. No <code>tenant_id</code>.</p>
+              <p class="why">Deletes the entire class of cross-program leak bugs by construction
+              rather than by careful query scoping. Gives data residency for free, and settles
+              durability: SQLite plus Litestream, per deployment.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D5</p>
+            <div>
+              <p class="what"><strong>Keep an identified recognition log</strong> —
+              <code>ref_id</code>, score, margin — with a TTL.</p>
+              <p class="why">Chosen over de-identified metrics so a named complaint can actually be
+              debugged.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D6</p>
+            <div>
+              <p class="what"><strong>That log is internal only.</strong>
+              <code>GET /v3/attendance</code> is deleted.</p>
+              <p class="why">A queryable per-child event log <em>is</em> a register by shape. A team
+              that finds one will use it, and the boundary erodes one convenience endpoint at a
+              time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cluster">
+        <div class="cluster-head">
+          <p class="name">Lifecycle &amp; surface</p>
+          <p class="ids">D12 · D13 · D14</p>
+        </div>
+        <div class="cluster-body">
+          <div class="dec">
+            <p class="n">D12</p>
+            <div>
+              <p class="what"><strong><code>scope_key</code> lives on the ref; add single and bulk
+              move.</strong></p>
+              <p class="why">Annual promotion becomes one <code>UPDATE</code> instead of
+              re-photographing a population. Covers scope renames too.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D13</p>
+            <div>
+              <p class="what"><strong>Reference client rebuilt with zero persistence, deleted
+              later.</strong></p>
+              <p class="why">It must be structurally incapable of being deployed, or a program adopts
+              it and we own an attendance product after all.</p>
+            </div>
+          </div>
+          <div class="dec">
+            <p class="n">D14</p>
+            <div>
+              <p class="what"><strong>One API surface.</strong> The global name-keyed gallery is
+              removed; a stateless detect route is kept.</p>
+              <p class="why">No external consumers exist yet, so this is cheap today and never
+              again.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="prose">
+      <h3>What was considered and rejected</h3>
+      <ul>
+        <li><strong>A name as an optional non-unique label.</strong> A nullable label that a UI reads
+        is a second roster with no invalidation path, across a boundary we do not control.</li>
+        <li><strong>Consuming products retain the enrolment images.</strong> An unverifiable promise
+        whose breach is discovered on upgrade day — the worst possible moment.</li>
+        <li><strong>App-level multi-tenancy.</strong> Requires permanently maintaining the code that
+        prevents cross-program leaks; D9 removes the possibility instead.</li>
+        <li><strong>Postgres now.</strong> The argument was shared writers, and D9 removed sharing.</li>
+        <li><strong>A <code>memberships</code> table separating identity from scope.</strong>
+        Structurally purer, but its only extra capability — one ref in several scopes — is
+        speculative. Stays available as a purely additive migration.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="step">02</span> Where the boundary sits</h2>
+
+    <figure>
+      <div class="scroll">
+        <svg viewBox="0 0 900 400" role="img" aria-label="Two consuming products each send a photo, a scope key and their own reference id to a separate Whozit deployment, and receive back a reference id, score and margin. The products hold names, rosters, registers and dashboards. Whozit holds three tables — refs, samples and an internal recognition log — and no names.">
+          <defs>
+            <marker id="hd2" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="8" markerHeight="6.4" orient="auto">
+              <polygon class="hd" points="0,0 10,4 0,8"></polygon>
+            </marker>
+          </defs>
+
+          <text class="cap" x="24" y="42">THE CONSUMING PRODUCT — MEANING</text>
+          <text class="cap" x="470" y="42">WHOZIT — MATH</text>
+
+          <rect class="b" x="24" y="70" width="240" height="100" rx="2"></rect>
+          <text class="t" x="44" y="96">Punjab attendance app</text>
+          <text class="s" x="44" y="118">students + names + consent</text>
+          <text class="s" x="44" y="136">attendance register</text>
+          <text class="s" x="44" y="154">its own dashboards</text>
+
+          <rect class="b" x="24" y="250" width="240" height="100" rx="2"></rect>
+          <text class="t" x="44" y="276">Tanzania compliance app</text>
+          <text class="s" x="44" y="298">students + names + consent</text>
+          <text class="s" x="44" y="316">attendance register</text>
+          <text class="s" x="44" y="334">its own dashboards</text>
+
+          <rect class="b-acc" x="470" y="70" width="406" height="280" rx="2"></rect>
+          <text class="t" x="673" y="100" text-anchor="middle">One deployment per program</text>
+          <text class="s-acc" x="673" y="120" text-anchor="middle">separate container · volume · key</text>
+
+          <rect class="b" x="496" y="142" width="354" height="46" rx="2"></rect>
+          <text class="t-m" x="514" y="162">refs</text>
+          <text class="s-m" x="514" y="179">scope_key · ref_id</text>
+
+          <rect class="b" x="496" y="200" width="354" height="52" rx="2"></rect>
+          <text class="t-m" x="514" y="220">samples</text>
+          <text class="s-m" x="514" y="237">vector · encrypted crop · model_version · quality</text>
+
+          <rect class="b-soft" x="496" y="264" width="354" height="44" rx="2"></rect>
+          <text class="t-m" x="514" y="284">rec_log</text>
+          <text class="s-m" x="514" y="300">score · margin · internal only, never served</text>
+
+          <text class="s-acc" x="673" y="332" text-anchor="middle">no names · no register · no dashboards</text>
+
+          <line class="ar-acc" x1="264" y1="105" x2="466" y2="105" marker-end="url(#hd2)"></line>
+          <text class="s-m" x="365" y="97" text-anchor="middle">photo + scope_key + ref_id</text>
+          <line class="ar" x1="466" y1="132" x2="268" y2="132" marker-end="url(#hd2)"></line>
+          <text class="s-m" x="365" y="150" text-anchor="middle">ref_id + score + margin</text>
+
+          <line class="ar-acc" x1="264" y1="285" x2="466" y2="285" marker-end="url(#hd2)"></line>
+          <text class="s-m" x="365" y="277" text-anchor="middle">photo + scope_key + ref_id</text>
+          <line class="ar" x1="466" y1="312" x2="268" y2="312" marker-end="url(#hd2)"></line>
+          <text class="s-m" x="365" y="330" text-anchor="middle">ref_id + score + margin</text>
+        </svg>
+      </div>
+      <figcaption>Three tables, down from five. <code>scope_key</code> sits on <code>refs</code>
+      alone — that is what makes D12’s annual promotion a single statement instead of a
+      migration. Deleting a <code>ref_id</code> clears all three tables in one transaction, which is
+      the erasure path that does not exist today.</figcaption>
+    </figure>
+
+    <div class="prose">
+      <h3>Two costs accepted on purpose</h3>
+      <p><strong>Whozit is blind to its own accuracy.</strong> Ground truth is the teacher’s
+      confirmation, and that now happens entirely on the other side of the boundary. Score
+      distributions are observable; error rate is not. That is the price of the clean split, and it is
+      why the default threshold has to be calibrated by whoever integrates first.</p>
+      <p><strong>Whozit is not a roster backup.</strong> Lose your <code>ref_id</code> mapping and
+      your galleries are unrecoverable. Ugly to write down, which is exactly why it is written
+      down — the alternative was a <code>name</code> column quietly committing us to be
+      somebody’s disaster recovery.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="step">03</span> What is wrong today</h2>
+    <div class="prose">
+      <p>Every row below was verified against the source rather than the design docs. Two of them are
+      not in any existing document.</p>
+    </div>
+
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Finding</th><th>Where</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag cor">C1</span></td>
+            <td><strong>Two children with the same name in one class destroys one of them.</strong>
+            Enrol falls through to a name lookup <em>even when a distinct external ID is supplied</em>,
+            then overwrites the first child’s ID and appends the second child’s vector to
+            the first child’s template. Duplicate first names in a Punjab classroom are the
+            common case, not the edge case.</td>
+            <td class="src">db.py:21<br>scoped_store.py:213</td>
+          </tr>
+          <tr>
+            <td><span class="tag cor">C2</span></td>
+            <td><strong>A student changing class has no migration path.</strong> Annual promotion
+            invalidates every gallery in the country once a year. The failure is silent, delayed by
+            twelve months, and presents as a model regression.</td>
+            <td class="src">db.py:14</td>
+          </tr>
+          <tr>
+            <td><span class="tag cor">C3</span></td>
+            <td><strong>One student can win several faces in one photo.</strong> The event log dedupes;
+            the response does not. The teacher sees the same child twice while the audit trail records
+            her once.</td>
+            <td class="src">main.py:874<br>scoped_store.py:263</td>
+          </tr>
+          <tr>
+            <td><span class="tag cor">C4</span></td>
+            <td><strong>Argmax against one threshold, runner-up discarded.</strong> Two siblings at
+            0.42 and 0.40 both clear the bar; one is picked silently.</td>
+            <td class="src">recognizer.py:133</td>
+          </tr>
+          <tr>
+            <td><span class="tag cor">C5</span></td>
+            <td><strong>Samples are averaged into one centroid</strong>, so more photos can mean worse
+            matching once they diversify.</td>
+            <td class="src">scoped_store.py:52</td>
+          </tr>
+          <tr>
+            <td><span class="tag cor">C6</span></td>
+            <td><strong>A bad sample is permanent and undiagnosable.</strong> No quality, no timestamp,
+            no source on the row, and no API to delete one — only the whole student.</td>
+            <td class="src">db.py:27</td>
+          </tr>
+          <tr>
+            <td><span class="tag sec">S1</span></td>
+            <td><strong>Auth is bypassed by one attacker-controlled header.</strong>
+            <code>Sec-Fetch-Site: same-origin</code> returns clean before the key is checked. That is
+            full access to every scope in the deployment — list, read, enrol, delete.</td>
+            <td class="src">main.py:238</td>
+          </tr>
+          <tr>
+            <td><span class="tag sec">S3</span></td>
+            <td><strong>Erasure is impossible.</strong> The audit table has no foreign key, so deleting
+            a student cascades the vectors and leaves rows carrying that child’s identifier
+            behind indefinitely.</td>
+            <td class="src">db.py:35</td>
+          </tr>
+          <tr>
+            <td><span class="tag sec">S4</span></td>
+            <td><strong>A global, unscoped, name-keyed gallery still ships</strong> alongside the
+            scoped one — and it is the easier of the two to integrate against.</td>
+            <td class="src">people_store.py</td>
+          </tr>
+          <tr>
+            <td><span class="tag">O1</span></td>
+            <td><strong>No <code>model_version</code> anywhere.</strong> A backbone upgrade does not
+            fail loudly; it matches new embeddings against old ones and returns confident garbage.</td>
+            <td class="src">db.py:27</td>
+          </tr>
+          <tr>
+            <td><span class="tag">O5</span></td>
+            <td><strong>The default threshold is a placeholder.</strong> <code>0.35</code> has never
+            been calibrated against Punjabi or Tanzanian classroom photos, and nothing in this
+            architecture will ever calibrate it for us.</td>
+            <td class="src">config.py:53</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <p>One correction to the earlier briefing note, for the record: the claim that there is no index
+      on the scope column was wrong — the composite index already covers that lookup. The real
+      cost on the hot path is an N+1 gallery load with a JSON decode per vector, which is a
+      join-and-BLOB problem rather than an index one.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="step">04</span> The scope key, and the annual cycle</h2>
+
+    <figure>
+      <div class="scroll">
+        <svg viewBox="0 0 900 330" role="img" aria-label="One text column named scope key holds a five-segment Pakistani path and a six-segment Tanzanian path at different depths with no schema change. Below, a promotion row shows class 5a becoming class 6a as a single bulk move operation.">
+          <text class="cap" x="24" y="34">ONE COLUMN, ANY COUNTRY SHAPE</text>
+
+          <rect class="b-soft" x="24" y="52" width="852" height="30" rx="2"></rect>
+          <text class="t-m" x="44" y="72">scope_key</text>
+          <text class="s-m" x="140" y="72">TEXT — one column on refs, opaque, never parsed</text>
+
+          <rect class="b" x="24" y="82" width="852" height="60" rx="2"></rect>
+          <text class="s-m" x="44" y="104">country / province / tehsil / school / section</text>
+          <text class="t-m" x="44" y="128">pk / punjab / rawalpindi / sch-10482 / sec-5a</text>
+
+          <rect class="b" x="24" y="142" width="852" height="60" rx="2"></rect>
+          <text class="s-m" x="44" y="164">country / region / district / ward / school / stream</text>
+          <text class="t-m" x="44" y="188">tz / dar-es-salaam / kinondoni / mikocheni / sch-7 / form-2b</text>
+
+          <text class="cap" x="24" y="240">THE PART NOBODY PRICED</text>
+
+          <rect class="b-gone" x="24" y="252" width="852" height="58" rx="2"></rect>
+          <text class="t-m" x="44" y="276">… / sch-10482 / sec-5a &nbsp;→&nbsp; … / sch-10482 / sec-6a</text>
+          <text class="s-flag" x="44" y="297">every child moves scope every July — one bulk move, or re-photograph a country</text>
+        </svg>
+      </div>
+      <figcaption>Adding a country costs no schema change, because the depth and vocabulary of the
+      path are the caller’s business. The bottom row is the discovery: promotion is annual and
+      certain, it was never modelled, and it would have surfaced as “the system stopped working
+      in September.”</figcaption>
+    </figure>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="step">05</span> The integration contract</h2>
+    <div class="prose">
+      <p>Four lines that live in the contract rather than the code, because nothing inside Whozit can
+      enforce them.</p>
+    </div>
+
+    <div class="qs">
+      <div class="q">
+        <p class="q-ask"><code>ref_id</code> must be a stable unique ID from your system, never a
+        display name.</p>
+        <p class="q-why">Renaming it orphans that person’s entire gallery. A collision silently
+        corrupts a template — and <strong>Whozit cannot detect it</strong>, because it never
+        looks inside the string.</p>
+      </div>
+      <div class="q">
+        <p class="q-ask">Call the bulk move at promotion.</p>
+        <p class="q-why">Skipping it silently re-enrols your whole population a year later.
+        <strong>It will look like a model regression</strong>, not a missing API call.</p>
+      </div>
+      <div class="q">
+        <p class="q-ask">We retain enrolment crops indefinitely by default.</p>
+        <p class="q-why">Your consent language must say so. <strong>The README and PRD are currently
+        false on this point</strong> and must be rewritten before anyone integrates, because the
+        operator’s consent wording is derived from them.</p>
+      </div>
+      <div class="q">
+        <p class="q-ask">The threshold is yours to calibrate, on your own population’s photos.</p>
+        <p class="q-why"><code>0.35</code> is a placeholder. <strong>Nothing downstream will ever
+        produce this number for you</strong> — ground truth stays on your side of the
+        boundary.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="step">06</span> Still open, and the order of work</h2>
+
+    <div class="ruled">
+      <div class="r">
+        <p class="r-head">Undecided</p>
+        <p class="r-body">The log TTL, as an actual number. D5 said “with a TTL”;
+        undecided means infinite in practice.</p>
+      </div>
+      <div class="r">
+        <p class="r-head">Undecided</p>
+        <p class="r-body">Who calibrates <code>0.35</code>, on whose photos, before which program
+        ships.</p>
+      </div>
+      <div class="r">
+        <p class="r-head">Undecided</p>
+        <p class="r-body">Whether a poor enrolment crop is rejected or merely recorded. D4 adds the
+        <code>quality</code> column but not the policy.</p>
+      </div>
+      <div class="r">
+        <p class="r-head">Owed</p>
+        <p class="r-body">README and PRD rewritten on photo storage, before any integration
+        starts.</p>
+      </div>
+    </div>
+
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Work</th><th>Closes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>P0</td>
+            <td>Delete the header bypass. Delete the global name-keyed gallery. Stamp
+            <code>model_version</code>.</td>
+            <td class="src">S1 S4 O1 D14</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td><code>ref_id</code> replaces name and the name-unique index is dropped. Crops stored.
+            Per-sample metadata and single-sample delete. Atomic delete cascade.</td>
+            <td class="src">C1 C6 S3 D2 D4 D7</td>
+          </tr>
+          <tr>
+            <td>P2</td>
+            <td>Max-over-samples matching. <code>margin</code> and candidates in the response. Greedy
+            one-to-one assignment.</td>
+            <td class="src">C3 C4 C5 D10 D11</td>
+          </tr>
+          <tr>
+            <td>P3</td>
+            <td>Move endpoints, single and bulk.</td>
+            <td class="src">C2 D12</td>
+          </tr>
+          <tr>
+            <td>P4</td>
+            <td>Per-deployment key and crypto-shredding. Litestream. LRU on the gallery cache, and a
+            join-and-BLOB gallery load.</td>
+            <td class="src">D8 D9</td>
+          </tr>
+          <tr>
+            <td>P5</td>
+            <td>Reference client rebuilt without persistence. Docs rewritten.</td>
+            <td class="src">D13</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>Ordered by whether each item is cheap now and expensive later, which is not the order of
+    severity. P0 is first because a header bypass in front of indefinitely-retained face images of
+    minors is the one finding with no acceptable waiting period.</p>
+    <p>The full proposal, with every file reference and the rejected alternatives in long form, lives
+    in the repository at <code>docs/proposal-by-shoaib.md</code>.</p>
+  </footer>
+
+</div>
+
+</body></html>

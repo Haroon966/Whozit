@@ -1,0 +1,30 @@
+services:
+  whozit:
+    build: .
+    ports:
+      - "8088:8088"
+    environment:
+      WHOZIT_API_KEY: ${WHOZIT_API_KEY:-change-me}
+      WHOZIT_CROP_KEY: ${WHOZIT_CROP_KEY:-change-me-crop-key}
+      WHOZIT_SQLITE_PATH: /data/whozit.db
+      WHOZIT_CACHE_DIR: /models
+      WHOZIT_REC_LOG_TTL_DAYS: "90"
+      WHOZIT_REQUIRE_CROP_KEY: "1"
+    volumes:
+      - whozit-data:/data
+      - whozit-models:/models
+    restart: unless-stopped
+
+  litestream:
+    image: litestream/litestream:0.3
+    depends_on:
+      - whozit
+    volumes:
+      - whozit-data:/data
+      - ./litestream.yml:/etc/litestream.yml:ro
+    command: replicate -config /etc/litestream.yml
+    restart: unless-stopped
+
+volumes:
+  whozit-data:
+  whozit-models:

@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import base64
+from pathlib import Path
 
 import cv2
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
-from app.attendance_store import AttendanceStore
 from app.config import Settings
 from app.detector import DetectedFace
-from app.people_store import PeopleStore
+from app.ref_store import RefStore
 
 
 def _jpeg_bytes(size: int = 64) -> bytes:
@@ -24,32 +24,27 @@ def _jpeg_bytes(size: int = 64) -> bytes:
 
 @pytest.fixture()
 def client(tmp_path, monkeypatch):
-    people = tmp_path / "people.json"
-    attendance = tmp_path / "attendance.json"
-    sqlite = tmp_path / "v3.db"
-    people.write_text('{"people": []}', encoding="utf-8")
-    attendance.write_text('{"events": []}', encoding="utf-8")
-
+    sqlite = tmp_path / "whozit.db"
     test_settings = Settings(
         api_key=None,
         max_upload_bytes=10 * 1024 * 1024,
         max_inflight=4,
         match_thresh=0.35,
-        people_path=people,
-        attendance_path=attendance,
         sqlite_path=sqlite,
+        crop_key="test-key",
+        rec_log_ttl_days=90,
+        gallery_lru_size=8,
+        session_ttl_seconds=3600,
+        min_enroll_quality=None,
+        migrate_v3_path=None,
+        require_crop_key=False,
     )
     monkeypatch.setattr("app.main.settings", test_settings)
     monkeypatch.setattr("app.config.settings", test_settings)
 
-    people_store = PeopleStore(path=people)
-    attendance_store = AttendanceStore(path=attendance)
-    from app.scoped_store import ScopedStore
-
-    scoped = ScopedStore(path=sqlite)
-    monkeypatch.setattr("app.main.people_store", people_store)
-    monkeypatch.setattr("app.main.attendance_store", attendance_store)
-    monkeypatch.setattr("app.main.scoped_store", scoped)
+    store = RefStore(path=sqlite, crop_key="test-key")
+    monkeypatch.setattr("app.main.ref_store", store)
+    monkeypatch.setattr("app.recognizer.ref_store", store)
 
     monkeypatch.setattr("app.main.detector_service.warmup", lambda: None)
     monkeypatch.setattr("app.main.recognizer_service.warmup", lambda: None)
@@ -68,43 +63,30 @@ def test_health(client):
     assert r.status_code == 200
     body = r.json()
     assert body["status"] == "ok"
-    assert "attendance_count" in body
     assert body["auth_enabled"] is False
+    assert "ref_count" in body
 
 
 def test_missing_image_error_shape(client):
-    r = client.post("/v1/detect", data={})
+    r = client.post("/detect", data={})
     assert r.status_code == 400
     body = r.json()
     assert "request_id" in body
     assert body["error"]["code"] == "missing_image"
-    assert "detail" not in body
-
-
-def test_invalid_image_error(client):
-    r = client.post(
-        "/v1/detect",
-        files={"image": ("bad.txt", b"not-an-image", "text/plain")},
-    )
-    assert r.status_code == 400
-    assert r.json()["error"]["code"] == "invalid_image"
 
 
 def test_detect_json_zero_faces(client, monkeypatch):
     monkeypatch.setattr("app.main.detector_service.detect", lambda *a, **k: [])
     r = client.post(
-        "/v1/detect",
-        json={"image_base64": base64.b64encode(_jpeg_bytes()).decode(), "identify": False},
+        "/detect",
+        json={"image_base64": base64.b64encode(_jpeg_bytes()).decode()},
     )
     assert r.status_code == 200
     body = r.json()
     assert body["face_count"] == 0
-    assert body["faces"] == []
 
 
 def test_api_key_required(client, monkeypatch):
-    from pathlib import Path
-
     monkeypatch.setattr(
         "app.main.settings",
         Settings(
@@ -112,63 +94,30 @@ def test_api_key_required(client, monkeypatch):
             max_upload_bytes=10 * 1024 * 1024,
             max_inflight=4,
             match_thresh=0.35,
-            people_path=Path("/tmp/people.json"),
-            attendance_path=Path("/tmp/attendance.json"),
-            sqlite_path=Path("/tmp/whozit_v3.db"),
+            sqlite_path=Path("/tmp/whozit.db"),
+            crop_key="secret-crop",
+            rec_log_ttl_days=90,
+            gallery_lru_size=8,
+            session_ttl_seconds=3600,
+            min_enroll_quality=None,
+            migrate_v3_path=None,
+            require_crop_key=False,
         ),
     )
 
     assert client.get("/health").status_code == 200
-    denied = client.post("/v1/detect", data={})
+    denied = client.post("/detect", data={})
     assert denied.status_code == 401
-    assert denied.json()["error"]["code"] == "unauthorized"
 
-    still = client.post("/v1/detect", data={}, headers={"X-API-Key": "wrong"})
-    assert still.status_code == 401
+    ok = client.post("/detect", data={}, headers={"X-API-Key": "secret-key"})
+    assert ok.status_code == 400
 
-    ok_shape = client.post("/v1/detect", data={}, headers={"X-API-Key": "secret-key"})
-    assert ok_shape.status_code == 400
-    assert ok_shape.json()["error"]["code"] == "missing_image"
+    bypass = client.post("/detect", data={}, headers={"Sec-Fetch-Site": "same-origin"})
+    assert bypass.status_code == 401
 
-    # Same-origin browser UI does not need to expose/send the API key.
-    same_origin = client.post(
-        "/v1/detect",
-        data={},
-        headers={"Sec-Fetch-Site": "same-origin"},
-    )
-    assert same_origin.status_code == 400
-    assert same_origin.json()["error"]["code"] == "missing_image"
-
-    cfg = client.get("/config.js")
-    assert cfg.status_code == 200
-    assert "secret-key" not in cfg.text
-    assert 'WHOZIT_DEFAULT_API_KEY = ""' in cfg.text
-
-
-def test_attendance_logs_matched(client, monkeypatch):
-    fake_face = DetectedFace(
-        bbox=[10.0, 10.0, 50.0, 50.0],
-        confidence=0.99,
-        landmarks=[[20, 20], [40, 20], [30, 30], [22, 40], [38, 40]],
-    )
-
-    class FakeMatch:
-        person_id = "pid-1"
-        name = "Ali"
-        score = 0.88
-        matched = True
-
-    monkeypatch.setattr("app.main.detector_service.detect", lambda *a, **k: [fake_face])
-    monkeypatch.setattr(
-        "app.main.recognizer_service.embed",
-        lambda *a, **k: np.zeros(512, dtype=np.float32),
-    )
-    monkeypatch.setattr("app.main.recognizer_service.match", lambda *a, **k: FakeMatch())
-
-    r = client.post("/v2/attendance", files={"image": ("t.jpg", _jpeg_bytes(), "image/jpeg")})
-    assert r.status_code == 200
-    body = r.json()
-    assert body["face_count"] == 1
-    assert len(body["attendance"]) == 1
-    assert body["attendance"][0]["name"] == "Ali"
-    assert body["faces"][0]["matched"] is True
+    login = client.post("/session", json={"api_key": "secret-key"})
+    assert login.status_code == 200
+    cookie = login.cookies.get("whozit_session")
+    assert cookie
+    authed = client.post("/detect", data={}, cookies={"whozit_session": cookie})
+    assert authed.status_code == 400

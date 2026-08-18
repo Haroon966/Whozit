@@ -1,0 +1,6 @@
+# Copy to litestream.yml and set your S3 (or file) replica URL.
+dbs:
+  - path: /data/whozit.db
+    replicas:
+      - url: ${LITESTREAM_REPLICA_URL:-file:///data/backups/whozit}
+        sync-interval: 1s

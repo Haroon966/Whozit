@@ -6,25 +6,26 @@
   <meta name="theme-color" content="#F8F9FF" />
   <title>Whozit — Select Class</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/static/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --primary: #002045;
-      --primary-container: #1a365d;
-      --secondary: #13696a;
-      --secondary-container: #a2eded;
-      --surface: #f8f9ff;
-      --surface-low: #eff4ff;
-      --surface-high: #dce9ff;
+      --primary: #0891B2;
+      --primary-container: #0E7490;
+      --secondary: #22D3EE;
+      --secondary-container: #CFFAFE;
+      --surface: #ECFEFF;
+      --surface-low: #E0F7FF;
+      --surface-high: #C6F4FF;
       --paper: #ffffff;
-      --ink: #0b1c30;
-      --muted: #43474e;
-      --outline: #c4c6cf;
+      --ink: #164E63;
+      --muted: #155E75;
+      --outline: #A5F3FC;
       --danger: #ba1a1a;
-      --font: "Inter", system-ui, sans-serif;
-      --display: "Hanken Grotesk", system-ui, sans-serif;
+      --font: "Fira Sans", system-ui, sans-serif;
+      --display: "Fira Sans", system-ui, sans-serif;
       --mono: "JetBrains Mono", monospace;
     }
     * { box-sizing: border-box; }
@@ -283,8 +284,9 @@
     <div id="classGroups"></div>
   </main>
 
+  <script src="/static/whozit-auth.js"></script>
   <script>
-    const SLUG_KEY = "whozit_class_slug";
+    const SLUG_KEY = "whozit_scope_key";
     const RECENT_KEY = "whozit_recent_slugs";
     let classes = [];
 
@@ -358,14 +360,17 @@
 
     async function loadClasses() {
       try {
-        const response = await fetch("/v3/classes");
+        await WhozitAuth.ensureSession();
+        const response = await fetch("/scopes", { credentials: "same-origin" });
         if (!response.ok) throw new Error("Could not load classes.");
         const slugs = await response.json();
         // Sequential on purpose: server max_inflight is 4; parallel roster loads return 503.
         classes = [];
         for (const slug of slugs) {
           try {
-            const roster = await fetch(`/v3/people?class_slug=${encodeURIComponent(slug)}`);
+            const roster = await fetch(`/refs?scope_key=${encodeURIComponent(slug)}`, {
+              credentials: "same-origin",
+            });
             classes.push({ slug, count: roster.ok ? (await roster.json()).length : 0 });
           } catch (_) {
             classes.push({ slug, count: 0 });

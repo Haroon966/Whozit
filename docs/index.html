@@ -107,7 +107,7 @@
 
           <div class="scanner" aria-label="Animated demo: face detection result">
             <div class="scanner-head">
-              <span>POST /v2/attendance</span>
+              <span>POST /recognize</span>
               <span class="status">● 200 OK</span>
             </div>
             <div class="scanner-stage">
@@ -174,44 +174,42 @@
 
       <section class="section" id="features" aria-labelledby="features-heading">
         <span class="section-label reveal">What it does</span>
-        <h2 id="features-heading" class="reveal">Detect, enroll, recognize, log</h2>
+        <h2 id="features-heading" class="reveal">Detect, enroll, recognize, register</h2>
         <p class="section-lead reveal reveal-delay-1">
           Own SCRFD + ArcFace under <code>whozit/</code> (adapted from UniFace, MIT).
-          FastAPI server plus a simple UI for local use.
+          FastAPI server plus teacher UI and dashboard.
         </p>
         <ul class="bento">
           <li class="panel wide reveal reveal-delay-1">
-            <span class="feature-tag">v1</span>
+            <span class="feature-tag">v4</span>
             <h3>Detect faces</h3>
             <p>
               Face count plus base64 head crops with configurable padding, confidence
               threshold, crop format, and landmarks. No faces still returns clean JSON.
             </p>
-            <span class="endpoint">POST /v1/detect</span>
+            <span class="endpoint">POST /detect</span>
           </li>
           <li class="panel reveal reveal-delay-2">
-            <span class="feature-tag">v1 / v2</span>
+            <span class="feature-tag">v4</span>
             <h3>Enroll people</h3>
-            <p>Store a name and face embedding. List or delete people anytime.</p>
-            <span class="endpoint">POST /v2/enroll</span>
+            <p>Store a display name and face in a scope. Identity is <code>ref_id</code> — duplicate names are allowed.</p>
+            <span class="endpoint">POST /enroll</span>
           </li>
           <li class="panel reveal reveal-delay-1">
-            <span class="feature-tag">v2</span>
+            <span class="feature-tag">v4</span>
             <h3>Recognize names</h3>
             <p>
-              ArcFace match against enrolled faces. Matched names or
-              <code>unknown</code>, with scores.
+              ArcFace match in one scope. Returns name, <code>ref_id</code>, score, margin, and candidates.
             </p>
-            <span class="endpoint">POST /v2/recognize</span>
+            <span class="endpoint">POST /recognize</span>
           </li>
           <li class="panel wide reveal reveal-delay-2">
-            <span class="feature-tag">v2</span>
-            <h3>Log attendance</h3>
+            <span class="feature-tag">v4</span>
+            <h3>Daily register</h3>
             <p>
-              Recognize and append matched people to attendance events — one event per
-              person per request — then query the log with a simple GET.
+              Teacher confirms present students after a class photo. Upsert the day’s present list, then read present/absent for the dashboard.
             </p>
-            <span class="endpoint">POST /v2/attendance</span>
+            <span class="endpoint">POST /attendance/day</span>
           </li>
         </ul>
       </section>
@@ -234,12 +232,12 @@
           </div>
           <div class="flow-step reveal reveal-delay-3">
             <h3>Get JSON</h3>
-            <p>Face count, crops, names, match scores, and attendance events when you ask.</p>
+            <p>Face count, crops, names, match scores, and the daily register when you ask.</p>
           </div>
         </div>
         <p class="privacy-note reveal">
           <strong>Privacy:</strong> uploaded images are not persisted by default. Disk
-          stores face embeddings and attendance events only — not raw photos. Prefer an
+          stores encrypted enrolment crops and face embeddings — not the original classroom photo. Prefer an
           API key on any network-exposed deploy.
         </p>
       </section>

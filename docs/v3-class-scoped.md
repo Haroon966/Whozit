@@ -1,6 +1,8 @@
 # Whozit v3 — Class-scoped recognition (SQLite)
 
-This document explains **why v3 exists**, **how data moves**, **how SQLite tables connect**, and **which APIs to call**.
+> **Superseded by v4.** See [architecture.html](architecture.html), [proposal-by-shoaib.md](proposal-by-shoaib.md), and [README.md](../README.md). This file is kept for history.
+
+This document explains **why v3 existed**, **how data moved**, and **which APIs were called**.
 
 v1/v2 stay unchanged: they use a **global** JSON gallery (`data/people.json`).  
 v3 uses **SQLite** (`data/whozit_v3.db`) and matches faces **only inside one class** identified by `class_slug`.

@@ -4,7 +4,9 @@
 **Date:** 2026-08-16
 **Status:** Proposal — for review before implementation
 **Supersedes:** the identity/attendance halves of [`docs/v3-class-scoped.md`](v3-class-scoped.md)
-**Briefing deck:** [The Slug Is the Contract](https://claude.ai/code/artifact/f6b63c7c-b09b-40fb-bf32-96eea4516207) — same decisions, read-in-ten-minutes form
+**Briefing deck:** [The Slug Is the Contract](architecture.html) — same decisions, read-in-ten-minutes form.
+
+**Product override (18 August 2026):** Whozit is a standalone attendance app. Names live on `refs` as non-unique labels. The daily register is served. Identity remains `(scope_key, ref_id)`.
 
 > Whozit is a recognition component, not an attendance product. It holds the math — face
 > vectors keyed by an opaque scope string — and the consuming product holds the meaning:

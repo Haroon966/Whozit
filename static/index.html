@@ -8,9 +8,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Whozit</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/static/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #F0FDFA;
@@ -29,8 +30,8 @@
       --ok: #047857;
       --danger: #B91C1C;
       --unknown: #64748B;
-      --font: "Plus Jakarta Sans", system-ui, sans-serif;
-      --display: "Plus Jakarta Sans", system-ui, sans-serif;
+      --font: "Fira Sans", system-ui, sans-serif;
+      --display: "Fira Sans", system-ui, sans-serif;
       --ease: 180ms ease-out;
       --radius: 12px;
       --nav-h: 4.25rem;
@@ -95,6 +96,7 @@
     }
 
     .site-nav { display: none; }
+    .app-nav-links { display: none; }
 
     .main {
       flex: 1;
@@ -826,6 +828,24 @@
     }
     .face .name.unknown { color: var(--unknown); font-weight: 600; }
 
+    .scope-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-left: auto;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .scope-bar input {
+      width: 6.5rem;
+      padding: 0.35rem 0.5rem;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+      color: var(--ink);
+      background: var(--paper);
+    }
     label.field {
       display: grid;
       gap: 0.3rem;
@@ -961,6 +981,27 @@
         border: 1px solid var(--line);
         border-radius: 12px;
       }
+      .app-nav-links {
+        display: inline-flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        margin-left: auto;
+        margin-right: 0.5rem;
+      }
+      .app-nav-links a {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        border: 2px solid transparent;
+      }
+      .app-nav-links a:first-child {
+        color: var(--accent);
+        border-color: var(--line-strong);
+        background: #CCFBF1;
+      }
       .site-nav .tab {
         border: 0;
         background: transparent;
@@ -1013,6 +1054,31 @@
       .side { min-height: 12rem; }
       .sample { width: 5.25rem; height: 5.25rem; border-radius: 12px; }
       .upload-title { max-width: 20ch; }
+    }
+
+    @media (max-width: 767px) {
+      .topbar {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+      .scope-bar {
+        margin-left: 0;
+        justify-self: end;
+      }
+      .scope-bar span { display: none; }
+      .scope-bar input {
+        width: 3.35rem;
+        text-align: center;
+        font-weight: 700;
+      }
+      .screen-label {
+        justify-self: center;
+        font-size: 0.68rem;
+      }
+      .brand { font-size: 1.55rem; }
     }
 
     /* Curl: hidden on mobile app, shown on desktop website */
@@ -1131,10 +1197,14 @@
         </svg>
         Whozit
       </h1>
-      <nav class="app-nav-links" aria-label="Apps" style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-left:auto;margin-right:0.5rem">
-        <a href="/teacher" style="font-weight:600;font-size:0.85rem;color:#0D9488;text-decoration:none;padding:0.4rem 0.65rem;border-radius:8px;border:2px solid #5EEAD4;background:#CCFBF1">Teacher</a>
-        <a href="/dashboard" style="font-weight:600;font-size:0.85rem;color:#3F6863;text-decoration:none;padding:0.4rem 0.65rem;border-radius:8px;border:2px solid transparent">Dashboard</a>
+      <nav class="app-nav-links" aria-label="Apps">
+        <a href="/teacher">Teacher</a>
+        <a href="/dashboard">Dashboard</a>
       </nav>
+      <label class="scope-bar" for="scopeKey">
+        <span>Scope</span>
+        <input id="scopeKey" type="text" autocomplete="off" spellcheck="false" placeholder="class scope" aria-label="Class scope key" />
+      </label>
       <span class="screen-label" id="screenLabel">Detect</span>
       <nav class="site-nav" role="tablist" aria-label="Main">
         <button class="tab" role="tab" data-view="view-detect" aria-controls="view-detect" aria-selected="true" type="button">
@@ -1249,7 +1319,7 @@
                 <div class="attendance-log" id="attendanceLog" hidden>
                   <h3>Marked present</h3>
                   <div id="attendanceMarked"></div>
-                  <h3 style="margin-top:0.75rem;">Recent events</h3>
+                  <h3 style="margin-top:0.75rem;">Today's register</h3>
                   <div id="attendanceRecent"></div>
                 </div>
               </div>
@@ -1266,9 +1336,8 @@
                 <span class="api-label">Detect + identify</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v1/detect" \
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/detect" \
   -F "image=@photo.jpg" \
-  -F "identify=true" \
   -F "square=true" | jq .</code></pre>
             </div>
             <div class="api-block">
@@ -1277,27 +1346,29 @@
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
               <pre><code class="curl-snip">B64=$(base64 -w0 photo.jpg)
-curl -s -X POST "__BASE__/v1/detect" \
+curl -s -X POST "__BASE__/detect" \
   -H "Content-Type: application/json" \
-  -d "{\"image_base64\":\"$B64\",\"identify\":true}" | jq '{face_count, faces: [.faces[] | {id, name, matched}]}'</code></pre>
+  -d "{\"image_base64\":\"$B64\",\"square\":true}" | jq '{face_count, faces: [.faces[] | {id, confidence}]}'</code></pre>
             </div>
             <div class="api-block">
               <div class="api-head">
-                <span class="api-label">Recognize (v2)</span>
+                <span class="api-label">Recognize</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v2/recognize" \
-  -F "image=@photo.jpg" | jq '{face_count, faces: [.faces[] | {id, name, matched, match_score}]}'</code></pre>
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/recognize" \
+  -F "scope_key=pk/lahore-east/school-abc/class-5a" \
+  -F "image=@photo.jpg" | jq '{face_count, unknown_count, faces: [.faces[] | {id, name, matched, score}]}'</code></pre>
             </div>
             <div class="api-block">
               <div class="api-head">
-                <span class="api-label">Attendance (v2)</span>
+                <span class="api-label">Daily register</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v2/attendance" \
-  -F "image=@photo.jpg" | jq '{face_count, attendance, faces: [.faces[] | {id, name, matched}]}'
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/attendance/day" \
+  -H "Content-Type: application/json" \
+  -d '{"scope_key":"pk/lahore-east/school-abc/class-5a","date":"2026-08-18","present_ref_ids":["REF_ID"]}' | jq .
 
-curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
+curl -s "__BASE__/attendance/day/status?scope_key=pk/lahore-east/school-abc/class-5a&date=2026-08-18" | jq .</code></pre>
             </div>
           </div>
         </details>
@@ -1360,19 +1431,11 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
           <div class="api-grid">
             <div class="api-block">
               <div class="api-head">
-                <span class="api-label">Enroll (v1)</span>
+                <span class="api-label">Enroll</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v1/enroll" \
-  -F "name=Ali" \
-  -F "image=@ali_face.jpg" | jq .</code></pre>
-            </div>
-            <div class="api-block">
-              <div class="api-head">
-                <span class="api-label">Enroll (v2)</span>
-                <button class="copy-btn" type="button" data-copy>Copy</button>
-              </div>
-              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v2/enroll" \
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/enroll" \
+  -F "scope_key=pk/lahore-east/school-abc/class-5a" \
   -F "name=Ali" \
   -F "image=@ali_face.jpg" | jq .</code></pre>
             </div>
@@ -1381,8 +1444,9 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
                 <span class="api-label">With API key</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code class="curl-snip">curl -s -X POST "__BASE__/v1/enroll" \
+              <pre><code class="curl-snip">curl -s -X POST "__BASE__/enroll" \
   -H "X-API-Key: your-secret" \
+  -F "scope_key=pk/lahore-east/school-abc/class-5a" \
   -F "name=Ali" \
   -F "image=@ali_face.jpg" | jq .</code></pre>
             </div>
@@ -1420,16 +1484,14 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
                 <span class="api-label">List people</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code class="curl-snip">curl -s "__BASE__/v1/people" | jq .
-# or: curl -s "__BASE__/v2/people" | jq .</code></pre>
+              <pre><code class="curl-snip">curl -s "__BASE__/refs?scope_key=pk/lahore-east/school-abc/class-5a" | jq .</code></pre>
             </div>
             <div class="api-block">
               <div class="api-head">
                 <span class="api-label">Delete person</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code class="curl-snip">curl -s -X DELETE "__BASE__/v1/people/PERSON_ID" | jq .
-# or: curl -s -X DELETE "__BASE__/v2/people/PERSON_ID" | jq .</code></pre>
+              <pre><code class="curl-snip">curl -s -X DELETE "__BASE__/refs/REF_ID?scope_key=pk/lahore-east/school-abc/class-5a" | jq .</code></pre>
             </div>
             <div class="api-block">
               <div class="api-head">
@@ -1499,6 +1561,7 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     </div>
   </div>
 
+  <script src="/static/whozit-auth.js"></script>
   <script>
     // Chrome treats 0.0.0.0 as insecure; localhost is a secure context over http.
     (function redirectLoopbackHost() {
@@ -1526,10 +1589,83 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     }
 
     async function apiFetch(url, options = {}) {
+      if (window.WhozitAuth?.apiFetch) return WhozitAuth.apiFetch(url, options);
       const res = await fetch(url, options);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(apiErrorMessage(data, res.statusText));
       return data;
+    }
+
+    const SCOPE_STORAGE_KEY = "whozit_scope_key";
+    const SCOPE_RE = /^[a-z0-9]+(?:[/_-][a-z0-9]+)*$/;
+    const scopeInput = document.getElementById("scopeKey");
+
+    function parseScopeList(scopes) {
+      if (!Array.isArray(scopes)) return [];
+      return scopes
+        .map((s) => {
+          if (typeof s === "string") return s.trim();
+          if (s && typeof s.scope_key === "string") return s.scope_key.trim();
+          return "";
+        })
+        .filter((s) => SCOPE_RE.test(s));
+    }
+
+    function isValidScope(slug) {
+      return typeof slug === "string" && SCOPE_RE.test(slug);
+    }
+
+    function getScopeKey() {
+      const raw = (scopeInput?.value || localStorage.getItem(SCOPE_STORAGE_KEY) || "").trim().toLowerCase();
+      return isValidScope(raw) ? raw : "";
+    }
+
+    function saveScopeKey() {
+      const slug = getScopeKey();
+      if (scopeInput) scopeInput.value = slug;
+      if (slug) localStorage.setItem(SCOPE_STORAGE_KEY, slug);
+      else localStorage.removeItem(SCOPE_STORAGE_KEY);
+      return slug;
+    }
+
+    function applyScope(slug) {
+      const next = isValidScope(slug) ? slug : "";
+      if (scopeInput) scopeInput.value = next;
+      if (next) localStorage.setItem(SCOPE_STORAGE_KEY, next);
+      else localStorage.removeItem(SCOPE_STORAGE_KEY);
+      return next;
+    }
+
+    async function hydrateScopeKey() {
+      try {
+        const known = parseScopeList(await apiFetch("/scopes"));
+        const typed = (scopeInput?.value || "").trim().toLowerCase();
+        const stored = (localStorage.getItem(SCOPE_STORAGE_KEY) || "").trim().toLowerCase();
+        let next = "";
+        if (isValidScope(typed) && (!known.length || known.includes(typed))) next = typed;
+        else if (isValidScope(stored) && (!known.length || known.includes(stored))) next = stored;
+        else if (known.length) next = known[0];
+        applyScope(next);
+      } catch (_) {
+        const stored = (localStorage.getItem(SCOPE_STORAGE_KEY) || "").trim().toLowerCase();
+        applyScope(isValidScope(stored) ? stored : "");
+      }
+    }
+
+    const scopeReady = hydrateScopeKey();
+
+    if (scopeInput) {
+      const stored = (localStorage.getItem(SCOPE_STORAGE_KEY) || "").trim().toLowerCase();
+      scopeInput.value = isValidScope(stored) ? stored : "";
+      scopeInput.addEventListener("change", async () => {
+        await scopeReady;
+        saveScopeKey();
+        if (detectMode === "attendance") loadAttendanceRecent();
+        if (!peopleList.hidden) loadPeople();
+      });
+      scopeInput.addEventListener("blur", () => {
+        saveScopeKey();
+      });
     }
 
     document.querySelectorAll("[data-copy]").forEach((btn) => {
@@ -1563,7 +1699,9 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
         btn.setAttribute("aria-selected", on ? "true" : "false");
       });
       screenLabel.textContent = labels[targetView] || "";
-      if (targetView === "view-people") loadPeople();
+      if (targetView === "view-people") {
+        scopeReady.then(() => loadPeople());
+      }
       document.querySelector(".main").scrollTop = 0;
     }
 
@@ -1939,9 +2077,9 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     let detecting = false;
     let detectMode = "detect";
     const modeEndpoints = {
-      detect: "/v1/detect",
-      recognize: "/v2/recognize",
-      attendance: "/v2/attendance",
+      detect: "/detect",
+      recognize: "/recognize",
+      attendance: "/recognize",
     };
     const modeTitles = {
       detect: "Upload an image to see who’s here",
@@ -2016,16 +2154,16 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       const show = detectMode === "attendance";
       attendanceLog.hidden = !show;
       if (!show) return;
-      const marked = data.attendance || [];
+      const marked = (data.faces || []).filter((f) => f.matched && f.name);
       if (attendanceMarked) {
         if (!marked.length) {
-          attendanceMarked.innerHTML = `<p class="state-text">No enrolled matches to mark.</p>`;
+          attendanceMarked.innerHTML = `<p class="state-text">No enrolled matches in this photo.</p>`;
         } else {
           attendanceMarked.innerHTML = marked
             .map(
               (e) =>
                 `<div class="att-row"><strong>${escapeHtml(e.name || "unknown")}</strong><span>${escapeHtml(
-                  e.match_score != null ? String(e.match_score) : ""
+                  e.score != null ? String(e.score) : ""
                 )}</span></div>`
             )
             .join("");
@@ -2036,27 +2174,40 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
 
     async function loadAttendanceRecent() {
       if (!attendanceRecent) return;
+      await scopeReady;
+      const slug = saveScopeKey();
+      if (!slug) {
+        attendanceRecent.innerHTML = `<p class="state-text">Set a class scope first.</p>`;
+        return;
+      }
       try {
-        const events = await apiFetch("/v2/attendance?limit=10");
-        if (!events.length) {
-          attendanceRecent.innerHTML = `<p class="state-text">No events yet.</p>`;
+        const date = new Date().toISOString().slice(0, 10);
+        const status = await apiFetch(`/attendance/day/status?scope_key=${encodeURIComponent(slug)}&date=${date}`);
+        const present = status.present || [];
+        if (!present.length) {
+          attendanceRecent.innerHTML = `<p class="state-text">${status.has_roll ? "Nobody marked present today." : "No roll saved for today."}</p>`;
           return;
         }
-        attendanceRecent.innerHTML = events
-          .map((e) => {
-            const when = (e.timestamp || "").replace("T", " ").slice(0, 19);
-            return `<div class="att-row"><strong>${escapeHtml(e.name || "unknown")}</strong><span>${escapeHtml(
-              when
-            )}</span></div>`;
-          })
+        attendanceRecent.innerHTML = present
+          .map(
+            (e) =>
+              `<div class="att-row"><strong>${escapeHtml(e.name || "unknown")}</strong><span>${escapeHtml(
+                e.ref_id || ""
+              )}</span></div>`
+          )
           .join("");
       } catch (err) {
-        attendanceRecent.innerHTML = `<p class="state-text">${escapeHtml(err.message || "Could not load events.")}</p>`;
+        attendanceRecent.innerHTML = `<p class="state-text">${escapeHtml(err.message || "Could not load register.")}</p>`;
       }
     }
 
     async function detectFaces() {
       if (!selectedFile || detecting) return;
+      await scopeReady;
+      if (detectMode !== "detect" && !saveScopeKey()) {
+        setDetectState("error", "Set a class scope first.");
+        return;
+      }
       setBusy(true);
       setDetectState("loading");
       facesEl.innerHTML = "";
@@ -2069,20 +2220,25 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       form.append("crop_format", "jpeg");
       form.append("max_faces", "50");
       form.append("square", "true");
-      if (detectMode === "detect") {
-        form.append("identify", "true");
+      const slug = saveScopeKey();
+      const identify = detectMode !== "detect" || Boolean(slug);
+      const endpoint = identify ? "/recognize" : "/detect";
+      if (identify) {
+        form.append("scope_key", slug);
         form.append("match_thresh", "0.35");
       }
 
       try {
-        const data = await apiFetch(modeEndpoints[detectMode], { method: "POST", body: form });
+        const data = await apiFetch(endpoint, { method: "POST", body: form });
         if (!showProcessed(data)) return;
         const named = (data.faces || []).filter((f) => f.matched && f.name).length;
-        const markedN = (data.attendance || []).length;
+        const markedN = detectMode === "attendance"
+          ? (data.faces || []).filter((f) => f.matched && f.ref_id).length
+          : 0;
         let title =
           data.face_count === 1
-            ? `1 person${named ? ` · ${named} named` : ""}`
-            : `${data.face_count} people${named ? ` · ${named} named` : ""}`;
+            ? `1 face${named ? ` · ${named} named` : ""}`
+            : `${data.face_count} faces${named ? ` · ${named} named` : ""}`;
         if (detectMode === "attendance") {
           title += markedN ? ` · ${markedN} marked` : " · none marked";
         }
@@ -2239,14 +2395,22 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     enrollForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!enrollSelected || !enrollName.value.trim() || enrolling) return;
+      await scopeReady;
+      const slug = saveScopeKey();
+      if (!slug) {
+        setEnrollBanner("error", "Set a class scope first.");
+        return;
+      }
       setEnrollBusy(true);
       setEnrollBanner("loading");
       const form = new FormData();
       form.append("name", enrollName.value.trim());
+      form.append("scope_key", slug);
       form.append("image", enrollSelected);
       try {
-        const data = await apiFetch("/v1/enroll", { method: "POST", body: form });
-        setEnrollBanner("ok", `Saved ${data.person.name}`);
+        const data = await apiFetch("/enroll", { method: "POST", body: form });
+        const ref = data.ref || {};
+        setEnrollBanner("ok", `Saved ${ref.name || enrollName.value.trim()}`);
         enrollSelected = null;
         enrollFile.value = "";
         enrollName.value = "";
@@ -2281,8 +2445,14 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
     async function loadPeople() {
       setPeopleState("loading");
       peopleList.innerHTML = "";
+      await scopeReady;
+      const slug = saveScopeKey();
+      if (!slug) {
+        setPeopleState("empty");
+        return;
+      }
       try {
-        const data = await apiFetch("/v1/people");
+        const data = await apiFetch(`/refs?scope_key=${encodeURIComponent(slug)}`);
         if (!data.length) {
           setPeopleState("empty");
           return;
@@ -2294,9 +2464,9 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
           row.innerHTML = `
             <div>
               <strong>${escapeHtml(p.name)}</strong>
-              <span>${p.sample_count} sample${p.sample_count === 1 ? "" : "s"}</span>
+              <span>${p.sample_count} sample${p.sample_count === 1 ? "" : "s"} · ${escapeHtml(p.ref_id)}</span>
             </div>
-            <button class="btn-danger" type="button" data-id="${p.id}">Remove</button>
+            <button class="btn-danger" type="button" data-id="${escapeHtml(p.ref_id)}">Remove</button>
           `;
           peopleList.appendChild(row);
         });
@@ -2309,10 +2479,13 @@ curl -s "__BASE__/v2/attendance?limit=20" | jq .</code></pre>
       }
     }
 
-    async function deletePerson(id) {
-      if (!id || !confirm("Remove this person?")) return;
+    async function deletePerson(refId) {
+      if (!refId || !confirm("Remove this person?")) return;
+      await scopeReady;
+      const slug = saveScopeKey();
+      if (!slug) return;
       try {
-        await apiFetch(`/v1/people/${id}`, { method: "DELETE" });
+        await apiFetch(`/refs/${encodeURIComponent(refId)}?scope_key=${encodeURIComponent(slug)}`, { method: "DELETE" });
         await loadPeople();
       } catch (err) {
         setPeopleState("error", err.message || String(err));

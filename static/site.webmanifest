@@ -1,0 +1,18 @@
+{
+  "name": "Whozit Attendance",
+  "short_name": "Whozit",
+  "description": "Face-based classroom attendance for teachers.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ECFEFF",
+  "theme_color": "#0891B2",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

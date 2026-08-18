@@ -14,9 +14,8 @@ COPY whozit/ whozit/
 COPY static/ static/
 
 ENV WHOZIT_CACHE_DIR=/models
-ENV WHOZIT_PEOPLE_PATH=/data/people.json
-ENV WHOZIT_ATTENDANCE_PATH=/data/attendance.json
-ENV WHOZIT_SQLITE_PATH=/data/whozit_v3.db
+ENV WHOZIT_SQLITE_PATH=/data/whozit.db
+ENV WHOZIT_CROP_KEY=
 ENV PYTHONUNBUFFERED=1
 
 RUN mkdir -p /data /models
@@ -25,6 +24,7 @@ EXPOSE 8088
 
 # Models download on first warmup at startup; mount volume to persist:
 #   -v whozit-models:/models -v whozit-data:/data
+# Optional: Litestream replicate /data/whozit.db — see docs/litestream.md
 VOLUME ["/data", "/models"]
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8088"]

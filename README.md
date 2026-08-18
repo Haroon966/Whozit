@@ -1,44 +1,74 @@
 # Whozit
 
-HTTP API + simple UI: detect faces, return **head count** + **base64 crops**, **enroll** people, **recognize** names (ArcFace), and **log attendance**.
+Standalone face attendance: enroll students by **name**, scan a class photo, save the daily register — no external app required.
 
-Own SCRFD + ArcFace under `whozit/` (adapted from [UniFace](https://github.com/yakhyo/uniface), MIT). Product requirements: [`PRD.md`](PRD.md).
+HTTP API + teacher UI + dashboard. Own SCRFD + ArcFace under `whozit/` (adapted from [UniFace](https://github.com/yakhyo/uniface), MIT).
 
-**Website:** [https://haroon966.github.io/Whozit/](https://haroon966.github.io/Whozit/) (GitHub Pages from `/docs`). Enable once in repo **Settings → Pages → Branch `main` → folder `/docs`**.
+**Architecture:** [docs/architecture.html](docs/architecture.html) · full proposal: [docs/proposal-by-shoaib.md](docs/proposal-by-shoaib.md)
 
-| Version | Endpoints | Output |
-| --- | --- | --- |
-| v1 | `/v1/detect`, `/v1/enroll`, `/v1/people` | Count + crops (+ optional identify) |
-| v2 | `/v2/enroll`, `/v2/people`, `/v2/recognize`, `/v2/attendance` | Identity + attendance events |
-| v3 | `/v3/enroll`, `/v3/people`, `/v3/recognize`, `/v3/attendance`, `/v3/attendance/day` | Class-scoped (`class_slug`) SQLite gallery + daily roll |
+**Website:** [https://haroon966.github.io/Whozit/](https://haroon966.github.io/Whozit/) (GitHub Pages from `/docs`).
 
-Full v3 design (tables, data flow, ER): [`docs/v3-class-scoped.md`](docs/v3-class-scoped.md).
+| Surface | Purpose |
+| --- | --- |
+| `POST /detect` | Stateless face count + crops |
+| `POST /enroll` | `(scope_key or country+province+emis+grade, name, image)` → stable `student_id` |
+| `GET /students/{id}` | Other apps: name, school, class, face sample count |
+| `GET /org/countries` | Org tree for pickers |
+| `POST /recognize` | Match faces in one scope; returns `name`, `score`, `margin`, candidates |
+| `GET /refs` | Roster for a scope |
+| `POST/GET /attendance/day` | Daily present list |
+| `POST /admin/reembed` | Re-embed all stored crops after model bump |
+| `POST /admin/wipe` | Wipe all program data (confirm body) |
+| `GET /internal/rec_log` | Support/debug recognition log |
+| `PATCH /refs/{ref_id}` | Rename without new photo |
 
-**Teacher UI:** http://localhost:8088/teacher — class enroll → scan → unknowns → save day.  
-**Dashboard:** http://localhost:8088/dashboard — present/absent + hit logs.
+Migrate v3 DB:
+
+```bash
+python -m app.migrate_v3 --source data/whozit_v3.db --dest data/whozit.db
+# or set WHOZIT_MIGRATE_V3_PATH on first startup
+```
+
+Map existing `roll-*` refs into org rows + stable IDs (`pk+province+emis+seq`):
+
+```bash
+python -m app.migrate_org --db data/whozit.db
+```
+
+Docker + Litestream:
+
+```bash
+docker compose up --build
+```
+
+**Teacher UI:** http://localhost:8088/teacher  
+**Dashboard:** http://localhost:8088/dashboard
+
+---
+
+## Identity contract
+
+- **`scope_key`** — opaque class path, e.g. `pk/punjab/rawalpindi/sch-10482/sec-5a`
+- **`ref_id`** — unique identity key (caller-supplied or minted UUID). **Names are not unique** — two "Ayesha"s are two `ref_id`s.
+- **Enrolment crops** retained indefinitely by default (encrypted at rest with `WHOZIT_CROP_KEY`). See consent wording in your deployment policy.
+- **Threshold** `WHOZIT_MATCH_THRESH` defaults to `0.35` — a placeholder; calibrate on your classroom photos.
 
 ---
 
 ## Setup
 
 ```bash
-cd Whozit   # or your clone path
+cd Whozit
 
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 # optional: cp .env.example .env
-# GPU (NVIDIA): pip uninstall -y onnxruntime && pip install onnxruntime-gpu
 ```
 
-First run downloads SCRFD + ArcFace weights into `~/.whozit/models` (reuses `~/.faceattendance/models` or `~/.uniface/models` if present). Override with `WHOZIT_CACHE_DIR`.
+First run downloads SCRFD + ArcFace weights into `~/.whozit/models`. Runtime data (**not** in git):
 
-Runtime / local data (**not** in git):
-
-- `data/people.json` — embeddings (v1/v2)
-- `data/attendance.json` — attendance events (v2)
-- `data/whozit_v3.db` — class-scoped students + attendance (v3)
-- `slack_export/` — optional local Slack photo import (faces + emails); keep private
+- `data/whozit.db` — refs, samples, daily register, internal rec_log
 
 ---
 
@@ -50,10 +80,12 @@ uvicorn app.main:app --host 0.0.0.0 --port 8088
 ```
 
 - UI: http://localhost:8088/
-- Teacher: http://localhost:8088/teacher
-- Dashboard: http://localhost:8088/dashboard
 - OpenAPI: http://localhost:8088/docs
 - Health: http://localhost:8088/health
+
+### Auth
+
+Set `WHOZIT_API_KEY`. Browser UI calls `POST /session` with the key once to get an httpOnly cookie — the key never ships in page JS.
 
 ### Docker (CPU)
 
@@ -62,211 +94,62 @@ docker build -t whozit .
 docker run --rm -p 8088:8088 \
   -v whozit-data:/data \
   -v whozit-models:/models \
-  -e WHOZIT_PEOPLE_PATH=/data/people.json \
-  -e WHOZIT_ATTENDANCE_PATH=/data/attendance.json \
-  -e WHOZIT_SQLITE_PATH=/data/whozit_v3.db \
+  -e WHOZIT_SQLITE_PATH=/data/whozit.db \
+  -e WHOZIT_CROP_KEY=change-me-in-production \
   -e WHOZIT_CACHE_DIR=/models \
   whozit
 ```
 
-First start downloads models into the `/models` volume (slow once). For GPU, use a CUDA base image and install `onnxruntime-gpu` instead of `onnxruntime` in the image.
+Optional SQLite replication: [docs/litestream.md](docs/litestream.md)
 
 ### Tests
 
 ```bash
-pip install pytest httpx
+pip install pytest httpx cryptography
 python -m pytest tests/ -q
 ```
 
-### Load smoke (sequential)
+---
+
+## Example
 
 ```bash
-for i in $(seq 1 10); do
-  curl -s -o /dev/null -w "%{http_code} %{time_total}\n" \
-    -F "image=@photo.jpg" "http://localhost:8088/v1/detect"
-done
+# Enrol (ref_id optional — minted if omitted)
+curl -s -X POST http://localhost:8088/enroll \
+  -F scope_key=pk/demo/class-5a \
+  -F name="Ali Khan" \
+  -F image=@face.jpg | jq .
+
+# Recognize
+curl -s -X POST http://localhost:8088/recognize \
+  -F scope_key=pk/demo/class-5a \
+  -F image=@classroom.jpg | jq '.faces[] | {name, ref_id, score, margin, matched}'
+
+# Save daily roll
+curl -s -X POST http://localhost:8088/attendance/day \
+  -H 'Content-Type: application/json' \
+  -d '{"scope_key":"pk/demo/class-5a","date":"2026-08-18","present_ref_ids":["<ref_id>"]}' | jq .
 ```
 
 ---
 
-## Environment
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `WHOZIT_API_KEY` | (unset) | If set, require `X-API-Key` on `/v1/*`, `/v2/*`, and `/v3/*` (not `/health` or UI). **Same-origin browser UI** skips the key when the browser sends `Sec-Fetch-Site: same-origin` (so the key stays out of page JS). That header is **not** a hard security boundary — any non-browser client can send it. For a hard gate, terminate TLS at a reverse proxy and only allow trusted callers, or drop the bypass and use a short-lived UI session token. |
-| `WHOZIT_MAX_UPLOAD_BYTES` | `10485760` (10 MB) | Max upload size |
-| `WHOZIT_MAX_INFLIGHT` | `4` | Concurrent `/v1`/`/v2`/`/v3` requests; else `503 overloaded` |
-| `WHOZIT_MATCH_THRESH` | `0.35` | Default ArcFace cosine threshold |
-| `WHOZIT_PEOPLE_PATH` | `data/people.json` | People store path (v1/v2) |
-| `WHOZIT_ATTENDANCE_PATH` | `data/attendance.json` | Attendance store path (v2) |
-| `WHOZIT_SQLITE_PATH` | `data/whozit_v3.db` | SQLite path (v3 class-scoped) |
-| `WHOZIT_CACHE_DIR` | `~/.whozit/models` | ONNX model cache |
-
----
-
-## Curl examples
-
-### Detect (multipart)
-
-```bash
-curl -s -X POST "http://localhost:8088/v1/detect" \
-  -F "image=@/path/to/photo.jpg" \
-  -F "conf_thresh=0.5" \
-  -F "padding=0.2" \
-  -F "crop_format=jpeg" | jq .
-```
-
-### Detect (JSON base64 on same path)
-
-```bash
-B64=$(base64 -w0 photo.jpg)
-curl -s -X POST "http://localhost:8088/v1/detect" \
-  -H "Content-Type: application/json" \
-  -d "{\"image_base64\":\"$B64\",\"identify\":true}" | jq '{face_count, faces: [.faces[] | {id, name, matched}]}'
-```
-
-(`/v1/detect/json` remains as an alias.)
-
-### Enroll / people (v1 or v2)
-
-```bash
-curl -s -X POST "http://localhost:8088/v2/enroll" \
-  -F "name=Ali" \
-  -F "image=@ali_face.jpg" | jq .
-
-curl -s http://localhost:8088/v2/people | jq .
-curl -s -X DELETE "http://localhost:8088/v2/people/<person_id>" | jq .
-```
-
-### Recognize (always identify)
-
-```bash
-curl -s -X POST "http://localhost:8088/v2/recognize" \
-  -F "image=@photo.jpg" | jq '{face_count, faces: [.faces[] | {id, name, matched, match_score}]}'
-```
-
-### Attendance (recognize + log)
-
-```bash
-curl -s -X POST "http://localhost:8088/v2/attendance" \
-  -F "image=@classroom.jpg" | jq '{face_count, attendance, faces: [.faces[] | {id, name, matched}]}'
-
-curl -s "http://localhost:8088/v2/attendance?limit=20" | jq .
-```
-
-### API key (when configured)
-
-```bash
-export WHOZIT_API_KEY=my-secret
-# restart server, then:
-curl -s -X POST "http://localhost:8088/v1/detect" \
-  -H "X-API-Key: my-secret" \
-  -F "image=@photo.jpg" | jq .
-```
-
-### Health
-
-```bash
-curl -s http://localhost:8088/health | jq .
-```
-
----
-
-## API summary
-
-### `POST /v1/detect`
-
-Multipart **or** JSON (`image_base64`). Fields: `conf_thresh`, `padding`, `crop_format`, `jpeg_quality`, `max_faces`, `include_landmarks`, `square`, `identify`, `match_thresh`.
-
-### `POST /v2/recognize`
-
-Same inputs; always runs identity match (`name` / `unknown`).
-
-### `POST /v2/attendance`
-
-Same as recognize, plus appends matched people to `data/attendance.json` (one event per `person_id` per request). Response includes `attendance: [...]`.
-
-### v3 class-scoped (SQLite)
-
-Match only within `class_slug` (e.g. `pk/lahore-east/school-abc/class-5a`). v1/v2 global JSON gallery unchanged.
-
-```bash
-# Enroll into a class
-curl -s -X POST "http://localhost:8088/v3/enroll" \
-  -F "name=Haroon" \
-  -F "class_slug=pk/lahore-east/school-abc/class-5a" \
-  -F "student_id=roll-12" \
-  -F "image=@haroon.jpg"
-
-# Recognize (auto face-event attendance for matched; unknowns include crops)
-curl -s -X POST "http://localhost:8088/v3/recognize" \
-  -F "class_slug=pk/lahore-east/school-abc/class-5a" \
-  -F "image=@classroom.jpg"
-
-# Unknown face → re-send crop + name to enroll; discard = do nothing
-
-# Official daily roll (present only)
-curl -s -X POST "http://localhost:8088/v3/attendance/day" \
-  -H "Content-Type: application/json" \
-  -d '{"class_slug":"pk/lahore-east/school-abc/class-5a","date":"2026-08-13","present_student_ids":["uuid-1","uuid-2"]}'
-
-curl -s "http://localhost:8088/v3/attendance/day?class_slug=pk/lahore-east/school-abc/class-5a&date=2026-08-13"
-curl -s "http://localhost:8088/v3/people?class_slug=pk/lahore-east/school-abc/class-5a"
-```
-
-### Errors (PRD shape)
-
-```json
-{
-  "request_id": "...",
-  "error": { "code": "invalid_image", "message": "..." }
-}
-```
-
-Codes include: `missing_image`, `invalid_image`, `payload_too_large`, `validation_error`, `unauthorized`, `overloaded`, `processing_error`.
-
----
-
-## Privacy
-
-- Uploaded images are **not** persisted by default (processed in memory).
-- Stored on disk: **face embeddings** (`people.json` / `whozit_v3.db`) and **attendance** (`attendance.json` / SQLite) — not raw photos.
-- Retention is operator-controlled: delete or rotate those files as needed.
-- Prefer enabling `WHOZIT_API_KEY` on any network-exposed deploy.
-- When the API key is set, the browser UI on the **same origin** can call the API without embedding the key (via `Sec-Fetch-Site: same-origin`). Treat this as a UX convenience, not as strong auth against scripted clients.
-- Do **not** commit `data/`, `slack_export/`, `.env`, or model caches — they may hold biometrics / emails.
-
----
-
-## Project layout
+## Layout
 
 ```
 Whozit/
-├── PRD.md
-├── README.md
-├── Dockerfile
-├── requirements.txt
 ├── app/
-│   ├── main.py
-│   ├── config.py
-│   ├── detector.py
-│   ├── recognizer.py
-│   ├── people_store.py
-│   ├── attendance_store.py
-│   ├── db.py
-│   ├── scoped_store.py
-│   └── image_utils.py
-├── whozit/
-├── tests/
-├── data/                # runtime JSON + SQLite (gitignored)
-└── static/
+│   ├── main.py          # FastAPI routes
+│   ├── org_store.py     # Country / school / class / stable student_id
+│   ├── ref_store.py     # SQLite refs / samples / register
+│   ├── recognizer.py    # Match + greedy assignment
+│   ├── crop_crypto.py   # Encrypted enrolment crops
+│   └── db.py            # Schema
+├── whozit/              # SCRFD + ArcFace library
+├── static/              # Teacher + dashboard UI
+├── docs/
+│   ├── architecture.html
+│   └── litestream.md
+└── tests/
 ```
 
----
-
-## Notes
-
-- Max upload size: **10 MB** (configurable).
-- Images are **auto-rotated from EXIF Orientation** before detection.
-- No faces → HTTP 200 with `face_count: 0` and `faces: []`.
-- Overload → HTTP 503 `overloaded`.
+Product requirements: [`PRD.md`](PRD.md)

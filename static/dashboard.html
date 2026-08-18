@@ -6,9 +6,10 @@
   <meta name="theme-color" content="#F8F9FF" />
   <title>Whozit — Dashboard</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/static/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/whozit-shell.css" />
   <style>
     .controls {
@@ -87,20 +88,20 @@
     .banner { margin-bottom: 1rem; }
 
     :root {
-      --primary: #002045;
-      --primary-hover: #1a365d;
-      --secondary: #13696a;
-      --bg: #f8f9ff;
-      --bg-2: #eff4ff;
+      --primary: #0891B2;
+      --primary-hover: #0E7490;
+      --secondary: #22D3EE;
+      --bg: #ECFEFF;
+      --bg-2: #CFFAFE;
       --paper: #ffffff;
-      --ink: #0b1c30;
-      --muted: #43474e;
-      --line: #d3e4fe;
-      --line-strong: #adc7f7;
-      --font: "Inter", system-ui, sans-serif;
-      --display: "Hanken Grotesk", system-ui, sans-serif;
-      --radius: 16px;
-      --shadow: 0 4px 16px rgba(26, 54, 93, 0.05);
+      --ink: #164E63;
+      --muted: #155E75;
+      --line: #A5F3FC;
+      --line-strong: #67E8F9;
+      --font: "Fira Sans", system-ui, sans-serif;
+      --display: "Fira Sans", system-ui, sans-serif;
+      --radius: 14px;
+      --shadow: 0 8px 24px rgba(8, 145, 178, 0.08);
     }
     body { padding-bottom: 6rem; }
     .shell { display: block; }
@@ -507,8 +508,9 @@
     </a>
   </nav>
 
+  <script src="/static/whozit-auth.js"></script>
   <script>
-    const SLUG_KEY = "whozit_class_slug";
+    const SLUG_KEY = "whozit_scope_key";
     const $ = (id) => document.getElementById(id);
     let selectedPeriod = "week";
 
@@ -524,10 +526,7 @@
     }
 
     async function api(path) {
-      const res = await fetch(path);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error?.message || res.statusText);
-      return data;
+      return WhozitAuth.apiFetch(path);
     }
 
     function currentSlug() {
@@ -576,7 +575,7 @@
           continue;
         }
         const status = await api(
-          `/v3/attendance/day/status?class_slug=${encodeURIComponent(slug)}&date=${encodeURIComponent(date)}`
+          `/attendance/day/status?scope_key=${encodeURIComponent(slug)}&date=${encodeURIComponent(date)}`
         );
         points.push({ date, attendance_pct: status.attendance_pct });
       }
@@ -585,7 +584,7 @@
 
     async function loadClasses() {
       try {
-        const classes = await api("/v3/classes");
+        const classes = await api("/scopes");
         const sel = $("classSelect");
         const saved = localStorage.getItem(SLUG_KEY) || "";
         sel.innerHTML = `<option value="">Select class…</option>` +
@@ -616,14 +615,14 @@
       $("banner").hidden = true;
       if (!slug) {
         $("error").hidden = false;
-        $("error").textContent = "Pick or type a class_slug";
+        $("error").textContent = "Pick or type a scope_key";
         return;
       }
       localStorage.setItem(SLUG_KEY, slug);
 
       try {
         const status = await api(
-          `/v3/attendance/day/status?class_slug=${encodeURIComponent(slug)}&date=${encodeURIComponent(date)}`
+          `/attendance/day/status?scope_key=${encodeURIComponent(slug)}&date=${encodeURIComponent(date)}`
         );
         $("stats").hidden = false;
         $("statPresent").textContent = status.present_count;
@@ -652,16 +651,9 @@
         fillPeople("presentList", "presentEmpty", status.present);
         fillPeople("absentList", "absentEmpty", status.absent);
 
-        const logs = await api(`/v3/attendance?class_slug=${encodeURIComponent(slug)}&limit=50`);
-        const logList = $("logList");
-        $("logEmpty").hidden = logs.length > 0;
-        logList.innerHTML = logs.map((e) => `
-          <li>
-            <strong>${escapeHtml(e.name)}</strong>
-            <span class="chip">score ${e.match_score}</span>
-            <time datetime="${escapeHtml(e.timestamp)}">${escapeHtml(e.timestamp)}</time>
-            <span class="chip">req ${escapeHtml((e.source_request_id || "").slice(0, 8))}…</span>
-          </li>`).join("");
+        $("logEmpty").hidden = false;
+        $("logList").innerHTML = "";
+        $("logEmpty").textContent = "Recognition audit log is internal-only in v4.";
         await loadTrend(slug, date, status);
       } catch (e) {
         $("error").hidden = false;

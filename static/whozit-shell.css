@@ -1,34 +1,34 @@
 /* Whozit design system — ui-ux-pro-max
-   Style: Flat Design
-   Colors: Online Course / E-learning (teal + orange CTA) — not indigo/purple
-   Type: Plus Jakarta Sans (Friendly SaaS)
+   Style: Accessible & Ethical
+   Colors: Fresh cyan + clean green
+   Type: Fira Sans
 */
 :root {
-  --primary: #0D9488;
-  --primary-hover: #0F766E;
-  --secondary: #2DD4BF;
-  --cta: #F97316;
-  --cta-hover: #EA580C;
+  --primary: #0891B2;
+  --primary-hover: #0E7490;
+  --secondary: #22D3EE;
+  --cta: #22C55E;
+  --cta-hover: #16A34A;
   --cta-ink: #FFFFFF;
-  --bg: #F0FDFA;
-  --bg-2: #CCFBF1;
+  --bg: #ECFEFF;
+  --bg-2: #CFFAFE;
   --paper: #FFFFFF;
-  --ink: #134E4A;
-  --muted: #3F6863;
-  --line: #99F6E4;
-  --line-strong: #5EEAD4;
+  --ink: #164E63;
+  --muted: #155E75;
+  --line: #A5F3FC;
+  --line-strong: #67E8F9;
   --accent: var(--primary);
   --ok: #047857;
   --ok-bg: #D1FAE5;
   --danger: #B91C1C;
   --danger-bg: #FEE2E2;
   --unknown: #64748B;
-  --font: "Plus Jakarta Sans", system-ui, sans-serif;
-  --display: "Plus Jakarta Sans", system-ui, sans-serif;
-  --ease: 180ms ease-out;
-  --radius: 12px;
-  --top-h: 3.5rem;
-  --shadow: none;
+  --font: "Fira Sans", system-ui, sans-serif;
+  --display: "Fira Sans", system-ui, sans-serif;
+  --ease: 200ms ease-out;
+  --radius: 14px;
+  --top-h: 4rem;
+  --shadow: 0 8px 24px rgba(8, 145, 178, 0.08);
 }
 
 * { box-sizing: border-box; }
@@ -57,16 +57,17 @@ body {
   justify-content: space-between;
   gap: 0.75rem;
   background: var(--paper);
-  border-bottom: 2px solid var(--line);
+  border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
   z-index: 20;
+  box-shadow: var(--shadow);
 }
 
 .brand {
   margin: 0;
   font-family: var(--display);
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--primary);
@@ -98,7 +99,7 @@ body {
   font-size: 0.85rem;
   padding: 0.45rem 0.75rem;
   border-radius: 8px;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: color var(--ease), background var(--ease), border-color var(--ease);
 }
@@ -112,13 +113,13 @@ body {
 }
 .app-nav a[aria-current="page"] {
   color: var(--primary);
-  background: #CCFBF1;
-  border-color: var(--line-strong);
+  background: var(--bg-2);
+  border-color: var(--line);
 }
 
 .main {
   flex: 1;
-  width: min(960px, 100%);
+  width: min(1120px, 100%);
   margin: 0 auto;
   padding: 1.25rem 1rem 2.5rem;
 }
@@ -143,9 +144,9 @@ body {
 
 .card {
   background: var(--paper);
-  border: 2px solid var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 1rem 1.1rem;
+  padding: 1rem 1.15rem;
   margin-bottom: 1rem;
   box-shadow: var(--shadow);
 }
@@ -166,7 +167,7 @@ select,
 textarea {
   font: inherit;
   padding: 0.7rem 0.8rem;
-  border: 2px solid var(--line);
+  border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--paper);
   color: var(--ink);
@@ -178,13 +179,13 @@ input:hover, select:hover, textarea:hover {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.22);
 }
 
 .btn {
   font: inherit;
   font-weight: 700;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   border-radius: 10px;
   padding: 0.65rem 1.15rem;
   cursor: pointer;
@@ -203,7 +204,7 @@ input:focus, select:focus, textarea:focus {
 .btn-secondary {
   background: var(--paper);
   color: var(--ink);
-  border-color: var(--line-strong);
+  border-color: var(--line);
 }
 .btn-secondary:hover:not(:disabled) { background: var(--bg); }
 .btn-accent {
